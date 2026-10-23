@@ -1,0 +1,269 @@
+.yamaha-section06 {
+  --yamaha06-blue: #0069b4;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(68px, 8vw, 108px) clamp(24px, 5vw, 80px) clamp(72px, 8vw, 112px);
+  background:
+    radial-gradient(ellipse at 50% 5%, #2787c7 0%, transparent 46%),
+    linear-gradient(135deg, #0069b4 0%, #00599c 54%, #003b73 100%);
+  color: #fff;
+}
+
+.yamaha06-shell {
+  width: min(100%, 1360px);
+  margin: 0 auto;
+}
+
+.yamaha06-heading {
+  margin: 0 auto clamp(36px, 4.4vw, 60px);
+  text-align: center;
+}
+
+.yamaha06-eyebrow {
+  margin: 0 0 12px;
+  color: #d7ecfa;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+
+.yamaha06-heading h2 {
+  margin: 0;
+  color: #fff;
+  font: 500 clamp(42px, 5vw, 64px)/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.015em;
+}
+
+.yamaha06-subtitle {
+  margin: 15px 0 0;
+  color: #e1eef7;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.yamaha06-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 1.8vw, 24px);
+}
+
+.yamaha06-card {
+  display: flex;
+  min-width: 0;
+  min-height: 418px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #ffffffa8;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 12px 34px #00345e30;
+  color: #17191d;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.yamaha06-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 42px #00294a45;
+}
+
+.yamaha06-image-space {
+  display: grid;
+  flex: 0 0 58%;
+  min-height: 238px;
+  padding: 14px;
+  place-items: center;
+  background: #f4f6f7;
+}
+
+.yamaha06-image-space img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.yamaha06-card-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 21px 20px 19px;
+}
+
+.yamaha06-card-category {
+  margin: 0 0 9px;
+  color: var(--yamaha06-blue);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+}
+
+.yamaha06-card h3 {
+  margin: 0;
+  color: #17191d;
+  font: 500 clamp(25px, 2vw, 30px)/1.1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.yamaha06-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 17px;
+  color: #454d55;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.yamaha06-action {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--yamaha06-blue);
+  color: #fff;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.yamaha06-action svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+  transition: transform 180ms ease;
+}
+
+.yamaha06-action:hover {
+  transform: scale(1.06);
+  background: #003b73;
+}
+
+.yamaha06-action:hover svg {
+  transform: translateX(2px);
+}
+
+.yamaha06-action:focus-visible {
+  outline: 2px solid #17191d;
+  outline-offset: 3px;
+}
+
+.yamaha06-specification {
+  margin: 10px 0 0;
+  color: #727980;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1000px) {
+  .yamaha06-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .yamaha06-card {
+    min-height: 390px;
+  }
+
+  .yamaha06-image-space {
+    min-height: 220px;
+  }
+
+  .yamaha06-card h3 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 560px) {
+  .yamaha-section06 {
+    padding: 58px 18px 68px;
+  }
+
+  .yamaha06-heading {
+    margin-bottom: 30px;
+  }
+
+  .yamaha06-heading h2 {
+    font-size: 46px;
+  }
+
+  .yamaha06-subtitle {
+    max-width: 270px;
+    margin-right: auto;
+    margin-left: auto;
+    font-size: 11px;
+  }
+
+  .yamaha06-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .yamaha06-card {
+    min-height: 330px;
+    border-radius: 17px;
+  }
+
+  .yamaha06-image-space {
+    flex-basis: 55%;
+    min-height: 170px;
+  }
+
+  .yamaha06-card-info {
+    padding: 16px 13px 14px;
+  }
+
+  .yamaha06-card-category {
+    min-height: 20px;
+    margin-bottom: 7px;
+    font-size: 7px;
+    letter-spacing: 0.14em;
+  }
+
+  .yamaha06-card h3 {
+    font-size: clamp(22px, 6vw, 28px);
+  }
+
+  .yamaha06-card-bottom {
+    padding-top: 12px;
+    font-size: 9px;
+  }
+
+  .yamaha06-action {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .yamaha06-specification {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 360px) {
+  .yamaha06-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .yamaha06-card {
+    min-height: 390px;
+  }
+
+  .yamaha06-image-space {
+    min-height: 230px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yamaha06-card,
+  .yamaha06-action,
+  .yamaha06-action svg {
+    transition: none;
+  }
+}

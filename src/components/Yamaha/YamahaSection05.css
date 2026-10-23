@@ -1,0 +1,461 @@
+.yamaha-section05 {
+  --yamaha05-blue: #0069b4;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(64px, 8vw, 112px) clamp(24px, 6vw, 96px) 0;
+  background: #fafaf8;
+  color: #17191d;
+}
+
+.yamaha05-shell {
+  width: min(100%, 1360px);
+  margin: 0 auto;
+}
+
+.yamaha05-heading {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.yamaha05-kicker {
+  margin: 0 0 12px;
+  color: #656b73;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.yamaha05-heading h2 {
+  margin: 0;
+  font: 500 clamp(38px, 4.2vw, 58px)/1.05 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.015em;
+}
+
+.yamaha05-category-viewport {
+  max-width: 100%;
+  margin: 36px auto 52px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.yamaha05-category-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.yamaha05-categories {
+  display: flex;
+  width: max-content;
+  min-width: min(100%, 600px);
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(32px, 6vw, 82px);
+  margin: 0 auto;
+  padding: 2px 16px 8px;
+}
+
+.yamaha05-category {
+  display: flex;
+  min-width: 54px;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 0 2px 8px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #656b73;
+  transition: color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.yamaha05-category svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 180ms ease;
+}
+
+.yamaha05-category span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.055em;
+}
+
+.yamaha05-category:hover,
+.yamaha05-category:focus-visible,
+.yamaha05-category.is-active {
+  border-bottom-color: var(--yamaha05-blue);
+  color: var(--yamaha05-blue);
+}
+
+.yamaha05-category:hover svg {
+  transform: translateY(-2px);
+}
+
+.yamaha05-category:focus-visible,
+.yamaha05-cta:focus-visible {
+  outline: 2px solid var(--yamaha05-blue);
+  outline-offset: 4px;
+}
+
+.yamaha05-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: clamp(16px, 2.2vw, 30px);
+  padding-bottom: clamp(52px, 7vw, 88px);
+}
+
+.yamaha05-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: clamp(330px, 31vw, 410px);
+  align-items: center;
+  overflow: hidden;
+  padding: clamp(28px, 4vw, 56px);
+  border-radius: 23px;
+  isolation: isolate;
+  background: #101820;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.yamaha05-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 56px rgba(7, 18, 29, 0.2);
+}
+
+.yamaha05-card::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(5, 10, 16, 0.94) 0%, rgba(5, 10, 16, 0.82) 39%, rgba(5, 10, 16, 0.2) 100%);
+  content: '';
+  pointer-events: none;
+}
+
+.yamaha05-card--ownership::before {
+  background: linear-gradient(90deg, rgba(2, 15, 34, 0.93) 0%, rgba(2, 18, 42, 0.78) 42%, rgba(4, 31, 65, 0.22) 100%);
+}
+
+.yamaha05-card-scene {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms ease;
+}
+
+.yamaha05-card:hover .yamaha05-card-scene {
+  transform: scale(1.035);
+}
+
+.yamaha05-card-motorcycle {
+  position: absolute;
+  z-index: 0;
+  right: -5%;
+  bottom: -13%;
+  width: 66%;
+  height: 112%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.38));
+  pointer-events: none;
+}
+
+.yamaha05-card-motorcycle--adventure {
+  right: -2%;
+  bottom: -6%;
+  width: 76%;
+  height: 108%;
+}
+
+.yamaha05-card-content {
+  position: relative;
+  z-index: 1;
+  width: 56%;
+  max-width: 440px;
+}
+
+.yamaha05-card--ownership .yamaha05-card-content {
+  width: 58%;
+}
+
+.yamaha05-card-brand {
+  display: block;
+  margin-bottom: 25px;
+  color: #fff;
+  font: 700 14px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.2em;
+}
+
+.yamaha05-card-eyebrow {
+  margin: 0 0 13px;
+  color: #a7d2f4;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.yamaha05-card h3 {
+  margin: 0;
+  color: #fff;
+  font: 500 clamp(34px, 3.5vw, 49px)/1.02 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.005em;
+}
+
+.yamaha05-card-description {
+  max-width: 370px;
+  margin: 18px 0 24px;
+  color: #d0d7dd;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.yamaha05-cta {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 17px;
+  padding: 0 18px;
+  border: 1px solid #ffffff24;
+  border-radius: 999px;
+  background: #f8fafb;
+  color: #17191d;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.yamaha05-cta span {
+  color: var(--yamaha05-blue);
+  font-size: 14px;
+  transition: transform 180ms ease;
+}
+
+.yamaha05-cta:hover {
+  transform: translateY(-2px);
+  background: var(--yamaha05-blue);
+  color: #fff;
+}
+
+.yamaha05-cta:hover span {
+  color: #fff;
+  transform: translate(2px, -2px);
+}
+
+.yamaha05-ticker {
+  position: relative;
+  width: calc(100% + clamp(48px, 12vw, 192px));
+  margin-left: calc(-1 * clamp(24px, 6vw, 96px));
+  overflow: hidden;
+  background: #101318;
+}
+
+.yamaha05-ticker-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 26px;
+  padding: 15px 0;
+  animation: yamaha05-marquee 34s linear infinite;
+  white-space: nowrap;
+}
+
+.yamaha05-ticker-item {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 26px;
+  color: #f4f5f6;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.19em;
+}
+
+.yamaha05-ticker-item i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--yamaha05-blue);
+}
+
+@keyframes yamaha05-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 980px) {
+  .yamaha-section05 {
+    padding-right: 5vw;
+    padding-left: 5vw;
+  }
+
+  .yamaha05-cards {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+
+  .yamaha05-card {
+    min-height: 350px;
+    padding: 32px;
+  }
+
+  .yamaha05-card-content,
+  .yamaha05-card--ownership .yamaha05-card-content {
+    width: 60%;
+  }
+
+  .yamaha05-card h3 {
+    font-size: clamp(31px, 4vw, 42px);
+  }
+
+  .yamaha05-card-eyebrow {
+    margin-bottom: 14px;
+  }
+
+  .yamaha05-card-description {
+    margin: 14px 0 18px;
+    font-size: 10px;
+    line-height: 1.65;
+  }
+}
+
+@media (max-width: 900px) {
+  .yamaha05-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .yamaha-section05 {
+    padding-top: 62px;
+  }
+
+  .yamaha05-category-viewport {
+    width: calc(100% + 10vw);
+    margin: 30px -5vw 38px;
+  }
+
+  .yamaha05-categories {
+    min-width: 0;
+    justify-content: flex-start;
+    gap: 34px;
+    margin: 0;
+    padding: 2px 24px 8px;
+  }
+
+  .yamaha05-cards {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding-bottom: 52px;
+  }
+
+  .yamaha05-card {
+    min-height: 330px;
+    padding: clamp(28px, 7vw, 42px);
+  }
+
+  .yamaha05-card-content,
+  .yamaha05-card--ownership .yamaha05-card-content {
+    width: min(62%, 370px);
+  }
+
+  .yamaha05-card h3 {
+    font-size: clamp(36px, 8vw, 48px);
+  }
+
+  .yamaha05-card-motorcycle {
+    right: -8%;
+    width: 68%;
+  }
+
+  .yamaha05-card-motorcycle--adventure {
+    right: -8%;
+    width: 82%;
+  }
+
+  .yamaha05-ticker {
+    width: calc(100% + 10vw);
+    margin-left: -5vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .yamaha-section05 {
+    padding: 52px 18px 0;
+  }
+
+  .yamaha05-heading h2 {
+    font-size: 42px;
+  }
+
+  .yamaha05-category-viewport {
+    width: calc(100% + 36px);
+    margin: 28px -18px 34px;
+  }
+
+  .yamaha05-categories {
+    gap: 26px;
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .yamaha05-card {
+    min-height: 350px;
+    padding: 26px 22px;
+    border-radius: 24px;
+  }
+
+  .yamaha05-card-content,
+  .yamaha05-card--ownership .yamaha05-card-content {
+    width: 67%;
+  }
+
+  .yamaha05-card h3 {
+    font-size: 37px;
+  }
+
+  .yamaha05-card-description {
+    font-size: 10px;
+    line-height: 1.7;
+  }
+
+  .yamaha05-card-brand {
+    margin-bottom: 22px;
+  }
+
+  .yamaha05-card-motorcycle {
+    right: -15%;
+    bottom: -7%;
+    width: 76%;
+    height: 88%;
+  }
+
+  .yamaha05-card-motorcycle--adventure {
+    right: -17%;
+    bottom: -2%;
+    width: 88%;
+    height: 90%;
+  }
+
+  .yamaha05-ticker {
+    width: calc(100% + 36px);
+    margin-left: -18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yamaha05-ticker-track {
+    animation: none;
+  }
+
+  .yamaha05-category,
+  .yamaha05-category svg,
+  .yamaha05-cta,
+  .yamaha05-cta span,
+  .yamaha05-card,
+  .yamaha05-card-scene {
+    transition: none;
+  }
+}

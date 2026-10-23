@@ -1,0 +1,413 @@
+.yamaha-journey {
+  --yamaha-journey-blue: #0069b4;
+  position: relative;
+  overflow: hidden;
+  background: #f7f7f3;
+  color: #17191d;
+}
+
+.yamaha-journey__main {
+  position: relative;
+  z-index: 1;
+  padding: clamp(72px, 7vw, 112px) clamp(24px, 6vw, 96px) clamp(150px, 15vw, 220px);
+}
+
+.yamaha-journey__shell {
+  display: grid;
+  width: min(100%, 1440px);
+  min-height: clamp(550px, 48vw, 720px);
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  align-items: center;
+  gap: clamp(26px, 4vw, 66px);
+  margin: 0 auto;
+}
+
+.yamaha-journey__visual {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  height: min(49vw, 660px);
+  max-height: 72vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.yamaha-journey__bike-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yamaha-journey__bike {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 24px 20px rgba(17, 27, 38, 0.14));
+}
+
+.yamaha-journey__detail-panel {
+  position: absolute;
+  right: 1%;
+  bottom: 2%;
+  display: grid;
+  width: min(48%, 390px);
+  aspect-ratio: 1.2;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 22px 54px rgba(17, 27, 38, 0.15);
+  transform: rotate(-5deg);
+}
+
+.yamaha-journey__detail-panel img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.yamaha-journey__image-model {
+  position: absolute;
+  bottom: 7%;
+  left: 2%;
+  color: #6c747c;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.yamaha-journey__content {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  padding: 18px 0;
+}
+
+.yamaha-journey__eyebrow {
+  margin: 0 0 24px;
+  color: var(--yamaha-journey-blue);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+}
+
+.yamaha-journey__content h2 {
+  margin: 0;
+  color: #15181d;
+  font: 600 clamp(42px, 5.2vw, 76px)/0.99 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.012em;
+}
+
+.yamaha-journey__divider {
+  display: flex;
+  align-items: center;
+  height: 1px;
+  margin: clamp(24px, 3vw, 38px) 0;
+  background: #d9dce0;
+}
+
+.yamaha-journey__divider span {
+  display: block;
+  width: 66px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--yamaha-journey-blue);
+}
+
+.yamaha-journey__features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.yamaha-journey__feature {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 14px;
+}
+
+.yamaha-journey__feature-icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 105, 180, 0.09);
+  color: var(--yamaha-journey-blue);
+}
+
+.yamaha-journey__feature-icon svg {
+  width: 27px;
+  height: 27px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.yamaha-journey__feature-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.yamaha-journey__feature-copy strong {
+  color: #17191d;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.yamaha-journey__feature-copy small {
+  color: #7a8087;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.yamaha-journey__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: clamp(32px, 4vw, 54px);
+}
+
+.yamaha-journey__stats div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  padding: 0 clamp(10px, 1.5vw, 22px);
+  border-left: 1px solid #d9dce0;
+}
+
+.yamaha-journey__stats div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.yamaha-journey__stats strong {
+  color: #17191d;
+  font: 600 clamp(32px, 3.4vw, 48px)/1 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+
+.yamaha-journey__star {
+  margin-left: 2px;
+  color: var(--yamaha-journey-blue);
+}
+
+.yamaha-journey__stats div > span {
+  color: #6c737b;
+  font-size: 8px;
+  letter-spacing: 0.075em;
+  white-space: nowrap;
+}
+
+.yamaha-journey__blue-angle {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 61px;
+  left: 0;
+  height: clamp(82px, 9vw, 130px);
+  background: linear-gradient(110deg, #0878c4, #00599a 68%, #003b73);
+  clip-path: polygon(0 69%, 100% 0, 100% 47%, 0 100%);
+  pointer-events: none;
+}
+
+.yamaha-journey__ticker {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  height: clamp(94px, 10vw, 132px);
+  align-items: center;
+  overflow: hidden;
+  padding-top: 22px;
+  background: #090b0e;
+  clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 100%);
+}
+
+.yamaha-journey__ticker-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: clamp(22px, 3vw, 46px);
+  padding-left: 7vw;
+  animation: yamaha-journey-marquee 34s linear infinite;
+  white-space: nowrap;
+}
+
+.yamaha-journey__ticker-item {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: clamp(22px, 3vw, 46px);
+  color: #f4f5f6;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.yamaha-journey__ticker-item i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--yamaha-journey-blue);
+  box-shadow: 0 0 12px rgba(0, 105, 180, 0.38);
+}
+
+@keyframes yamaha-journey-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 900px) {
+  .yamaha-journey__main {
+    padding: 64px 5vw 164px;
+  }
+
+  .yamaha-journey__shell {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 3vw;
+  }
+
+  .yamaha-journey__visual {
+    height: 54vw;
+    max-height: 560px;
+  }
+
+  .yamaha-journey__content h2 {
+    font-size: clamp(40px, 6.3vw, 58px);
+  }
+
+  .yamaha-journey__features {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .yamaha-journey__stats {
+    margin-top: 30px;
+  }
+}
+
+@media (max-width: 620px) {
+  .yamaha-journey__main {
+    padding: 48px 22px 154px;
+  }
+
+  .yamaha-journey__shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .yamaha-journey__visual {
+    order: 1;
+    height: min(84vw, 390px);
+    max-height: none;
+    margin: 0 -8px;
+  }
+
+  .yamaha-journey__content {
+    order: 0;
+    padding: 0;
+  }
+
+  .yamaha-journey__eyebrow {
+    margin-bottom: 16px;
+    font-size: 9px;
+  }
+
+  .yamaha-journey__content h2 {
+    font-size: clamp(44px, 12vw, 58px);
+  }
+
+  .yamaha-journey__divider {
+    margin: 22px 0;
+  }
+
+  .yamaha-journey__features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .yamaha-journey__feature {
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .yamaha-journey__feature-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .yamaha-journey__feature-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .yamaha-journey__feature-copy strong {
+    font-size: 10px;
+  }
+
+  .yamaha-journey__feature-copy small {
+    font-size: 9px;
+  }
+
+  .yamaha-journey__stats {
+    margin-top: 28px;
+  }
+
+  .yamaha-journey__stats div {
+    padding: 0 8px;
+  }
+
+  .yamaha-journey__stats strong {
+    font-size: clamp(29px, 9vw, 39px);
+  }
+
+  .yamaha-journey__stats div > span {
+    font-size: 7px;
+    white-space: normal;
+  }
+
+  .yamaha-journey__detail-panel {
+    right: 0;
+    bottom: 4%;
+    width: 46%;
+    border-radius: 18px;
+  }
+
+  .yamaha-journey__blue-angle {
+    bottom: 56px;
+    height: 92px;
+  }
+
+  .yamaha-journey__ticker {
+    height: 102px;
+    padding-top: 18px;
+  }
+
+  .yamaha-journey__ticker-item {
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yamaha-journey__ticker-track {
+    animation: none;
+  }
+}

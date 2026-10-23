@@ -1,0 +1,246 @@
+.yamaha-footer {
+  --yamaha-footer-blue: #0069b4;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  width: 100%;
+  padding: clamp(150px, 13vw, 190px) clamp(24px, 5vw, 80px) clamp(64px, 7vw, 92px);
+  background:
+    radial-gradient(ellipse at 50% 8%, #1677b4 0%, transparent 46%),
+    linear-gradient(120deg, #0069b4 0%, #00599c 54%, #003b73 100%);
+  color: #fff;
+}
+
+.yamaha-footer::before {
+  position: absolute;
+  z-index: 0;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: clamp(100px, 10vw, 148px);
+  border-radius: 0 0 48% 52% / 0 0 70% 100%;
+  background: #f7f7f3;
+  content: '';
+  pointer-events: none;
+}
+
+.yamaha-footer__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(100%, 1320px);
+  grid-template-columns: 1.12fr 0.84fr 1.2fr 1fr;
+  gap: clamp(28px, 4vw, 64px);
+  margin: 0 auto;
+}
+
+.yamaha-footer__brand,
+.yamaha-footer__column {
+  min-width: 0;
+}
+
+.yamaha-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+}
+
+.yamaha-footer__emblem {
+  width: 42px;
+  height: 42px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.yamaha-footer__logo span {
+  font: 600 25px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.13em;
+}
+
+.yamaha-footer__tagline {
+  margin: 15px 0 22px;
+  color: #dcebfacc;
+  font-size: 11px;
+  letter-spacing: 0.025em;
+}
+
+.yamaha-footer__socials {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.yamaha-footer__social {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffffff1c;
+  color: #fff;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.yamaha-footer__social:hover {
+  transform: translateY(-2px);
+  background: #ffffff2e;
+  color: #7ccbff;
+}
+
+.yamaha-footer__social:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.yamaha-footer__social svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.yamaha-footer__social-dot {
+  fill: currentColor;
+  stroke: none;
+}
+
+.yamaha-footer__column h2 {
+  margin: 4px 0 22px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+}
+
+.yamaha-footer__column ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.yamaha-footer__column li,
+.yamaha-footer__column a,
+.yamaha-footer__column address,
+.yamaha-footer__column dl {
+  color: #dcebfacc;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.8;
+}
+
+.yamaha-footer__column a {
+  display: inline-block;
+  transition: color 160ms ease, transform 160ms ease;
+}
+
+.yamaha-footer__column a:hover,
+.yamaha-footer__column a:focus-visible {
+  transform: translateX(2px);
+  color: #7ccbff;
+}
+
+.yamaha-footer__column a:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
+}
+
+.yamaha-footer__column address {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.yamaha-footer__column address a {
+  width: fit-content;
+}
+
+.yamaha-footer__column address strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.yamaha-footer__column dl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+
+.yamaha-footer__column dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.yamaha-footer__column dt {
+  color: #fff;
+  white-space: nowrap;
+}
+
+.yamaha-footer__column dd {
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .yamaha-footer {
+    padding: 142px 7vw 64px;
+  }
+
+  .yamaha-footer::before {
+    height: 112px;
+  }
+
+  .yamaha-footer__inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 42px 56px;
+  }
+
+  .yamaha-footer__hours {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 560px) {
+  .yamaha-footer {
+    padding: 116px 24px 52px;
+  }
+
+  .yamaha-footer::before {
+    height: 86px;
+    border-radius: 0 0 44% 56% / 0 0 58% 100%;
+  }
+
+  .yamaha-footer__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+
+  .yamaha-footer__brand {
+    padding-bottom: 2px;
+  }
+
+  .yamaha-footer__column h2 {
+    font-size: 14px;
+  }
+
+  .yamaha-footer__column h2 {
+    margin-bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yamaha-footer__social,
+  .yamaha-footer__column a {
+    transition: none;
+  }
+}
