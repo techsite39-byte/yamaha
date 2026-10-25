@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 
 const FRAME_COUNT = 300;
 const INITIAL_FRAME_COUNT = 3;
-const frameName = (index) => `ezgif-frame-${String(index + 1).padStart(3, '0')}.png`;
+const frameName = (index) => `ezgif-frame-${String(index + 1).padStart(3, '0')}.webp`;
 
 function decodeWithImageElement(url, signal) {
   return new Promise((resolve, reject) => {
@@ -265,16 +265,27 @@ const YamahaHeroSequence = forwardRef(function YamahaHeroSequence({ reducedMotio
     let animationFrame = 0;
     let previousAnimationTime = 0;
     const animate = (time) => {
+      animationFrame = 0;
+      if (disposed) return;
       const difference = targetFrameRef.current - currentFrameRef.current;
       const delta = previousAnimationTime ? Math.min(time - previousAnimationTime, 64) : 0;
       const interpolation = Math.min(0.75, 1 - Math.exp(-delta / 55) + Math.abs(difference) * 0.004);
       currentFrameRef.current += difference * interpolation;
       previousAnimationTime = time;
-      if (Math.abs(difference) < 0.01) currentFrameRef.current = targetFrameRef.current;
+      if (Math.abs(difference) < 0.01) {
+        currentFrameRef.current = targetFrameRef.current;
+        previousAnimationTime = 0;
+        drawClosestFrame(Math.round(currentFrameRef.current));
+        return;
+      }
       drawClosestFrame(Math.round(currentFrameRef.current));
       animationFrame = requestAnimationFrame(animate);
     };
-    if (!reducedMotion) animationFrame = requestAnimationFrame(animate);
+    const scheduleAnimation = () => {
+      if (!reducedMotion && !animationFrame && !disposed) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
 
     setProgressRef.current = (progress) => {
       const normalized = Number.isFinite(progress) ? Math.min(1, Math.max(0, progress)) : 0;
@@ -283,6 +294,8 @@ const YamahaHeroSequence = forwardRef(function YamahaHeroSequence({ reducedMotio
       if (nextFrame !== targetFrameRef.current) direction = nextFrame > targetFrameRef.current ? 1 : -1;
       targetFrameRef.current = nextFrame;
       if (Math.round(nextFrame) !== previousRounded) prioritize(Math.round(nextFrame));
+      if (Math.abs(nextFrame - currentFrameRef.current) >= 0.01) scheduleAnimation();
+      else drawClosestFrame(Math.round(nextFrame));
     };
 
     for (let index = 0; index < initialFrameCount; index += 1) enqueue(index, index);

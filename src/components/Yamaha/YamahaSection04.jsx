@@ -7,17 +7,17 @@ gsap.registerPlugin(ScrollTrigger);
 
 const motorcycles = {
   main: {
-    src: '/imgs/Yamaha%20TRACER%209%20GT.png',
+    src: '/imgs/Yamaha%20TRACER%209%20GT.webp',
     alt: 'Yamaha TRACER 9 GT',
   },
   sides: [
     {
-      src: '/imgs/2.%20Yamaha%20YZF-R7.png',
+      src: '/imgs/2.%20Yamaha%20YZF-R7.webp',
       alt: 'Yamaha YZF-R7',
       className: 'yamaha04-bike--left',
     },
     {
-      src: '/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.png',
+      src: '/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.webp',
       alt: 'Yamaha Ténéré 700',
       className: 'yamaha04-bike--right',
     },

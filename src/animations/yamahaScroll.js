@@ -17,8 +17,19 @@ export function mountYamahaScroll({ heroRef, progressRef, framePlayerRef, reduce
     if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`;
   };
 
+  let scrollFrame = 0;
+  const scheduleUpdate = () => {
+    if (scrollFrame) return;
+    scrollFrame = window.requestAnimationFrame(() => {
+      scrollFrame = 0;
+      update();
+    });
+  };
+
   let refreshTimer = 0;
   const refreshAfterResize = () => {
+    window.cancelAnimationFrame(scrollFrame);
+    scrollFrame = 0;
     update();
     window.clearTimeout(refreshTimer);
     refreshTimer = window.setTimeout(() => {
@@ -29,14 +40,15 @@ export function mountYamahaScroll({ heroRef, progressRef, framePlayerRef, reduce
 
   const observer = new ResizeObserver(update);
   observer.observe(container);
-  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
   window.addEventListener('resize', refreshAfterResize, { passive: true });
   window.addEventListener('orientationchange', refreshAfterResize, { passive: true });
   update();
 
   return () => {
     observer.disconnect();
-    window.removeEventListener('scroll', update);
+    window.cancelAnimationFrame(scrollFrame);
+    window.removeEventListener('scroll', scheduleUpdate);
     window.removeEventListener('resize', refreshAfterResize);
     window.removeEventListener('orientationchange', refreshAfterResize);
     window.clearTimeout(refreshTimer);

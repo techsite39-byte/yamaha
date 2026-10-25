@@ -7,19 +7,19 @@ gsap.registerPlugin(ScrollTrigger);
 const motorcycles = [
   {
     name: 'YZF-R7',
-    src: '/imgs/2.%20Yamaha%20YZF-R7.png',
+    src: '/imgs/2.%20Yamaha%20YZF-R7.webp',
     alt: 'Yamaha YZF-R7',
     position: 'left',
   },
   {
     name: 'YZF-R1',
-    src: '/imgs/1.%20Yamaha%20YZF-R1.png',
+    src: '/imgs/1.%20Yamaha%20YZF-R1.webp',
     alt: 'Yamaha YZF-R1',
     position: 'center',
   },
   {
     name: 'MT-09',
-    src: '/imgs/3.%20Yamaha%20MT-09.png',
+    src: '/imgs/3.%20Yamaha%20MT-09.webp',
     alt: 'Yamaha MT-09',
     position: 'right',
   },
@@ -81,18 +81,26 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
         <div ref={showcaseRef} className="yamaha03-showcase">
           <div className="yamaha03-bike-line" aria-hidden="true">
             {motorcycles.map((motorcycle, index) => (
-              <div
-                ref={(node) => { slotsRef.current[index] = node; }}
-                className={`yamaha03-bike-slot yamaha03-bike-slot--${motorcycle.position}`}
-                key={motorcycle.name}
-              >
-                <img
-                  src={motorcycle.src}
-                  alt={motorcycle.alt}
-                  loading="lazy"
-                  decoding="async"
+              motorcycle.position === 'center' ? (
+                <div
+                  ref={(node) => { slotsRef.current[index] = node; }}
+                  className="yamaha03-bike-slot yamaha03-bike-slot--center"
+                  key={motorcycle.name}
                 />
-              </div>
+              ) : (
+                <div
+                  ref={(node) => { slotsRef.current[index] = node; }}
+                  className={`yamaha03-bike-slot yamaha03-bike-slot--${motorcycle.position}`}
+                  key={motorcycle.name}
+                >
+                  <img
+                    src={motorcycle.src}
+                    alt={motorcycle.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              )
             ))}
           </div>
 

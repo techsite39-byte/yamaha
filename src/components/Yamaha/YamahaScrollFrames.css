@@ -1,0 +1,148 @@
+.yamaha-scroll-frames {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  min-height: 100svh;
+  background: #061a33;
+  color: #101820;
+  overflow: clip;
+}
+
+.yamaha-scroll-frames__stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  background: #061a33;
+  isolation: isolate;
+}
+
+.yamaha-scroll-frames__poster,
+.yamaha-scroll-frames__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.yamaha-scroll-frames__poster {
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  transition: opacity 180ms ease;
+}
+
+.yamaha-scroll-frames__poster.is-hidden {
+  opacity: 0;
+}
+
+.yamaha-scroll-frames__canvas {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.yamaha-scroll-frames__canvas.is-ready {
+  opacity: 1;
+}
+
+.yamaha-scroll-frames__heading {
+  position: absolute;
+  z-index: 1;
+  top: clamp(28px, 7vh, 68px);
+  left: clamp(24px, 8vw, 124px);
+  padding: 12px 16px;
+  background: #f5f6f4e8;
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.yamaha-scroll-frames__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #59616a;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .2em;
+}
+
+.yamaha-scroll-frames__eyebrow i {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: #1684e8;
+}
+
+.yamaha-scroll-frames__heading h2 {
+  margin: 15px 0 0;
+  color: #151d25;
+  font: 300 clamp(34px, 4.2vw, 58px)/.88 'Barlow Condensed', sans-serif;
+  letter-spacing: .035em;
+}
+
+.yamaha-scroll-frames__footer {
+  position: absolute;
+  z-index: 1;
+  right: clamp(24px, 5vw, 88px);
+  bottom: 28px;
+  left: clamp(24px, 5vw, 88px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #5b6670;
+  font-size: 8px;
+  letter-spacing: .16em;
+  pointer-events: none;
+}
+
+.yamaha-scroll-frames__progress {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: #1684e8;
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+@media (max-width: 650px) {
+  .yamaha-scroll-frames,
+  .yamaha-scroll-frames__stage {
+    min-height: 100svh;
+  }
+
+  .yamaha-scroll-frames__heading {
+    top: 22px;
+    left: 24px;
+  }
+
+  .yamaha-scroll-frames__heading h2 {
+    font-size: 35px;
+  }
+
+  .yamaha-scroll-frames__footer {
+    bottom: 22px;
+    font-size: 7px;
+  }
+
+  .yamaha-scroll-frames__footer span:nth-child(2) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yamaha-scroll-frames__poster,
+  .yamaha-scroll-frames__canvas {
+    transition: none;
+  }
+}

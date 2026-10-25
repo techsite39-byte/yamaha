@@ -7,7 +7,7 @@ export const yamahaMotorcycles = [
     description: 'Race-developed precision and crossplane power, engineered for uncompromising supersport performance.',
     cta: 'EXPLORE THE YZF-R1',
     signature: ['RACE', 'PRECISION', 'CONTROL'],
-    image: '/imgs/1.%20Yamaha%20YZF-R1.png',
+    image: '/imgs/1.%20Yamaha%20YZF-R1.webp',
     features: [
       { title: 'Crossplane Power', description: 'MotoGP-inspired engine character.' },
       { title: 'Track-Bred Control', description: 'Precision from corner to corner.' },
@@ -23,7 +23,7 @@ export const yamahaMotorcycles = [
     description: 'An agile supersport with engaging CP2 power and a focused feel for every road.',
     cta: 'EXPLORE THE YZF-R7',
     signature: ['AGILITY', 'BALANCE', 'FREEDOM'],
-    image: '/imgs/2.%20Yamaha%20YZF-R7.png',
+    image: '/imgs/2.%20Yamaha%20YZF-R7.webp',
     features: [
       { title: 'CP2 Character', description: 'Responsive, engaging torque.' },
       { title: 'Supersport Ergonomics', description: 'A focused connection to the road.' },
@@ -39,7 +39,7 @@ export const yamahaMotorcycles = [
     description: 'A thrilling naked-bike attitude powered by a torque-rich CP3 engine and nimble handling.',
     cta: 'EXPLORE THE MT-09',
     signature: ['TORQUE', 'ATTITUDE', 'CONTROL'],
-    image: '/imgs/3.%20Yamaha%20MT-09.png',
+    image: '/imgs/3.%20Yamaha%20MT-09.webp',
     features: [
       { title: 'CP3 Engine', description: 'Instant, distinctive triple-cylinder torque.' },
       { title: 'Agile Handling', description: 'Light-footed response in every turn.' },
@@ -55,7 +55,7 @@ export const yamahaMotorcycles = [
     description: 'Timeless Sport Heritage styling meets modern triple-cylinder performance and precision.',
     cta: 'EXPLORE THE XSR900',
     signature: ['HERITAGE', 'CRAFT', 'PERFORMANCE'],
-    image: '/imgs/6.%20Yamaha%20XSR900.png',
+    image: '/imgs/6.%20Yamaha%20XSR900.webp',
     features: [
       { title: 'Sport Heritage', description: 'Classic inspiration, modern detail.' },
       { title: 'CP3 Performance', description: 'Exciting power with character.' },
@@ -71,7 +71,7 @@ export const yamahaMotorcycles = [
     description: 'A sharp, lightweight supersport that brings R-Series design and precision to every ride.',
     cta: 'EXPLORE THE R15M',
     signature: ['R-SERIES', 'AGILITY', 'FOCUS'],
-    image: '/imgs/Yamaha%20R15M.png',
+    image: '/imgs/Yamaha%20R15M.webp',
     features: [
       { title: 'R-Series Styling', description: 'Inspired by Yamaha supersport icons.' },
       { title: 'Lightweight Handling', description: 'Easy, precise response.' },
@@ -87,7 +87,7 @@ export const yamahaMotorcycles = [
     description: 'Go beyond the expected with rally-inspired capability and confidence on every terrain.',
     cta: 'EXPLORE THE TÉNÉRÉ 700',
     signature: ['ADVENTURE', 'ENDURANCE', 'FREEDOM'],
-    image: '/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.png',
+    image: '/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.webp',
     features: [
       { title: 'Rally-Bred Spirit', description: 'Ready for the long way around.' },
       { title: 'All-Terrain Control', description: 'Confidence on and off the road.' },
@@ -103,7 +103,7 @@ export const yamahaMotorcycles = [
     description: 'Long-distance comfort and versatile sport performance come together in a premium tourer.',
     cta: 'EXPLORE THE TRACER 9 GT',
     signature: ['DISTANCE', 'COMFORT', 'FREEDOM'],
-    image: '/imgs/Yamaha%20TRACER%209%20GT.png',
+    image: '/imgs/Yamaha%20TRACER%209%20GT.webp',
     features: [
       { title: 'Sport Touring', description: 'Dynamic performance for the open road.' },
       { title: 'Touring Comfort', description: 'Made for longer days in the saddle.' },

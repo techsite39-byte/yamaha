@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { mountYamahaScroll } from './animations/yamahaScroll.js';
 import YamahaHeroSequence from './components/Yamaha/YamahaHeroSequence.jsx';
+import YamahaScrollFrames from './components/Yamaha/YamahaScrollFrames.jsx';
 import YamahaSection02 from './components/Yamaha/YamahaSection02.jsx';
 import YamahaSection03 from './components/Yamaha/YamahaSection03.jsx';
 import YamahaSection05 from './components/Yamaha/YamahaSection05.jsx';
@@ -8,10 +9,11 @@ import YamahaJourneyHero from './components/Yamaha/YamahaJourneyHero.jsx';
 import YamahaSection06 from './components/Yamaha/YamahaSection06.jsx';
 import YamahaSection07 from './components/Yamaha/YamahaSection07.jsx';
 import YamahaFooter from './components/Yamaha/YamahaFooter.jsx';
-import YamahaMotorcycleDetails from './components/Yamaha/YamahaMotorcycleDetails.jsx';
 import YamahaIntro from './components/Yamaha/YamahaIntro.jsx';
 import YamahaHeader from './components/Yamaha/YamahaHeader.jsx';
 import { defaultYamahaMotorcycle, getYamahaMotorcycle } from './components/Yamaha/yamahaMotorcycles.js';
+
+const YamahaMotorcycleDetails = lazy(() => import('./components/Yamaha/YamahaMotorcycleDetails.jsx'));
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -42,16 +44,28 @@ function App() {
     const hero = heroRef.current;
     if (route !== '/' || !hero) return undefined;
 
+    const frameSection = document.querySelector('.yamaha-scroll-frames');
+    let scrollFrame = 0;
     const updateHeader = () => {
-      setHeaderVariant(hero.getBoundingClientRect().bottom <= 1 ? 'static' : 'transparent');
+      scrollFrame = 0;
+      const heroIsPast = hero.getBoundingClientRect().bottom <= 1;
+      const frameSectionRect = frameSection?.getBoundingClientRect();
+      const frameSectionIsActive = frameSectionRect && frameSectionRect.top <= 1 && frameSectionRect.bottom > 0;
+      const nextVariant = !heroIsPast ? 'transparent' : frameSectionIsActive ? 'light' : 'static';
+      setHeaderVariant((currentVariant) => currentVariant === nextVariant ? currentVariant : nextVariant);
+    };
+    const scheduleHeaderUpdate = () => {
+      if (scrollFrame) return;
+      scrollFrame = window.requestAnimationFrame(updateHeader);
     };
 
     updateHeader();
-    window.addEventListener('scroll', updateHeader, { passive: true });
-    window.addEventListener('resize', updateHeader);
+    window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
+    window.addEventListener('resize', scheduleHeaderUpdate);
     return () => {
-      window.removeEventListener('scroll', updateHeader);
-      window.removeEventListener('resize', updateHeader);
+      window.cancelAnimationFrame(scrollFrame);
+      window.removeEventListener('scroll', scheduleHeaderUpdate);
+      window.removeEventListener('resize', scheduleHeaderUpdate);
     };
   }, [route]);
 
@@ -113,11 +127,13 @@ function App() {
 
   if (route === '/motorcycle-details') {
     return (
-      <YamahaMotorcycleDetails
-        motorcycle={getYamahaMotorcycle(selectedBikeId)}
-        onBack={navigateBack}
-        onContact={() => navigateToHome('#yamaha-footer')}
-      />
+      <Suspense fallback={null}>
+        <YamahaMotorcycleDetails
+          motorcycle={getYamahaMotorcycle(selectedBikeId)}
+          onBack={navigateBack}
+          onContact={() => navigateToHome('#yamaha-footer')}
+        />
+      </Suspense>
     );
   }
 
@@ -156,6 +172,7 @@ function App() {
         onActiveBikeChange={handleActiveBikeChange}
       />
       <YamahaSection03 selectedBikeId={selectedBikeId} onDealerContact={navigateToDetails} />
+      <YamahaScrollFrames reducedMotion={reducedMotion} />
       <YamahaSection05 />
       <YamahaJourneyHero selectedBikeId={selectedBikeId} />
       <YamahaSection06 />

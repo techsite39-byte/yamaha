@@ -10,25 +10,25 @@ const motorcycles = [
     category: 'SUPERSPORT',
     name: 'YZF-R Series',
     specification: 'Performance engineered',
-    image: '/imgs/1.%20Yamaha%20YZF-R1.png',
+    image: '/imgs/1.%20Yamaha%20YZF-R1.webp',
   },
   {
     category: 'HYPER NAKED',
     name: 'MT Series',
     specification: 'Torque. Control. Attitude.',
-    image: '/imgs/3.%20Yamaha%20MT-09.png',
+    image: '/imgs/3.%20Yamaha%20MT-09.webp',
   },
   {
     category: 'ADVENTURE',
     name: 'Ténéré Series',
     specification: 'Built to explore',
-    image: '/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.png',
+    image: '/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.webp',
   },
   {
     category: 'SPORT TOURING',
     name: 'TRACER Series',
     specification: 'Performance meets distance',
-    image: '/imgs/Yamaha%20TRACER%209%20GT.png',
+    image: '/imgs/Yamaha%20TRACER%209%20GT.webp',
   },
 ];
 

@@ -114,7 +114,7 @@ function YamahaSection07() {
             <img
               ref={motorcycleRef}
               className="yamaha07-motorcycle"
-              src="/imgs/3.%20Yamaha%20MT-09.png"
+              src="/imgs/3.%20Yamaha%20MT-09.webp"
               alt="Yamaha MT-09 motorcycle"
               loading="lazy"
               decoding="async"

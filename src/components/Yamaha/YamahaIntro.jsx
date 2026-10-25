@@ -11,7 +11,7 @@ let introStartedAt = null;
 let introCompleted = false;
 
 function frameUrl(index) {
-  return `/yamaha-logo-intro/ezgif-frame-${String(index + 1).padStart(3, '0')}.jpg`;
+  return `/yamaha-logo-intro/ezgif-frame-${String(index + 1).padStart(3, '0')}.webp`;
 }
 
 function YamahaIntro() {

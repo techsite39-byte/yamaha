@@ -143,14 +143,14 @@ function YamahaSection05() {
             </div>
             <img
               className="yamaha05-card-scene"
-              src="/yamahahero1/ezgif-frame-060.png"
+              src="/yamahahero1/ezgif-frame-060.webp"
               alt=""
               loading="lazy"
               decoding="async"
             />
             <img
               className="yamaha05-card-motorcycle"
-              src="/imgs/1.%20Yamaha%20YZF-R1.png"
+              src="/imgs/1.%20Yamaha%20YZF-R1.webp"
               alt=""
               loading="lazy"
               decoding="async"
@@ -171,14 +171,14 @@ function YamahaSection05() {
             </div>
             <img
               className="yamaha05-card-scene"
-              src="/yamahahero1/ezgif-frame-210.png"
+              src="/yamahahero1/ezgif-frame-210.webp"
               alt=""
               loading="lazy"
               decoding="async"
             />
             <img
               className="yamaha05-card-motorcycle yamaha05-card-motorcycle--adventure"
-              src="/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.png"
+              src="/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.webp"
               alt=""
               loading="lazy"
               decoding="async"
