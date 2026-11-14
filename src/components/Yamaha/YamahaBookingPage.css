@@ -1,0 +1,878 @@
+.yamaha-booking {
+  min-height: 100vh;
+  padding-top: var(--nav-h, 76px);
+  background: #f4f6f9;
+  color: #101d2e;
+}
+
+/* ==================================================
+   SECTION 1 — HERO
+   Clean header height offset and generous top padding
+   to prevent heading from being hidden under fixed navbar
+================================================== */
+.yamaha-booking__hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 320px;
+  padding: clamp(56px, 7vw, 84px) clamp(24px, 5vw, 80px);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 80% 40%, rgba(22, 132, 232, 0.25), transparent 60%),
+    linear-gradient(135deg, #07172b 0%, #0c2644 60%, #061527 100%);
+  color: #ffffff;
+}
+
+.yamaha-booking__hero-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(7, 23, 43, 0.95) 0%, rgba(7, 23, 43, 0.6) 60%, transparent 100%);
+}
+
+.yamaha-booking__hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+  padding-top: 10px;
+}
+
+.yamaha-booking__eyebrow {
+  margin: 0 0 12px;
+  color: #4da6ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .18em;
+}
+
+.yamaha-booking__hero-content h1 {
+  margin: 0;
+  color: #ffffff;
+  font: 500 clamp(36px, 4.6vw, 62px)/1.06 'Barlow Condensed', sans-serif;
+  letter-spacing: .02em;
+}
+
+.yamaha-booking__hero-sub {
+  margin: 14px 0 0;
+  color: #c4d6ea;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.yamaha-booking__hero-visual {
+  position: relative;
+  z-index: 1;
+  width: min(44vw, 480px);
+  max-height: 240px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.yamaha-booking__hero-bike {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.5));
+}
+
+/* Main Container */
+.yamaha-booking__main-container {
+  width: min(100% - 48px, 1280px);
+  margin: 40px auto 80px;
+}
+
+/* Generic Section styling */
+.yamaha-booking__section {
+  margin-bottom: 40px;
+  padding: 32px;
+  border: 1px solid #e1e7ee;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+}
+
+.yamaha-booking__section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #edf1f6;
+}
+
+.yamaha-booking__step-indicator {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 8px;
+  background: #0876c9;
+  color: #ffffff;
+  font: 700 16px 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.yamaha-booking__section-header h2 {
+  margin: 0;
+  color: #101e30;
+  font: 500 24px/1.1 'Barlow Condensed', sans-serif;
+  letter-spacing: .01em;
+}
+
+.yamaha-booking__section-header p {
+  margin: 6px 0 0;
+  color: #647589;
+  font-size: 13px;
+}
+
+/* ==================================================
+   SECTION 2 — MOTORCYCLE SELECTION GRID
+   3 columns on desktop, 2 on tablet, 1 on mobile
+================================================== */
+.yamaha-booking__bike-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .yamaha-booking__bike-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .yamaha-booking__bike-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.yamaha-booking__bike-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 18px 18px;
+  border: 2px solid #e1e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.yamaha-booking__bike-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 4px 14px rgba(8, 118, 201, 0.08);
+}
+
+/* Selected Card Highlight: 2px blue border, subtle blue tint, subtle shadow */
+.yamaha-booking__bike-card.is-selected {
+  border: 2px solid #0876c9;
+  background: #f0f7ff;
+  box-shadow: 0 6px 20px rgba(8, 118, 201, 0.16);
+}
+
+/* Small SELECTED label at top of card */
+.yamaha-booking__card-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #0876c9;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  box-shadow: 0 2px 6px rgba(8, 118, 201, 0.28);
+}
+
+.yamaha-booking__badge-icon {
+  font-size: 11px;
+}
+
+.yamaha-booking__bike-card-img {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: radial-gradient(ellipse, #eef4fa, transparent 70%);
+  border-radius: 6px;
+}
+
+.yamaha-booking__bike-card-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.yamaha-booking__bike-card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin-top: 14px;
+}
+
+.yamaha-booking__bike-card-tag {
+  display: inline-block;
+  color: #0876c9;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.yamaha-booking__bike-card-body h3 {
+  margin: 0;
+  color: #112034;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.yamaha-booking__bike-card-variant {
+  margin: 4px 0 8px;
+  color: #627488;
+  font-size: 12px;
+}
+
+.yamaha-booking__bike-card-desc {
+  margin: 0 0 10px;
+  color: #63768b;
+  font-size: 12px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.yamaha-booking__bike-card-price {
+  margin-top: auto;
+  margin-bottom: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1f6;
+}
+
+.yamaha-booking__bike-card-price span {
+  display: block;
+  color: #798b9f;
+  font-size: 11px;
+}
+
+.yamaha-booking__bike-card-price strong {
+  display: block;
+  color: #0b3d68;
+  font: 600 20px/1.1 'Barlow Condensed', sans-serif;
+}
+
+.yamaha-booking__bike-select-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #0876c9;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #0876c9;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.yamaha-booking__bike-select-btn:hover {
+  background: #0876c9;
+  color: #ffffff;
+}
+
+.yamaha-booking__bike-select-btn.is-active {
+  background: #0876c9;
+  color: #ffffff;
+  border-color: #0876c9;
+}
+
+.yamaha-booking__btn-check {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* ==================================================
+   FORM & SUMMARY LAYOUT (65% / 35%)
+================================================== */
+.yamaha-booking__form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
+  align-items: start;
+  gap: 36px;
+}
+
+.yamaha-booking__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.yamaha-booking__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.yamaha-booking__field--full {
+  grid-column: 1 / -1;
+}
+
+.yamaha-booking__field > span {
+  color: #495c72;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.yamaha-booking__field > span b {
+  color: #d13028;
+}
+
+.yamaha-booking__field input,
+.yamaha-booking__field select,
+.yamaha-booking__field textarea {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #ced8e3;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #122136;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.yamaha-booking__field textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.yamaha-booking__field input:focus,
+.yamaha-booking__field select:focus,
+.yamaha-booking__field textarea:focus {
+  border-color: #0876c9;
+  box-shadow: 0 0 0 3px rgba(8, 118, 201, 0.15);
+  outline: none;
+}
+
+.yamaha-booking__field small {
+  color: #798b9e;
+  font-size: 11px;
+}
+
+/* Consent Checkbox */
+.yamaha-booking__consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 16px;
+  border: 1px solid #e1e7ee;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.yamaha-booking__consent-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #0876c9;
+  cursor: pointer;
+}
+
+.yamaha-booking__consent-label span {
+  color: #4b5e74;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.yamaha-booking__consent-label span b {
+  color: #d13028;
+}
+
+.yamaha-booking__error-banner {
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  border: 1px solid #f2b8b5;
+  border-radius: 6px;
+  background: #fdf2f2;
+  color: #b3261e;
+  font-size: 13px;
+}
+
+/* Section 6 — Submit Container */
+.yamaha-booking__submit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.yamaha-booking__submit-btn {
+  display: flex;
+  width: 100%;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 28px;
+  border: 1px solid #0876c9;
+  border-radius: 6px;
+  background: #0876c9;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(8, 118, 201, 0.35);
+  transition: all 180ms ease;
+}
+
+.yamaha-booking__submit-btn:hover:not(:disabled) {
+  background: #065fa4;
+  border-color: #065fa4;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(8, 118, 201, 0.45);
+}
+
+.yamaha-booking__submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.yamaha-booking__submit-note {
+  margin: 0;
+  color: #697b8f;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ==================================================
+   SECTION 5 — BOOKING SUMMARY ASIDE (Sticky on Desktop)
+================================================== */
+.yamaha-booking__summary-card {
+  position: sticky;
+  top: calc(var(--nav-h, 76px) + 24px);
+  padding: 28px;
+  border: 1px solid #dce4ed;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.yamaha-booking__summary-title {
+  margin: 0 0 18px;
+  color: #0876c9;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #eef2f7;
+}
+
+.yamaha-booking__summary-image-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+  padding: 12px;
+  border-radius: 8px;
+  background: radial-gradient(ellipse, #f0f5fb, #ffffff 70%);
+}
+
+.yamaha-booking__summary-bike-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.yamaha-booking__summary-details {
+  margin-top: 16px;
+}
+
+.yamaha-booking__summary-details h4 {
+  margin: 0;
+  color: #102035;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.yamaha-booking__summary-sub {
+  margin: 4px 0 16px;
+  color: #6a7c90;
+  font-size: 12px;
+}
+
+.yamaha-booking__summary-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #edf1f6;
+}
+
+.yamaha-booking__summary-list div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.yamaha-booking__summary-list dt {
+  color: #65778b;
+}
+
+.yamaha-booking__summary-list dd {
+  margin: 0;
+  color: #122135;
+  text-align: right;
+}
+
+.yamaha-booking__summary-price-line {
+  padding-top: 6px;
+  border-top: 1px dashed #e4ebf3;
+}
+
+.yamaha-booking__summary-price-line strong {
+  color: #0b3d68;
+  font-size: 16px;
+}
+
+.yamaha-booking__summary-onroad {
+  padding-top: 6px;
+  border-top: 1px solid #edf1f6;
+}
+
+.yamaha-booking__summary-onroad dt {
+  color: #0876c9;
+  font-weight: 700;
+}
+
+.yamaha-booking__summary-onroad strong {
+  color: #0876c9;
+  font-size: 16px;
+}
+
+.yamaha-booking__appointment-summary {
+  margin: 18px 0;
+  padding: 14px;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+}
+
+.yamaha-booking__appointment-summary h5 {
+  margin: 0 0 8px;
+  color: #24364c;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.yamaha-booking__appointment-summary p {
+  margin: 4px 0;
+  color: #55677d;
+  font-size: 12px;
+}
+
+.yamaha-booking__appointment-summary strong {
+  color: #1a2a3e;
+}
+
+.yamaha-booking__summary-note {
+  margin: 14px 0 0;
+  color: #8899ac;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.yamaha-booking__empty-selection {
+  padding: 40px 16px;
+  text-align: center;
+  color: #798b9e;
+  font-size: 13px;
+}
+
+/* ==================================================
+   SUCCESS CONFIRMATION
+================================================== */
+.yamaha-booking--success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+}
+
+.yamaha-booking__success-container {
+  width: min(100%, 640px);
+  margin: 0 auto;
+  padding: 40px 32px;
+  border: 1px solid #bce1c8;
+  border-radius: 12px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.yamaha-booking__success-icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: #108a4a;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: bold;
+  box-shadow: 0 8px 24px rgba(16, 138, 74, 0.3);
+}
+
+.yamaha-booking__success-container h1 {
+  margin: 0 0 12px;
+  color: #102035;
+  font: 500 clamp(32px, 4vw, 48px)/1.1 'Barlow Condensed', sans-serif;
+}
+
+.yamaha-booking__success-message {
+  margin: 0 0 24px;
+  color: #55677c;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.yamaha-booking__reference-box {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 28px;
+  padding: 16px 36px;
+  border: 2px dashed #0876c9;
+  border-radius: 8px;
+  background: #f0f7fd;
+}
+
+.yamaha-booking__reference-box span {
+  color: #0876c9;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .15em;
+}
+
+.yamaha-booking__reference-box strong {
+  color: #0b3d68;
+  font: 700 28px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: .08em;
+}
+
+.yamaha-booking__confirmation-details {
+  text-align: left;
+  margin-bottom: 24px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e8edf3;
+}
+
+.yamaha-booking__confirmation-details dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.yamaha-booking__confirmation-details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #edf1f6;
+  font-size: 13px;
+}
+
+.yamaha-booking__confirmation-details dt {
+  color: #63768b;
+}
+
+.yamaha-booking__confirmation-details dd {
+  margin: 0;
+  color: #122135;
+  font-weight: 600;
+  text-align: right;
+}
+
+.yamaha-booking__no-payment {
+  margin: 0 0 32px;
+  color: #6a7c8f;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: left;
+  padding: 14px;
+  border-radius: 6px;
+  background: #fbfbfc;
+  border-left: 3px solid #0876c9;
+}
+
+.yamaha-booking__success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.yamaha-booking__btn-primary {
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid #0876c9;
+  border-radius: 6px;
+  background: #0876c9;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.yamaha-booking__btn-primary:hover {
+  background: #065fa4;
+}
+
+.yamaha-booking__btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid #c9d5e2;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #15243b;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 160ms ease;
+}
+
+.yamaha-booking__btn-secondary:hover {
+  border-color: #0876c9;
+  color: #0876c9;
+}
+
+.yamaha-booking__btn-call {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid #108a4a;
+  border-radius: 6px;
+  background: #108a4a;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: .08em;
+  transition: all 160ms ease;
+}
+
+.yamaha-booking__btn-call:hover {
+  background: #0d703c;
+  color: #ffffff;
+}
+
+/* ==================================================
+   RESPONSIVENESS
+================================================== */
+@media (max-width: 900px) {
+  .yamaha-booking {
+    padding-top: var(--nav-h, 76px);
+  }
+
+  .yamaha-booking__hero {
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: auto;
+    padding: clamp(48px, 8vw, 64px) clamp(20px, 4vw, 36px) 36px;
+  }
+
+  .yamaha-booking__hero-content {
+    max-width: 100%;
+    padding-top: 4px;
+  }
+
+  .yamaha-booking__hero-visual {
+    width: 100%;
+    margin-top: 24px;
+    justify-content: center;
+  }
+
+  .yamaha-booking__form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .yamaha-booking__summary-card {
+    position: static;
+  }
+}
+
+@media (max-width: 650px) {
+  .yamaha-booking {
+    padding-top: var(--nav-h, 64px);
+  }
+
+  .yamaha-booking__hero {
+    padding: 40px 18px 30px;
+  }
+
+  .yamaha-booking__hero-content h1 {
+    font-size: clamp(30px, 8vw, 40px);
+  }
+
+  .yamaha-booking__main-container {
+    width: 100%;
+    padding: 0 16px;
+    margin-top: 24px;
+  }
+
+  .yamaha-booking__section {
+    padding: 20px 16px;
+  }
+
+  .yamaha-booking__form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .yamaha-booking__confirmation-details div {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .yamaha-booking__confirmation-details dd {
+    text-align: left;
+  }
+
+  .yamaha-booking__btn-primary,
+  .yamaha-booking__btn-secondary,
+  .yamaha-booking__btn-call {
+    width: 100%;
+    justify-content: center;
+  }
+}

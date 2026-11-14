@@ -18,7 +18,7 @@
   min-width: 0;
   flex-direction: column;
   overflow: hidden;
-  padding: clamp(22px, 3.5vw, 52px) clamp(24px, 3.8vw, 58px) clamp(24px, 3vw, 42px);
+  padding: calc(var(--nav-h) + clamp(22px, 3.5vw, 52px)) clamp(24px, 3.8vw, 58px) clamp(24px, 3vw, 42px);
   background:
     radial-gradient(ellipse at 52% 58%, rgba(49, 163, 255, 0.52), transparent 43%),
     radial-gradient(ellipse at 5% 4%, rgba(97, 179, 255, 0.34), transparent 40%),
@@ -214,7 +214,7 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  padding: clamp(22px, 3.4vw, 50px) clamp(24px, 4vw, 62px) clamp(20px, 3vw, 42px);
+  padding: calc(var(--nav-h) + clamp(22px, 3.4vw, 50px)) clamp(24px, 4vw, 62px) clamp(20px, 3vw, 42px);
   background:
     radial-gradient(ellipse at 78% 0%, rgba(20, 57, 99, 0.035), transparent 48%),
     #fff;
@@ -500,7 +500,7 @@
 @media (max-height: 680px) and (min-width: 701px) {
   .yamaha-details-showcase,
   .yamaha-details-config {
-    padding-top: 20px;
+    padding-top: calc(var(--nav-h) + 20px);
     padding-bottom: 20px;
   }
 
@@ -556,7 +556,7 @@
   .yamaha-details-showcase {
     min-height: 640px;
     height: min(82svh, 760px);
-    padding: 24px 24px 28px;
+    padding: calc(var(--nav-h) + 24px) 24px 28px;
   }
 
   .yamaha-details-model {
@@ -577,7 +577,7 @@
 
   .yamaha-details-config {
     min-height: 530px;
-    padding: 26px 22px 24px;
+    padding: calc(var(--nav-h) + 26px) 22px 24px;
   }
 
   .yamaha-details-utilities {

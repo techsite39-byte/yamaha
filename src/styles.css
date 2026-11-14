@@ -266,24 +266,27 @@
 .yamaha-intro--leaving{animation:yamaha-intro-exit 700ms cubic-bezier(.4,0,.2,1) forwards;pointer-events:none}
 @keyframes yamaha-intro-enter{from{opacity:0}to{opacity:1}}
 @keyframes yamaha-intro-exit{to{opacity:0}}
-.yamaha-header{position:fixed;z-index:30;top:0;left:0;display:flex;width:100%;height:var(--nav-h);align-items:center;justify-content:space-between;padding:0 clamp(24px,4vw,64px);color:#f5f6f7;background-color:transparent;border:0;box-shadow:none;transition:background-color 300ms ease,color 300ms ease,backdrop-filter 300ms ease;-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}
-.yamaha-header--static{background:transparent;color:#f5f6f7}
-.yamaha-header--light{background:#f5f6f4ed;color:#151d25;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-.yamaha-header--light .yamaha-header__sections button{color:#59646e}
-.yamaha-header--light .yamaha-header__sections button.is-active{color:#151d25}
-.yamaha-header__wordmark{display:inline-flex;align-items:flex-start;color:inherit;font:600 22px 'Barlow Condensed',sans-serif;letter-spacing:.14em;white-space:nowrap}
-.yamaha-header__wordmark span{margin-left:3px;font:9px Manrope,sans-serif}
-.yamaha-header__primary,.yamaha-header__sections{display:flex;height:100%;align-items:center;gap:clamp(20px,3vw,44px)}
-.yamaha-header__primary button,.yamaha-header__sections button{position:relative;display:inline-flex;height:100%;align-items:center;padding:0;border:0;background:none;color:inherit;font:500 9px Manrope,Arial,sans-serif;letter-spacing:.16em;white-space:nowrap;cursor:pointer;transition:color 300ms ease}
-.yamaha-header__primary button:hover,.yamaha-header__sections button:hover{color:#79bdff}
-.yamaha-header__sections{gap:clamp(20px,3vw,42px)}
-.yamaha-header__sections button{font-size:8px;letter-spacing:.17em;color:#b2bac4}
-.yamaha-header__sections button.is-active{color:#fff}
-.yamaha-header__sections button::after{position:absolute;bottom:15px;left:50%;width:clamp(70px,6vw,78px);height:2px;background:#1684e8;content:'';transform:translateX(-50%) scaleX(0);transform-origin:center;transition:transform 240ms ease}
+main#top{padding-top:var(--nav-h)}
+.yamaha-header{position:fixed;z-index:30;top:0;left:0;display:flex;width:100%;height:var(--nav-h);align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,64px);color:#f5f6f7;background:#05080fe8;border-bottom:1px solid #ffffff14;box-shadow:0 4px 20px rgba(0,0,0,0.4);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.yamaha-header--static,.yamaha-header--transparent,.yamaha-header--light{color:#f5f6f7;background:#05080fe8}
+.yamaha-header__wordmark{display:inline-flex;align-items:center;color:inherit;font:600 24px 'Barlow Condensed',sans-serif;letter-spacing:.14em;white-space:nowrap}
+.yamaha-header__wordmark span{margin-left:3px;font:11px Manrope,sans-serif}
+.yamaha-header__sections{display:flex;height:100%;align-items:center;gap:clamp(14px,2.2vw,36px)}
+.yamaha-header__sections button{position:relative;display:inline-flex;min-height:44px;align-items:center;padding:0 4px;border:0;background:none;color:#b2bac4;font:600 11px Manrope,Arial,sans-serif;letter-spacing:.14em;white-space:nowrap;cursor:pointer;transition:color 200ms ease}
+.yamaha-header__sections button:hover,.yamaha-header__sections button.is-active{color:#fff}
+.yamaha-header__sections button::after{position:absolute;bottom:0;left:50%;width:100%;height:2px;background:#1684e8;content:'';transform:translateX(-50%) scaleX(0);transform-origin:center;transition:transform 200ms ease}
 .yamaha-header__sections button.is-active::after{transform:translateX(-50%) scaleX(1)}
+.yamaha-header__sections .yamaha-header__book-button{min-height:36px;padding:0 16px;border:1px solid #1684e8;border-radius:4px;background:#0876c9;color:#fff;font-size:11px;font-weight:700;letter-spacing:.12em}
+.yamaha-header__sections .yamaha-header__book-button:hover{background:#005da2;color:#fff}
+.yamaha-header__sections .yamaha-header__book-button::after{display:none}
+.yamaha-header__menu-button{display:none}
+.yamaha-header__menu{position:absolute;top:calc(100% - 1px);right:clamp(20px,4vw,64px);display:flex;width:min(260px,calc(100vw - 36px));flex-direction:column;padding:10px;border:1px solid #ffffff1a;background:#080d15f8;box-shadow:0 18px 44px #000a;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-radius:0 0 8px 8px}
+.yamaha-header__menu button{min-height:44px;padding:0 16px;border:0;background:transparent;color:#c0cad7;font:600 12px Manrope,Arial,sans-serif;letter-spacing:.14em;text-align:left;cursor:pointer;transition:background-color 200ms ease,color 200ms ease}
+.yamaha-header__menu button:hover{background:#ffffff12;color:#fff}
 .yamaha03-header-spacer{height:30px;flex:0 0 30px}
-@media(max-width:650px){.yamaha-header{height:var(--nav-h);padding:0 18px}.yamaha-header__wordmark{font-size:20px}.yamaha-header__primary,.yamaha-header__sections{gap:clamp(10px,3vw,16px)}.yamaha-header__primary button{font-size:7px;letter-spacing:.12em}.yamaha-header__sections button{font-size:6px;letter-spacing:.1em}.yamaha-header__sections button::after{bottom:12px;width:64px;height:1px}.yamaha03-header-spacer{height:74px;flex-basis:74px}}
-@media(prefers-reduced-motion:reduce){.yamaha-header,.yamaha-header__primary button,.yamaha-header__sections button,.yamaha-header__sections button::after{transition:none}}
+@media(max-width:860px){.yamaha-header__sections>button:not(.yamaha-header__menu-button):not(.yamaha-header__book-button){display:none}.yamaha-header__menu-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;border:1px solid #ffffff30;border-radius:4px;background:rgba(255,255,255,0.06);color:#fff;font-size:10px;font-weight:700;letter-spacing:.12em;cursor:pointer}}
+@media(max-width:650px){.yamaha-header{height:var(--nav-h);padding:0 16px}.yamaha-header__wordmark{font-size:20px}.yamaha-header__sections{gap:10px}.yamaha-header__sections .yamaha-header__book-button{padding:0 10px;font-size:9px}.yamaha-header__menu{right:14px}.yamaha03-header-spacer{height:74px;flex-basis:74px}}
+@media(prefers-reduced-motion:reduce){.yamaha-header__sections button,.yamaha-header__sections button::after,.yamaha-header__menu button{transition:none}}
 
 :where(a,button):focus-visible{outline:2px solid #1684e8;outline-offset:4px}
 body{min-width:0}

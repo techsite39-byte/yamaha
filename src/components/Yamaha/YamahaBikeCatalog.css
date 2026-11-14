@@ -1,0 +1,500 @@
+.yamaha-bike-catalog {
+  min-height: 100vh;
+  padding: calc(var(--nav-h) + 56px) clamp(22px, 7vw, 112px) 90px;
+  background: #f5f7f9;
+  color: #101a2c;
+}
+
+.yamaha-bike-catalog__intro {
+  position: relative;
+  padding: 45px 0 40px;
+  border-bottom: 1px solid #dfe4ea;
+}
+
+.yamaha-bike-catalog__eyebrow {
+  margin: 0 0 17px;
+  color: #0876c9;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .2em;
+}
+
+.yamaha-bike-catalog__intro h1 {
+  margin: 0;
+  color: #0e1b31;
+  font: 400 clamp(52px, 7vw, 96px)/.95 'Barlow Condensed', sans-serif;
+  letter-spacing: .01em;
+}
+
+.yamaha-bike-catalog__intro > p:not(.yamaha-bike-catalog__eyebrow) {
+  max-width: 520px;
+  margin: 20px 0 0;
+  color: #626f80;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.yamaha-bike-catalog__intro-meta {
+  position: absolute;
+  right: 0;
+  bottom: 40px;
+  display: flex;
+  gap: 24px;
+  color: #788493;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.yamaha-bike-catalog__notice {
+  margin: 18px 0 0;
+  padding: 11px 14px;
+  border: 1px solid #e8d9af;
+  border-radius: 5px;
+  background: #fffaf0;
+  color: #80621f;
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.yamaha-bike-catalog__tools {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(210px, 270px) minmax(175px, 220px);
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.yamaha-bike-catalog__search,
+.yamaha-bike-catalog__select {
+  min-height: 56px;
+  border: 1px solid #dce2e9;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.yamaha-bike-catalog__search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+}
+
+.yamaha-bike-catalog__search svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: #778499;
+  stroke-width: 1.7;
+}
+
+.yamaha-bike-catalog__search input,
+.yamaha-bike-catalog__select select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #17243a;
+  font: inherit;
+}
+
+.yamaha-bike-catalog__search input {
+  font-size: 12px;
+}
+
+.yamaha-bike-catalog__search input::placeholder {
+  color: #98a2b0;
+}
+
+.yamaha-bike-catalog__select {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 13px;
+}
+
+.yamaha-bike-catalog__select span {
+  color: #7a8798;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.yamaha-bike-catalog__select select {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.yamaha-bike-catalog__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 24px 0 28px;
+}
+
+.yamaha-bike-catalog__filters button {
+  min-height: 37px;
+  padding: 0 16px;
+  border: 1px solid #d9e0e8;
+  border-radius: 99px;
+  background: #fff;
+  color: #647184;
+  font-size: 9px;
+  font-weight: 700;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.yamaha-bike-catalog__filters button:hover,
+.yamaha-bike-catalog__filters button.is-active {
+  border-color: #0876c9;
+  background: #0876c9;
+  color: #fff;
+}
+
+.yamaha-bike-catalog__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.yamaha-bike-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e1e6ec;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgb(22 35 53 / 4%);
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.yamaha-bike-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgb(22 35 53 / 10%);
+}
+
+.yamaha-bike-card__image-button {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(200px, 20vw, 290px);
+  overflow: hidden;
+  border: 0;
+  background:
+    radial-gradient(ellipse at 50% 70%, #e8f4fc, transparent 53%),
+    linear-gradient(140deg, #f7fafc, #eaf0f5);
+}
+
+.yamaha-bike-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 17px;
+  transition: transform 350ms ease;
+}
+
+.yamaha-bike-card:hover .yamaha-bike-card__image {
+  transform: scale(1.035);
+}
+
+.yamaha-bike-card__category {
+  position: absolute;
+  left: 17px;
+  bottom: 15px;
+  padding: 7px 9px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 90%);
+  color: #5c6a7c;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.yamaha-bike-card__content {
+  padding: 18px 19px 19px;
+}
+
+.yamaha-bike-card__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 9px;
+}
+
+.yamaha-bike-card__series {
+  margin: 0 0 5px;
+  color: #8290a1;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.yamaha-bike-card__title-row h2 {
+  margin: 0;
+  color: #12203a;
+  font: 500 clamp(23px, 2.2vw, 31px)/1 'Barlow Condensed', sans-serif;
+}
+
+.yamaha-bike-card__status {
+  flex: 0 0 auto;
+  margin-top: 4px;
+  color: #188452;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.yamaha-bike-card__variant {
+  min-height: 17px;
+  margin: 8px 0 15px;
+  color: #7b8797;
+  font-size: 9px;
+}
+
+.yamaha-bike-card__price {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 13px 0;
+  border-top: 1px solid #edf0f3;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.yamaha-bike-card__price span {
+  color: #8490a0;
+  font-size: 8px;
+}
+
+.yamaha-bike-card__price strong {
+  color: #13213b;
+  font: 600 21px/1 'Barlow Condensed', sans-serif;
+}
+
+.yamaha-bike-card__specs {
+  display: flex;
+  gap: 15px;
+  min-height: 54px;
+  padding: 13px 0 8px;
+}
+
+.yamaha-bike-card__specs span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  color: #344156;
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.yamaha-bike-card__specs small {
+  color: #98a1ad;
+  font-size: 6px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.yamaha-bike-card__source {
+  display: inline-block;
+  margin-top: 3px;
+  color: #0876c9;
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.yamaha-bike-card__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.yamaha-bike-card__actions button {
+  min-height: 41px;
+  border-radius: 4px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.yamaha-bike-card__details {
+  border: 1px solid #d8e0e8;
+  background: #fff;
+  color: #233149;
+}
+
+.yamaha-bike-card__details:hover {
+  border-color: #0876c9;
+  color: #0876c9;
+}
+
+.yamaha-bike-card__book {
+  border: 1px solid #0876c9;
+  background: #0876c9;
+  color: #fff;
+}
+
+.yamaha-bike-card__book:hover {
+  border-color: #005da2;
+  background: #005da2;
+}
+
+.yamaha-bike-catalog__empty {
+  padding: 70px 20px;
+  color: #667387;
+  text-align: center;
+}
+
+.yamaha-bike-catalog__empty strong {
+  color: #17243a;
+}
+
+.yamaha-bike-catalog__empty p {
+  font-size: 12px;
+}
+
+.yamaha-bike-catalog__load-more {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 14px;
+  margin: 34px auto 0;
+  padding: 0 22px;
+  border: 1px solid #cbd5df;
+  border-radius: 99px;
+  background: #fff;
+  color: #25344b;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.yamaha-bike-catalog__load-more:hover {
+  border-color: #0876c9;
+  color: #0876c9;
+}
+
+.yamaha-bike-catalog__disclaimer {
+  max-width: 720px;
+  margin: 34px auto 0;
+  color: #7c8794;
+  font-size: 9px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.yamaha-bike-image-fallback {
+  display: flex;
+  min-height: 140px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(145deg, #f3f7fa, #e6edf3);
+  color: #8a9aab;
+}
+
+.yamaha-bike-image-fallback span {
+  font: 600 21px 'Barlow Condensed', sans-serif;
+  letter-spacing: .16em;
+}
+
+.yamaha-bike-image-fallback small {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.yamaha-bike-card__image-button .yamaha-bike-image-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+.yamaha-bike-catalog :is(button, input, select, a):focus-visible {
+  outline: 2px solid #0876c9;
+  outline-offset: 3px;
+}
+
+@media (max-width: 1050px) {
+  .yamaha-bike-catalog__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .yamaha-bike-catalog {
+    padding: calc(var(--nav-h) + 32px) 18px 65px;
+  }
+
+  .yamaha-bike-catalog__intro {
+    padding: 28px 0 25px;
+  }
+
+  .yamaha-bike-catalog__intro-meta {
+    position: static;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-top: 22px;
+    font-size: 7px;
+  }
+
+  .yamaha-bike-catalog__tools {
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-top: 20px;
+  }
+
+  .yamaha-bike-catalog__search {
+    grid-column: 1 / -1;
+    min-height: 50px;
+  }
+
+  .yamaha-bike-catalog__select {
+    min-height: 54px;
+    padding: 7px 10px;
+  }
+
+  .yamaha-bike-catalog__filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 18px -18px 20px;
+    padding: 0 18px 5px;
+    scrollbar-width: none;
+  }
+
+  .yamaha-bike-catalog__filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .yamaha-bike-catalog__filters button {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 0 13px;
+    font-size: 8px;
+  }
+
+  .yamaha-bike-catalog__grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .yamaha-bike-card__image-button {
+    height: min(72vw, 300px);
+  }
+
+  .yamaha-bike-card__content {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yamaha-bike-card,
+  .yamaha-bike-card__image,
+  .yamaha-bike-catalog__filters button {
+    transition: none;
+  }
+}

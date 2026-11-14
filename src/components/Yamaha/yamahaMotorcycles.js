@@ -1,4 +1,6 @@
-export const yamahaMotorcycles = [
+import { yamahaIndiaCatalog } from './yamahaIndiaCatalog.js';
+
+export let yamahaMotorcycles = [
   {
     id: 'yzf-r1',
     model: 'YZF-R1',
@@ -113,8 +115,30 @@ export const yamahaMotorcycles = [
   },
 ];
 
-export const defaultYamahaMotorcycle = yamahaMotorcycles[0];
+export let defaultYamahaMotorcycle = yamahaMotorcycles[0];
+export const yamahaAllMotorcycles = [
+  ...yamahaMotorcycles.filter((m) => !yamahaIndiaCatalog.some((c) => c.id === m.id)),
+  ...yamahaIndiaCatalog,
+];
+
+export function replaceYamahaMotorcycles(motorcycles) {
+  if (!Array.isArray(motorcycles) || motorcycles.length === 0) {
+    throw new Error('The public motorcycle catalog must contain at least one motorcycle.');
+  }
+  const homepageMotorcycles = motorcycles.filter((motorcycle) => motorcycle.catalogue?.market !== 'IN');
+  if (homepageMotorcycles.length === 0) {
+    throw new Error('The homepage motorcycle catalog must contain at least one motorcycle.');
+  }
+  yamahaMotorcycles = homepageMotorcycles;
+  defaultYamahaMotorcycle = homepageMotorcycles[0];
+}
 
 export function getYamahaMotorcycle(id) {
-  return yamahaMotorcycles.find((motorcycle) => motorcycle.id === id) ?? defaultYamahaMotorcycle;
+  if (!id) return defaultYamahaMotorcycle;
+  const target = String(id).toLowerCase().trim();
+  return (
+    yamahaMotorcycles.find((motorcycle) => motorcycle.id.toLowerCase() === target)
+    || yamahaIndiaCatalog.find((motorcycle) => motorcycle.id.toLowerCase() === target)
+    || defaultYamahaMotorcycle
+  );
 }

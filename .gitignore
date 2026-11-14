@@ -2,3 +2,7 @@ node_modules/
 .venv/
 dist/
 *.zip
+.env
+.env.*
+server/data/motorcycles.json
+server/data/bookings.json

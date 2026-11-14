@@ -1,42 +1,107 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const sections = ['MODEL OVERVIEW', 'DETAILS', 'MENU'];
+function YamahaHeader({
+  variant = 'static',
+  route,
+  onOverview,
+  onDetails,
+  onCatalog,
+  onBookNow,
+  onServices,
+  onContact,
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
 
-function YamahaHeader({ variant, reducedMotion }) {
-  const [activeSection, setActiveSection] = useState(sections[0]);
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
 
-  const scrollTo = (selector) => {
-    document.querySelector(selector)?.scrollIntoView({
-      behavior: reducedMotion ? 'auto' : 'smooth',
-      block: 'start',
-    });
+  const closeMenuAnd = (action) => {
+    setMenuOpen(false);
+    action?.();
   };
 
+  const isDetailsActive = route === '/motorcycle-details' || (typeof route === 'string' && route.startsWith('/bike-details'));
+
   return (
-    <header className={`yamaha-header yamaha-header--${variant}`}>
-      <a href="#top" className="yamaha-header__wordmark" aria-label="Yamaha home">
+    <header className="yamaha-header">
+      <a
+        href="/"
+        className="yamaha-header__wordmark"
+        aria-label="Vathilai Yamaha Home"
+        onClick={(event) => {
+          event.preventDefault();
+          closeMenuAnd(onOverview);
+        }}
+      >
         YAMAHA<span>®</span>
       </a>
 
-      {variant === 'transparent' ? (
-        <nav className="yamaha-header__primary" aria-label="Main navigation">
-          <button type="button" onClick={() => scrollTo('#yamaha-performance')}>BIKES</button>
-          <button type="button" onClick={() => scrollTo('.yamaha-section06')}>DISCOVER</button>
-          <button type="button" onClick={() => scrollTo('#yamaha-footer')}>CONTACT</button>
-        </nav>
-      ) : (
-        <nav className="yamaha-header__sections" aria-label="Yamaha section navigation">
-          {sections.map((section) => (
-            <button
-              className={activeSection === section ? 'is-active' : ''}
-              key={section}
-              type="button"
-              aria-pressed={activeSection === section}
-              onClick={() => setActiveSection(section)}
-            >
-              {section}
-            </button>
-          ))}
+      <nav className="yamaha-header__sections" aria-label="Main navigation">
+        <button
+          className={route === '/' ? 'is-active' : ''}
+          type="button"
+          aria-current={route === '/' ? 'page' : undefined}
+          onClick={() => closeMenuAnd(onOverview)}
+        >
+          HOME
+        </button>
+        <button
+          className={route === '/bikes' ? 'is-active' : ''}
+          type="button"
+          aria-current={route === '/bikes' ? 'page' : undefined}
+          onClick={() => closeMenuAnd(onCatalog)}
+        >
+          MOTORCYCLES
+        </button>
+        <button
+          className={isDetailsActive ? 'is-active' : ''}
+          type="button"
+          aria-current={isDetailsActive ? 'page' : undefined}
+          onClick={() => closeMenuAnd(onDetails)}
+        >
+          DETAILS
+        </button>
+        <button
+          className={route === '/services' ? 'is-active' : ''}
+          type="button"
+          aria-current={route === '/services' ? 'page' : undefined}
+          onClick={() => closeMenuAnd(onServices)}
+        >
+          SERVICES
+        </button>
+        <button
+          className={`yamaha-header__book-button${route === '/book-now' || route === '/book-us' ? ' is-active' : ''}`}
+          type="button"
+          onClick={() => closeMenuAnd(onBookNow)}
+        >
+          BOOK NOW
+        </button>
+        <button
+          className={`yamaha-header__menu-button${menuOpen ? ' is-active' : ''}`}
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="yamaha-header-menu"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          onClick={() => setMenuOpen((isOpen) => !isOpen)}
+        >
+          MENU
+        </button>
+      </nav>
+
+      {menuOpen && (
+        <nav className="yamaha-header__menu" id="yamaha-header-menu" aria-label="Quick links">
+          <button type="button" onClick={() => closeMenuAnd(onOverview)}>HOME</button>
+          <button type="button" onClick={() => closeMenuAnd(onCatalog)}>MOTORCYCLES</button>
+          <button type="button" onClick={() => closeMenuAnd(onDetails)}>DETAILS</button>
+          <button type="button" onClick={() => closeMenuAnd(onServices)}>SERVICES</button>
+          <button type="button" onClick={() => closeMenuAnd(onBookNow)}>BOOK NOW</button>
+          <button type="button" onClick={() => closeMenuAnd(onContact)}>CONTACT</button>
         </nav>
       )}
     </header>

@@ -9,7 +9,7 @@ const FIRST_FRAME_INDEX = 75;
 const LAST_FRAME_INDEX = 204;
 const INITIAL_FRAME_RADIUS = 2;
 const CACHE_LIMIT = 6;
-const framePath = (index) => `/bikevid/ezgif-frame-${String(index + 1).padStart(3, '0')}.png`;
+const framePath = (index) => `/bikevid/ezgif-frame-${String(index + 1).padStart(3, '0')}.webp`;
 
 function decodeImageElement(url, signal) {
   return new Promise((resolve, reject) => {
