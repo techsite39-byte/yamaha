@@ -53,36 +53,36 @@ None identified during v1 scoping.
 
 ## Traceability
 
-Roadmap phases have not yet been defined.
+Every v1 requirement is assigned to exactly one roadmap phase. Phase mappings reflect the vertical MVP delivery sequence; requirements remain pending until implementation and verification are complete.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Pending roadmap | Pending |
-| DASH-01 | Pending roadmap | Pending |
-| DASH-02 | Pending roadmap | Pending |
-| DASH-03 | Pending roadmap | Pending |
-| DASH-04 | Pending roadmap | Pending |
-| MOTO-01 | Pending roadmap | Pending |
-| MOTO-02 | Pending roadmap | Pending |
-| BOOK-01 | Pending roadmap | Pending |
-| BOOK-02 | Pending roadmap | Pending |
-| ENQ-01 | Pending roadmap | Pending |
-| ENQ-02 | Pending roadmap | Pending |
-| CONTENT-01 | Pending roadmap | Pending |
-| CONTENT-02 | Pending roadmap | Pending |
-| CONTENT-03 | Pending roadmap | Pending |
-| MEDIA-01 | Pending roadmap | Pending |
-| SET-01 | Pending roadmap | Pending |
-| ANALYTICS-01 | Pending roadmap | Pending |
-| API-01 | Pending roadmap | Pending |
-| API-02 | Pending roadmap | Pending |
-| RESP-01 | Pending roadmap | Pending |
-| TEST-01 | Pending roadmap | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| DASH-01 | Phase 1 | Pending |
+| DASH-02 | Phase 1 | Pending |
+| DASH-03 | Phase 1 | Pending |
+| DASH-04 | Phase 1 | Pending |
+| MOTO-01 | Phase 2 | Pending |
+| MOTO-02 | Phase 2 | Pending |
+| BOOK-01 | Phase 2 | Pending |
+| BOOK-02 | Phase 2 | Pending |
+| API-01 | Phase 2 | Pending |
+| API-02 | Phase 2 | Pending |
+| ENQ-01 | Phase 3 | Pending |
+| ENQ-02 | Phase 3 | Pending |
+| SET-01 | Phase 3 | Pending |
+| CONTENT-01 | Phase 4 | Pending |
+| CONTENT-02 | Phase 4 | Pending |
+| CONTENT-03 | Phase 4 | Pending |
+| MEDIA-01 | Phase 4 | Pending |
+| ANALYTICS-01 | Phase 5 | Pending |
+| RESP-01 | Phase 5 | Pending |
+| TEST-01 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-11-14*
