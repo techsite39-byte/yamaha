@@ -23,7 +23,10 @@ Deliver the admin-only dashboard as a sequence of vertical MVP capabilities, reu
   2. Admin requests and actions communicate loading, empty, success, and error states, and a failed request is never presented as a successful save.
   3. Production routes use the API-backed experience, never demo/mock records or browser-only persistence as real business data; any demo path remains explicitly development-only.
   4. The overview's statistics, recent bookings and enquiries, shortcuts, and analytics reflect API-backed records rather than hardcoded counts or sample activity.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Build the truthful API-backed overview contract and complete KPI/trend/recent-activity display
+- [ ] 01-02-PLAN.md — Complete request states, runtime status, analytics trust, and production demo isolation
 **Vertical MVP mode**: Yes — retain the working auth/shell/read-only surfaces and complete the missing overview data path through protected APIs.
 **UI hint**: yes
 
