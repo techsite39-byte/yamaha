@@ -378,7 +378,7 @@ function MotorcycleEditor({ motorcycle, onClose, onSave, saving, error }) {
   );
 }
 
-function MotorcyclesManagement({ motorcycles = [], onEdit, onDelete, onAddNew, query = '' }) {
+function MotorcyclesManagement({ motorcycles = [], onEdit, onDelete, query = '' }) {
   const [categoryFilter, setCategoryFilter] = useState('ALL');
 
   const filtered = useMemo(() => {
@@ -405,10 +405,6 @@ function MotorcyclesManagement({ motorcycles = [], onEdit, onDelete, onAddNew, q
             </button>
           ))}
         </div>
-        <button type="button" className="admin-button admin-button--primary" onClick={onAddNew}>
-          <AdminIcon name="plus" size={15} />
-          <span>Add New Motorcycle</span>
-        </button>
       </div>
 
       <div className="admin-motorcycles-grid">
@@ -1577,7 +1573,6 @@ function YamahaAdmin() {
                 query={query}
                 onEdit={(bike) => setMotorcycleEditor(bike)}
                 onDelete={deleteMotorcycle}
-                onAddNew={() => setMotorcycleEditor({})}
               />
               {motorcycleEditor !== undefined && (
                 <MotorcycleEditor
