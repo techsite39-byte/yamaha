@@ -15,17 +15,18 @@ const sequenceDuration = motorcycles.length + 0.2;
 const transitionDuration = 0.44;
 
 function getBikeState(activeIndex, imageIndex) {
-  const imageScale = imageIndex === 5 ? 0.8 : 1;
+  // Calibrate scaling so all bikes fit completely within the display area without touching/cutting against the spec strip
+  const imageScale = imageIndex === 5 ? 0.74 : (imageIndex === 6 ? 0.80 : 0.82);
 
   if (imageIndex === activeIndex) {
-    return { xPercent: 0, y: 0, rotation: 0, scale: imageScale, autoAlpha: 1, zIndex: 3 };
+    return { xPercent: 0, y: -24, rotation: 0, scale: imageScale, autoAlpha: 1, zIndex: 3 };
   }
 
   const offset = imageIndex - activeIndex;
   if (Math.abs(offset) === 1) {
     return {
       xPercent: offset < 0 ? -38 : 38,
-      y: 48,
+      y: 6,
       rotation: offset < 0 ? -3 : 3,
       scale: 0.58 * imageScale,
       autoAlpha: 0.24,
@@ -34,10 +35,10 @@ function getBikeState(activeIndex, imageIndex) {
   }
 
   if (activeIndex === 0 && imageIndex === 2) {
-    return { xPercent: -47, y: 72, rotation: -5, scale: 0.44 * imageScale, autoAlpha: 0.12, zIndex: 0 };
+    return { xPercent: -47, y: 12, rotation: -5, scale: 0.44 * imageScale, autoAlpha: 0.12, zIndex: 0 };
   }
   if (activeIndex === motorcycles.length - 1 && imageIndex === motorcycles.length - 3) {
-    return { xPercent: 47, y: 72, rotation: 5, scale: 0.44 * imageScale, autoAlpha: 0.12, zIndex: 0 };
+    return { xPercent: 47, y: 12, rotation: 5, scale: 0.44 * imageScale, autoAlpha: 0.12, zIndex: 0 };
   }
 
   return { xPercent: 0, y: 0, rotation: 0, scale: 0.5 * imageScale, autoAlpha: 0, zIndex: 0 };
@@ -51,110 +52,6 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
     const section = sectionRef.current?.closest('.yamaha-section02');
     const images = imagesRef.current.filter(Boolean);
     if (!section || images.length === 0) return undefined;
-    const finalBike = images[images.length - 1];
-    const nextSection = document.querySelector('.yamaha-section03');
-    const centerSlot = nextSection?.querySelector('.yamaha03-bike-slot--center');
-    const originalParent = finalBike.parentElement;
-    let sourceRect = null;
-    let crossingTrigger = null;
-    let travelFinished = false;
-    let handoffFrame = 0;
-
-    const clearBikeTravel = () => {
-      if (handoffFrame) {
-        cancelAnimationFrame(handoffFrame);
-        handoffFrame = 0;
-      }
-      nextSection?.classList.remove('is-bike-travelling');
-      finalBike.classList.remove('yamaha02-bike-traveller');
-      if (finalBike.parentElement !== originalParent) originalParent?.appendChild(finalBike);
-      gsap.set(finalBike, { clearProps: 'position,left,top,right,bottom,width,height,objectFit,zIndex,x,y,xPercent,yPercent,rotation,scale,scaleX,scaleY,transformOrigin,autoAlpha' });
-      sourceRect = null;
-      travelFinished = false;
-    };
-
-    const updateBikeTravel = () => {
-      if (!sourceRect || !nextSection || !centerSlot) return;
-
-      const sectionRect = nextSection.getBoundingClientRect();
-      if (travelFinished && sectionRect.top > 0) {
-        document.body.appendChild(finalBike);
-        travelFinished = false;
-      }
-      if (travelFinished) return;
-
-      const slotRect = centerSlot.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const slotWidth = slotRect.width;
-      const slotHeight = slotRect.height;
-      const naturalWidth = finalBike.naturalWidth || sourceRect.width;
-      const naturalHeight = finalBike.naturalHeight || sourceRect.height;
-      const sourceFitScale = Math.min(sourceRect.width / naturalWidth, sourceRect.height / naturalHeight);
-      const targetFitScale = Math.min(slotWidth / naturalWidth, slotHeight / naturalHeight);
-      const targetScale = targetFitScale / sourceFitScale;
-      const sourceCenterX = sourceRect.left + sourceRect.width / 2;
-      const sourceCenterY = sourceRect.top + sourceRect.height / 2;
-      const targetCenterX = slotRect.left + slotWidth / 2;
-      const targetCenterY = slotRect.top + slotHeight / 2;
-      let progress;
-      let x;
-      let y;
-      let scale;
-
-      if (sectionRect.top > 0) {
-        progress = Math.min(1, Math.max(0, 1 - sectionRect.top / viewportHeight));
-      } else {
-        progress = 1;
-      }
-
-      x = (targetCenterX - sourceCenterX) * progress;
-      y = (targetCenterY - sourceCenterY) * progress;
-      scale = 1 + (targetScale - 1) * progress;
-
-      gsap.set(finalBike, {
-        position: 'fixed',
-        left: sourceRect.left,
-        top: sourceRect.top,
-        right: 'auto',
-        bottom: 'auto',
-        width: sourceRect.width,
-        height: sourceRect.height,
-        objectFit: 'contain',
-        zIndex: 2,
-        x,
-        y,
-        xPercent: 0,
-        yPercent: 0,
-        rotation: 0,
-        scale,
-        transformOrigin: 'center center',
-        autoAlpha: 1,
-      });
-
-      if (sectionRect.top <= 0) {
-        centerSlot.appendChild(finalBike);
-        gsap.set(finalBike, {
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          right: 'auto',
-          bottom: 'auto',
-          width: '100%',
-          height: '100%',
-          x: 0,
-          y: 0,
-          xPercent: 0,
-          yPercent: 0,
-          rotation: 0,
-          scale: 1,
-          scaleX: 1,
-          scaleY: 1,
-          transformOrigin: 'center center',
-          autoAlpha: 1,
-        });
-        travelFinished = true;
-      }
-    };
 
     const context = gsap.context(() => {
       gsap.set(images, { xPercent: 0, y: 0, rotation: 0, scale: 0.5, autoAlpha: 0, zIndex: 0 });
@@ -183,13 +80,16 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
             ease: 'none',
           }, sequenceDuration - 0.32);
         });
-        timeline.to(finalBike, {
-          y: () => window.innerHeight * 0.12,
-          scale: 0.94,
-          autoAlpha: 1,
-          duration: 0.32,
-          ease: 'none',
-        }, sequenceDuration - 0.32);
+
+        // The active/final motorcycle smoothly hands off to Section 03 destination
+        const lastImage = images[images.length - 1];
+        if (lastImage) {
+          timeline.to(lastImage, {
+            autoAlpha: 0,
+            duration: 0.16,
+            ease: 'power1.in',
+          }, sequenceDuration - 0.16);
+        }
       }
 
       const syncActiveBike = (self) => {
@@ -217,38 +117,9 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
         onUpdate: syncActiveBike,
         onRefresh: syncActiveBike,
       });
-
-      if (!reducedMotion && nextSection && centerSlot) {
-        timeline.eventCallback('onComplete', () => {
-          handoffFrame = requestAnimationFrame(() => {
-            handoffFrame = 0;
-            const rect = finalBike.getBoundingClientRect();
-            sourceRect = {
-              left: rect.left,
-              top: rect.top,
-              width: rect.width,
-              height: rect.height,
-            };
-            document.body.appendChild(finalBike);
-            finalBike.classList.add('yamaha02-bike-traveller');
-            nextSection.classList.add('is-bike-travelling');
-            updateBikeTravel();
-          });
-        });
-        timeline.eventCallback('onReverseComplete', clearBikeTravel);
-        crossingTrigger = ScrollTrigger.create({
-          trigger: nextSection,
-          start: 'top bottom',
-          end: 'bottom top',
-          onUpdate: updateBikeTravel,
-          onRefresh: updateBikeTravel,
-        });
-      }
     }, sectionRef);
 
     return () => {
-      crossingTrigger?.kill();
-      clearBikeTravel();
       context.revert();
     };
   }, [onActiveChange, reducedMotion]);
@@ -256,7 +127,7 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
   return (
     <div
       className="yamaha02-bike-sequence"
-      aria-label={motorcycles[activeIndex].alt}
+      aria-label={motorcycles[activeIndex]?.alt || 'Yamaha motorcycle'}
       ref={(node) => {
         sectionRef.current = node;
         if (typeof containerRef === 'function') containerRef(node);

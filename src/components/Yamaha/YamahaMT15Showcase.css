@@ -1,0 +1,605 @@
+/* =========================================================
+   YAMAHA MT-15 "DARE TO CHALLENGE" SHOWCASE SECTION
+   Dark Hyper-Naked Theme with Cyan Storm Accents
+   ========================================================= */
+
+.yamaha-mt15 {
+  --mt15-bg: #06090e;
+  --mt15-surface: #0b111a;
+  --mt15-surface-card: rgba(14, 22, 34, 0.72);
+  --mt15-cyan: #00e5ff;
+  --mt15-cyan-hover: #33ecff;
+  --mt15-cyan-dim: rgba(0, 229, 255, 0.15);
+  --mt15-cyan-glow: rgba(0, 229, 255, 0.28);
+  --mt15-gold: #f59e0b;
+  --mt15-text: #d8e4f0;
+  --mt15-text-muted: #8ca2b8;
+  --mt15-border: rgba(0, 229, 255, 0.18);
+  --mt15-border-subtle: rgba(255, 255, 255, 0.08);
+
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 25%, rgba(0, 229, 255, 0.12) 0%, rgba(6, 10, 18, 0.75) 55%, #04060a 100%),
+    linear-gradient(180deg, #05080e 0%, #070c14 50%, #04070c 100%);
+  color: var(--mt15-text);
+  padding: clamp(64px, 8vw, 110px) clamp(20px, 4vw, 56px);
+  box-sizing: border-box;
+  isolation: isolate;
+}
+
+/* Background Atmosphere Elements */
+.yamaha-mt15__glow-top {
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, 900px);
+  height: 380px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0, 229, 255, 0.22) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.yamaha-mt15__glow-bottom {
+  position: absolute;
+  bottom: -80px;
+  right: 10%;
+  width: 480px;
+  height: 280px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(22, 132, 232, 0.16) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.yamaha-mt15__grid-lines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.yamaha-mt15__container {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1380px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(40px, 5vw, 64px);
+}
+
+/* =========================================================
+   HEADER: Y A M A H A  /  DARE TO CHALLENGE
+   ========================================================= */
+.yamaha-mt15__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.yamaha-mt15__brand-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: #ffffff;
+}
+
+.yamaha-mt15__emblem {
+  width: 28px;
+  height: 28px;
+  color: #ffffff;
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.6));
+}
+
+.yamaha-mt15__brand-wordmark {
+  font: 800 20px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.38em;
+  color: #ffffff;
+}
+
+.yamaha-mt15__tagline-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 4px;
+}
+
+.yamaha-mt15__tagline-dash {
+  display: block;
+  width: clamp(24px, 4vw, 56px);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--mt15-cyan));
+  box-shadow: 0 0 10px var(--mt15-cyan);
+}
+
+.yamaha-mt15__tagline-dash:last-child {
+  background: linear-gradient(90deg, var(--mt15-cyan), transparent);
+}
+
+.yamaha-mt15__tagline {
+  margin: 0;
+  font: 800 clamp(28px, 4vw, 46px)/1.05 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.22em;
+  color: #ffffff;
+  text-shadow: 0 0 24px rgba(0, 229, 255, 0.45);
+}
+
+.yamaha-mt15__sub-kicker {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--mt15-cyan);
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   SHOWCASE GRID: POSTER ON LEFT, INTERACTIVE HUB ON RIGHT
+   ========================================================= */
+.yamaha-mt15__showcase-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.35fr);
+  gap: clamp(32px, 4vw, 56px);
+  align-items: center;
+}
+
+/* POSTER CARD */
+.yamaha-mt15__poster-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 10px;
+  background: linear-gradient(145deg, rgba(0, 229, 255, 0.16) 0%, rgba(10, 17, 28, 0.8) 50%, rgba(4, 7, 12, 0.95) 100%);
+  border: 1px solid var(--mt15-border);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 35px rgba(0, 229, 255, 0.14),
+    inset 0 0 20px rgba(0, 229, 255, 0.06);
+  transition: transform 320ms ease, box-shadow 320ms ease;
+}
+
+.yamaha-mt15__poster-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.7),
+    0 0 50px rgba(0, 229, 255, 0.25);
+  border-color: rgba(0, 229, 255, 0.38);
+}
+
+.yamaha-mt15__poster-frame {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #06090e;
+  line-height: 0;
+}
+
+.yamaha-mt15__poster-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 720px;
+  object-fit: cover;
+  transition: transform 450ms ease;
+}
+
+.yamaha-mt15__poster-card:hover .yamaha-mt15__poster-img {
+  transform: scale(1.02);
+}
+
+.yamaha-mt15__poster-overlay {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  gap: 8px;
+}
+
+.yamaha-mt15__badge-live {
+  padding: 5px 10px;
+  background: rgba(4, 8, 14, 0.88);
+  border: 1px solid var(--mt15-cyan);
+  color: var(--mt15-cyan);
+  font: 700 9px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.18em;
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+}
+
+.yamaha-mt15__badge-color {
+  padding: 5px 10px;
+  background: rgba(4, 8, 14, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font: 700 9px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.14em;
+  border-radius: 4px;
+}
+
+/* =========================================================
+   INFO CARD (RIGHT COLUMN)
+   ========================================================= */
+.yamaha-mt15__info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: clamp(20px, 3vw, 36px);
+  background: var(--mt15-surface-card);
+  border: 1px solid var(--mt15-border-subtle);
+  border-radius: 20px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.yamaha-mt15__badge-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.yamaha-mt15__badge {
+  padding: 5px 11px;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+.yamaha-mt15__badge--cyan {
+  background: var(--mt15-cyan-dim);
+  color: var(--mt15-cyan);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+}
+
+.yamaha-mt15__badge--dark {
+  background: rgba(255, 255, 255, 0.05);
+  color: #d2deeb;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.yamaha-mt15__badge--gold {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.yamaha-mt15__model-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.yamaha-mt15__model-title {
+  margin: 0;
+  font: 900 clamp(44px, 5.2vw, 68px)/0.92 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+  font-style: italic;
+  color: #ffffff;
+  text-shadow: 0 0 30px rgba(0, 229, 255, 0.25);
+  position: relative;
+  display: inline-block;
+}
+
+.yamaha-mt15__model-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 48px;
+  height: 3px;
+  background: var(--mt15-cyan);
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--mt15-cyan);
+}
+
+.yamaha-mt15__model-v2 {
+  font: 700 13px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.2em;
+  color: var(--mt15-cyan);
+  text-transform: uppercase;
+}
+
+.yamaha-mt15__description {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--mt15-text);
+  max-width: 600px;
+}
+
+/* THREE CORE PILLARS FROM REFERENCE */
+.yamaha-mt15__pillars-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 10px;
+  margin: 4px 0;
+}
+
+.yamaha-mt15__pillar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.yamaha-mt15__pillar-word {
+  font: 800 16px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.16em;
+  color: #ffffff;
+}
+
+.yamaha-mt15__pillar-sub {
+  font-size: 10px;
+  color: var(--mt15-cyan);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.yamaha-mt15__pillar-sep {
+  color: rgba(0, 229, 255, 0.35);
+  font-size: 18px;
+}
+
+/* KEY SPECS GRID */
+.yamaha-mt15__specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.yamaha-mt15__spec-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--mt15-border-subtle);
+  border-radius: 8px;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.yamaha-mt15__spec-card:hover {
+  background: rgba(0, 229, 255, 0.04);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.yamaha-mt15__spec-num {
+  font: 800 20px/1.1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+.yamaha-mt15__spec-label {
+  font-size: 9.5px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  color: var(--mt15-cyan);
+  text-transform: uppercase;
+}
+
+.yamaha-mt15__spec-detail {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--mt15-text-muted);
+}
+
+/* ACTION BUTTONS */
+.yamaha-mt15__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.yamaha-mt15__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.yamaha-mt15__btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.yamaha-mt15__btn--primary {
+  background: var(--mt15-cyan);
+  color: #060a10;
+  box-shadow: 0 4px 18px rgba(0, 229, 255, 0.38);
+}
+
+.yamaha-mt15__btn--primary:hover,
+.yamaha-mt15__btn--primary:focus-visible {
+  background: var(--mt15-cyan-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 229, 255, 0.55);
+}
+
+.yamaha-mt15__btn--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.yamaha-mt15__btn--secondary:hover,
+.yamaha-mt15__btn--secondary:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--mt15-cyan);
+  color: var(--mt15-cyan);
+  transform: translateY(-2px);
+}
+
+.yamaha-mt15__btn-arrow {
+  font-size: 14px;
+  transition: transform 200ms ease;
+}
+
+.yamaha-mt15__btn--secondary:hover .yamaha-mt15__btn-arrow {
+  transform: translate(2px, -2px);
+}
+
+.yamaha-mt15__btn--ghost {
+  background: transparent;
+  color: var(--mt15-text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11.5px;
+}
+
+.yamaha-mt15__btn--ghost:hover,
+.yamaha-mt15__btn--ghost:focus-visible {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* =========================================================
+   BOTTOM THREE PILLARS (Reflecting Front / Tank / Tail)
+   ========================================================= */
+.yamaha-mt15__bottom-pillars {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2.5vw, 24px);
+}
+
+.yamaha-mt15__pillar-card {
+  padding: clamp(18px, 2.2vw, 24px);
+  background: rgba(11, 17, 26, 0.65);
+  border: 1px solid var(--mt15-border-subtle);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.yamaha-mt15__pillar-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 229, 255, 0.35);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 229, 255, 0.1);
+}
+
+.yamaha-mt15__pillar-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.yamaha-mt15__pillar-card-tag {
+  font: 800 13px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.18em;
+  color: var(--mt15-cyan);
+  text-transform: uppercase;
+}
+
+.yamaha-mt15__pillar-card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mt15-cyan);
+  box-shadow: 0 0 8px var(--mt15-cyan);
+}
+
+.yamaha-mt15__pillar-card-title {
+  margin: 0;
+  font: 750 17px/1.2 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+.yamaha-mt15__pillar-card-desc {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--mt15-text-muted);
+}
+
+/* =========================================================
+   RESPONSIVENESS
+   ========================================================= */
+@media (max-width: 1024px) {
+  .yamaha-mt15__showcase-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .yamaha-mt15__poster-card {
+    max-width: 580px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .yamaha-mt15__bottom-pillars {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .yamaha-mt15 {
+    padding: 48px 16px;
+  }
+
+  .yamaha-mt15__specs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .yamaha-mt15__pillars-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .yamaha-mt15__pillar-sep {
+    display: none;
+  }
+
+  .yamaha-mt15__actions {
+    flex-direction: column;
+  }
+
+  .yamaha-mt15__btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yamaha-mt15__poster-card,
+  .yamaha-mt15__poster-img,
+  .yamaha-mt15__btn,
+  .yamaha-mt15__pillar-card {
+    transition: none !important;
+  }
+}

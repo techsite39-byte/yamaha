@@ -25,7 +25,7 @@
   align-items: center;
   overflow: hidden;
   isolation: isolate;
-  padding: calc(var(--nav-h, 72px) + 52px) max(7vw, calc((100vw - 1320px) / 2)) 112px;
+  padding: 52px max(7vw, calc((100vw - 1320px) / 2)) 112px;
   background:
     radial-gradient(ellipse at 76% 57%, #063b6c66, transparent 43%),
     linear-gradient(115deg, #080a0e 0%, #090e16 52%, #07101a 100%);

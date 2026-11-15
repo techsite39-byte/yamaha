@@ -1,33 +1,55 @@
 /* ==================================================
-   YAMAHA BIKE DETAILS — SPLIT SCREEN LAYOUT
-   Left Panel: 53% (Premium Deep Yamaha Blue Gradient)
-   Right Panel: 47% (Clean Light Background)
+   YAMAHA BIKE DETAILS — TWO-COLUMN SPLIT-SCREEN
+   Left Panel:  48% width (Showcase & Brand Intro, Zero Pricing)
+   Right Panel: 52% width (Details, Pricing, Dealership & Enquiry)
+   Both columns align directly below the sticky navbar with
+   consistent vertical alignment and zero unwanted margins.
 ================================================== */
 
 .yamaha-bike-detail {
   display: grid;
-  grid-template-columns: 53% 47%;
-  min-height: calc(100svh - var(--nav-h, 76px));
-  padding-top: var(--nav-h, 76px);
+  grid-template-columns: 48% 52%;
+  width: 100%;
+  min-height: calc(100vh - var(--header-height, var(--nav-h, 76px)));
+  min-height: calc(100svh - var(--header-height, var(--nav-h, 76px)));
+  margin: 0;
+  padding: 0;
   background: #f8fafc;
   color: #112035;
+  isolation: isolate;
+  overflow-x: hidden;
+  align-items: stretch;
 }
 
 /* ==================================================
-   LEFT PANEL (53% width, Deep Yamaha Blue Gradient)
+   LEFT PANEL (48% width, Deep Yamaha Blue Gradient)
+   CONTAINS ONLY:
+   1. Yamaha Brand Label
+   2. Selected Motorcycle Name
+   3. Short Tagline
+   4. Large Motorcycle Image (object-fit: contain)
+   5. Overview and Specifications Tabs
+   6. Short Motorcycle Description
+   7. Key Technical Specifications with Icons
+   8. Vathilai Motors Brand Introduction
+   * ZERO PRICING OR DEALERSHIP CONTACT INFO *
 ================================================== */
 .yamaha-details__presentation {
+  min-width: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
-  padding: 36px clamp(24px, 3.8vw, 56px) 48px;
+  padding: clamp(28px, 3.2vw, 44px) clamp(22px, 3vw, 42px);
   background:
-    radial-gradient(ellipse at 80% 20%, rgba(22, 132, 232, 0.22), transparent 70%),
+    radial-gradient(ellipse at 80% 18%, rgba(22, 132, 232, 0.26) 0%, transparent 68%),
+    radial-gradient(ellipse at 20% 80%, rgba(10, 48, 88, 0.32) 0%, transparent 70%),
     linear-gradient(155deg, #07192f 0%, #0a2544 50%, #041223 100%);
   color: #ffffff;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.yamaha-details__presentation-top {
+/* 1. Yamaha Brand Header */
+.yamaha-details__brand-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -35,18 +57,19 @@
   padding-bottom: 12px;
 }
 
-.yamaha-details__brand {
+.yamaha-details__brand-label {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: #72b7f7;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: .16em;
+  letter-spacing: .18em;
+  text-transform: uppercase;
 }
 
-.yamaha-details__brand-sep {
-  color: #4188cb;
+.yamaha-details__brand-dot {
+  color: #3b82f6;
 }
 
 .yamaha-details__bike-nav {
@@ -61,10 +84,10 @@
 
 .yamaha-details__bike-nav button {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
@@ -75,11 +98,12 @@
 .yamaha-details__bike-nav button:hover {
   background: rgba(255, 255, 255, 0.24);
   border-color: #ffffff;
+  transform: scale(1.05);
 }
 
 .yamaha-details__bike-nav svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.2;
@@ -87,59 +111,86 @@
   stroke-linejoin: round;
 }
 
-/* Motorcycle Image Stage */
+/* 2. Selected Motorcycle Name */
+.yamaha-details__model-title {
+  margin: 10px 0 4px;
+  color: #ffffff;
+  font: 700 clamp(36px, 4vw, 54px)/1.02 'Barlow Condensed', sans-serif;
+  letter-spacing: .015em;
+  text-transform: uppercase;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* 3. Short Motorcycle Tagline */
+.yamaha-details__tagline {
+  margin: 0 0 14px;
+  color: #b7d7f7;
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: .015em;
+}
+
+/* 4. Large Motorcycle Image Stage (Properly Centered, Scaled, No Void Below) */
 .yamaha-details__image-stage {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: clamp(260px, 34vh, 420px);
-  margin: 16px 0 20px;
-  padding: 20px;
+  width: 100%;
+  margin: 4px 0 16px;
+  padding: 16px 14px 12px;
   border-radius: 12px;
-  background: radial-gradient(ellipse at center, rgba(16, 68, 116, 0.45) 0%, transparent 75%);
+  background: radial-gradient(ellipse at center, rgba(22, 132, 232, 0.3) 0%, rgba(10, 48, 88, 0.2) 55%, transparent 75%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .yamaha-details__motorcycle-image {
-  max-width: 95%;
-  max-height: clamp(240px, 32vh, 380px);
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  max-height: 290px;
   object-fit: contain;
-  filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.55));
-  transition: transform 300ms ease;
+  object-position: center;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.55));
+  user-select: none;
+  transition: transform 260ms ease;
 }
 
 .yamaha-details__motorcycle-image:hover {
-  transform: scale(1.02);
+  transform: scale(1.025);
 }
 
 .yamaha-details__image-caption {
-  margin-top: 10px;
+  margin-top: 8px;
   color: #63a9e6;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 800;
-  letter-spacing: .2em;
+  letter-spacing: .18em;
+  text-transform: uppercase;
 }
 
 .yamaha-details__thumbnails {
   display: flex;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .yamaha-details__thumbnails button {
-  width: 54px;
-  height: 38px;
-  padding: 3px;
+  width: 52px;
+  height: 36px;
+  padding: 2px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.35);
   cursor: pointer;
+  transition: all 150ms ease;
 }
 
 .yamaha-details__thumbnails button.is-selected {
   border-color: #3ca2f8;
-  box-shadow: 0 0 0 1px #3ca2f8;
+  box-shadow: 0 0 0 2px #3ca2f8;
 }
 
 .yamaha-details__thumb-img {
@@ -148,54 +199,23 @@
   object-fit: contain;
 }
 
-/* Presentation Copy & Tabs */
-.yamaha-details__presentation-copy {
-  margin-top: 10px;
-}
-
-.yamaha-details__eyebrow {
-  margin: 0 0 6px;
-  color: #5bb0f7;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-}
-
-.yamaha-details__presentation-copy h1 {
-  margin: 0;
-  color: #ffffff;
-  font: 500 clamp(36px, 4.4vw, 56px)/1.05 'Barlow Condensed', sans-serif;
-  letter-spacing: .01em;
-}
-
-.yamaha-details__variant-line {
-  margin: 6px 0 20px;
-  color: #bfd9f2;
-  font-size: 14px;
-}
-
-.yamaha-details__dot {
-  margin: 0 6px;
-  color: #5bb0f7;
-}
-
+/* 5. Overview and Specifications Tabs */
 .yamaha-details__tabs {
   display: flex;
-  gap: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  margin-bottom: 18px;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  margin-bottom: 14px;
 }
 
 .yamaha-details__tabs button {
-  padding: 10px 18px;
+  padding: 8px 18px;
   border: none;
   border-bottom: 2px solid transparent;
   background: transparent;
   color: #a4c7e8;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: .12em;
+  letter-spacing: .14em;
   cursor: pointer;
   transition: all 160ms ease;
 }
@@ -209,29 +229,92 @@
   border-bottom-color: #389cf2;
 }
 
+/* Tab Panel Content */
 .yamaha-details__tab-panel {
-  min-height: 120px;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
+/* 6. Short Motorcycle Description */
 .yamaha-details__description {
   margin: 0 0 16px;
   color: #d6e7f7;
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.6;
+}
+
+/* 7. Key Technical Specifications with Icons */
+.yamaha-details__key-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.yamaha-details__key-spec-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(4px);
+}
+
+.yamaha-details__key-spec-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 6px;
+  background: rgba(22, 132, 232, 0.22);
+  color: #61bcf7;
+  flex-shrink: 0;
+}
+
+.yamaha-details__key-spec-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.yamaha-details__key-spec-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.yamaha-details__key-spec-text span {
+  color: #8db8df;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yamaha-details__key-spec-text strong {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .yamaha-details__highlights {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .yamaha-details__highlights li {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.04);
@@ -240,177 +323,155 @@
 .yamaha-details__highlights strong {
   display: block;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .yamaha-details__highlights span {
   display: block;
-  margin-top: 4px;
+  margin-top: 3px;
   color: #a7c8e8;
-  font-size: 11px;
+  font-size: 10.5px;
   line-height: 1.4;
 }
 
 .yamaha-details__quick-specs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px 18px;
+  gap: 8px 16px;
 }
 
 .yamaha-details__quick-specs div {
   display: flex;
   flex-direction: column;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .yamaha-details__quick-specs span {
   color: #8db8df;
-  font-size: 11px;
+  font-size: 10.5px;
 }
 
 .yamaha-details__quick-specs strong {
   color: #ffffff;
-  font-size: 13px;
-  margin-top: 2px;
+  font-size: 12.5px;
+  margin-top: 1px;
 }
 
-/* Price Card in Left Panel */
-.yamaha-details__price-card {
+/* 8. Vathilai Motors Brand Introduction Near Bottom of Left Panel */
+.yamaha-details__about-dealership {
   margin-top: auto;
-  padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 20px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
-  background: rgba(5, 24, 46, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgba(6, 22, 42, 0.74);
+  backdrop-filter: blur(10px);
 }
 
-.yamaha-details__price-header {
+.yamaha-details__about-header {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.yamaha-details__price-header span {
-  color: #79befa;
-  font-size: 11px;
+.yamaha-details__about-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(22, 132, 232, 0.25);
+  color: #63b3f8;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: .12em;
+  letter-spacing: .14em;
 }
 
-.yamaha-details__price-header strong {
+.yamaha-details__about-title {
+  margin: 0;
   color: #ffffff;
-  font: 700 28px/1 'Barlow Condensed', sans-serif;
-  letter-spacing: .02em;
+  font: 700 19px/1.2 'Barlow Condensed', sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
 }
 
-.yamaha-details__price-lines {
-  margin: 14px 0;
+.yamaha-details__about-text {
+  margin: 0 0 14px;
+  color: #c0daf2;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.yamaha-details__about-pillars {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 13px;
 }
 
-.yamaha-details__price-lines div {
+.yamaha-details__about-pillar {
   display: flex;
-  justify-content: space-between;
-  color: #b7d5f0;
-}
-
-.yamaha-details__price-lines strong {
-  color: #ffffff;
-}
-
-.yamaha-details__on-road-line {
-  padding-top: 8px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.15);
-}
-
-.yamaha-details__on-road-line strong {
-  color: #61bcf7;
-  font-size: 15px;
-}
-
-.yamaha-details__price-note {
-  margin: 12px 0 18px;
-  color: #8eb7dc;
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-.yamaha-details__cta-group {
-  display: flex;
-  flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.yamaha-details__btn-book {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 50px;
-  padding: 0 24px;
-  border: 1px solid #0876c9;
-  border-radius: 6px;
+.yamaha-details__pillar-icon {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
   background: #0876c9;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: .12em;
-  cursor: pointer;
-  box-shadow: 0 4px 18px rgba(8, 118, 201, 0.4);
-  transition: all 180ms ease;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
-.yamaha-details__btn-book:hover {
-  background: #065fa4;
-  transform: translateY(-2px);
-}
-
-.yamaha-details__btn-enquire {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 44px;
-  padding: 0 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  background: transparent;
+.yamaha-details__about-pillar strong {
+  display: block;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: .08em;
-  cursor: pointer;
-  transition: all 160ms ease;
+  margin-bottom: 2px;
 }
 
-.yamaha-details__btn-enquire:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #ffffff;
+.yamaha-details__about-pillar p {
+  margin: 0;
+  color: #9ebfdc;
+  font-size: 10.5px;
+  line-height: 1.4;
 }
 
 /* ==================================================
-   RIGHT PANEL (47% width, Clean Light Background)
+   RIGHT PANEL (52% width, Clean Light Background)
+   Arranged in exact order:
+   1. Back to Motorcycles navigation
+   2. Configure Your Motorcycle heading
+   3. Short YZF-R7 description
+   4. Model information card
+   5. Key specifications (tabbed)
+   6. Contact Our Dealership (4 equal cards)
+   7. Enquire About This Motorcycle form
 ================================================== */
 .yamaha-details__content {
-  padding: 36px clamp(24px, 3.6vw, 56px) 60px;
+  min-width: 0;
+  padding: clamp(28px, 3.2vw, 44px) clamp(22px, 3.2vw, 44px);
   background: #ffffff;
+  color: #112035;
   overflow-y: auto;
 }
 
+/* 1. Back to Motorcycles Link */
 .yamaha-details__back-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 24px;
-  padding: 6px 12px;
+  margin-bottom: 16px;
+  padding: 6px 14px;
   border: 1px solid #d2dbe5;
   border-radius: 4px;
   background: #f4f7fa;
@@ -425,94 +486,103 @@
 .yamaha-details__back-link:hover {
   border-color: #0876c9;
   color: #0876c9;
+  background: #edf5fc;
 }
 
-.yamaha-details__right-eyebrow {
-  margin: 0 0 6px;
-  color: #0876c9;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .15em;
-}
-
+/* 2. Configure Your Motorcycle Heading */
 .yamaha-details__right-title {
-  margin: 0;
-  color: #102035;
-  font: 500 clamp(28px, 3vw, 38px)/1.15 'Barlow Condensed', sans-serif;
+  margin: 0 0 4px;
+  color: #0b1a30;
+  font: 700 clamp(28px, 3.2vw, 38px)/1.15 'Barlow Condensed', sans-serif;
+  letter-spacing: .01em;
+  text-transform: uppercase;
 }
 
-.yamaha-details__right-intro {
-  margin: 8px 0 28px;
+/* 3. Short Descriptive Subtitle */
+.yamaha-details__right-subtitle {
+  margin: 0 0 20px;
   color: #5c6f84;
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.55;
 }
 
-/* Summary Card */
+/* 4. Selected Model Information Card */
 .yamaha-details__summary-card {
-  margin-bottom: 32px;
-  padding: 20px 24px;
-  border: 1px solid #e1e8f0;
-  border-radius: 8px;
+  margin-bottom: 24px;
+  padding: 20px 22px;
+  border: 1.5px solid #dbe5ef;
+  border-radius: 10px;
   background: #f8fafc;
 }
 
 .yamaha-details__tag {
+  display: inline-block;
   color: #0876c9;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: .14em;
+  margin-bottom: 4px;
 }
 
-.yamaha-details__summary-card h3 {
-  margin: 4px 0 2px;
-  color: #102035;
-  font-size: 20px;
+.yamaha-details__summary-meta h3 {
+  margin: 2px 0 3px;
+  color: #0b1a30;
+  font-size: 22px;
   font-weight: 700;
 }
 
-.yamaha-details__summary-card p {
-  margin: 0 0 16px;
+.yamaha-details__summary-meta p {
+  margin: 0 0 14px;
   color: #65778b;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
-.yamaha-details__variant-selector {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 12px;
+.yamaha-details__variant-selector-wrap {
+  margin-bottom: 14px;
 }
 
-.yamaha-details__variant-selector span {
+.yamaha-details__field-label {
+  display: block;
+  margin-bottom: 7px;
   color: #435467;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
-.yamaha-details__variant-selector select {
-  min-height: 42px;
-  padding: 8px 12px;
-  border: 1px solid #ced8e2;
+.yamaha-details__variant-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.yamaha-details__variant-pill {
+  padding: 7px 15px;
+  border: 1.5px solid #d0deec;
   border-radius: 6px;
   background: #ffffff;
-  color: #122135;
-  font-size: 13px;
-  font-weight: 600;
+  color: #1f3044;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.yamaha-details__variant-pill:hover {
+  border-color: #0876c9;
+  background: #f0f7ff;
+}
+
+.yamaha-details__variant-pill.is-selected {
+  border-color: #0876c9;
+  background: #0876c9;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(8, 118, 201, 0.25);
 }
 
 .yamaha-details__colors-available {
-  margin-top: 14px;
-}
-
-.yamaha-details__colors-available > span {
-  display: block;
-  margin-bottom: 8px;
-  color: #55687d;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .08em;
+  margin-bottom: 16px;
 }
 
 .yamaha-details__color-tags {
@@ -532,60 +602,161 @@
   font-weight: 600;
 }
 
-/* Section Headings */
+.yamaha-details__summary-prices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid #e4ebf2;
+  border-bottom: 1px solid #e4ebf2;
+  margin-bottom: 16px;
+}
+
+.yamaha-details__summary-price-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.yamaha-details__summary-price-item span {
+  color: #5c7087;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.yamaha-details__summary-price-item strong {
+  color: #0b1a30;
+  font: 700 22px/1.1 'Barlow Condensed', sans-serif;
+  letter-spacing: .01em;
+}
+
+.yamaha-details__summary-price-item--onroad strong {
+  color: #0876c9;
+}
+
+.yamaha-details__summary-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.yamaha-details__btn-book-now {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 6px;
+  background: #0876c9;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(8, 118, 201, 0.3);
+  transition: all 180ms ease;
+}
+
+.yamaha-details__btn-book-now:hover {
+  background: #065fa4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(8, 118, 201, 0.4);
+}
+
+/* Section Headings for Steps */
 .yamaha-details__section-heading {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 20px;
-  padding-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #edf1f6;
 }
 
 .yamaha-details__step-num {
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   place-items: center;
   border-radius: 6px;
   background: #0876c9;
   color: #ffffff;
-  font: 700 13px 'Barlow Condensed', sans-serif;
+  font: 700 12px 'Barlow Condensed', sans-serif;
   letter-spacing: 0.05em;
   flex-shrink: 0;
 }
 
 .yamaha-details__section-heading h3 {
   margin: 0;
-  color: #112035;
-  font: 600 20px/1.2 'Barlow Condensed', sans-serif;
+  color: #0b1a30;
+  font: 700 21px/1.2 'Barlow Condensed', sans-serif;
+  letter-spacing: .02em;
+  text-transform: uppercase;
 }
 
 .yamaha-details__section-heading p {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: #6a7c90;
   font-size: 12px;
 }
 
-/* Specifications Cards */
-.yamaha-details__specs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+/* 5. Key Specifications (Step 01) */
+.yamaha-details__config-section {
+  margin-bottom: 26px;
+}
+
+.yamaha-details__specs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.yamaha-details__specs-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 2px;
+}
+
+.yamaha-details__spec-tab-btn {
+  padding: 6px 14px;
+  border: 1.5px solid #d0deec;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #334860;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.yamaha-details__spec-tab-btn:hover {
+  border-color: #0876c9;
+  color: #0876c9;
+}
+
+.yamaha-details__spec-tab-btn.is-active {
+  border-color: #0876c9;
+  background: #0876c9;
+  color: #ffffff;
 }
 
 .yamaha-details__spec-card {
-  padding: 18px;
-  border: 1px solid #e2e8f0;
+  padding: 18px 20px;
+  border: 1.5px solid #dbe5ef;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
 }
 
 .yamaha-details__spec-card h4 {
   margin: 0 0 12px;
   color: #0876c9;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -597,31 +768,37 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .yamaha-details__spec-card dl div {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
-  font-size: 12px;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 12.5px;
+}
+
+.yamaha-details__spec-card dl div:last-child {
+  border-bottom: none;
 }
 
 .yamaha-details__spec-card dt {
   color: #647589;
+  font-weight: 500;
 }
 
 .yamaha-details__spec-card dd {
   margin: 0;
-  color: #112035;
+  color: #0b1a30;
   font-weight: 700;
   text-align: right;
 }
 
 .yamaha-details__source-url {
-  margin: 16px 0 0;
+  margin: 12px 0 0;
   color: #64778d;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .yamaha-details__source-url a {
@@ -631,45 +808,72 @@
 }
 
 /* ==================================================
-   DEALERSHIP CONTACT SECTION (4 DISTINCT CARDS)
+   6. CONTACT OUR DEALERSHIP (Step 02 - 4 Equal Cards)
+   1. Phone — Call Us
+   2. WhatsApp — WhatsApp Enquiry
+   3. Email — Email Us
+   4. Showroom Address — Visit Dealership / Directions
 ================================================== */
 .yamaha-details__dealership-section {
-  margin-bottom: 36px;
+  margin-bottom: 28px;
+}
+
+.yamaha-details__settings-error {
+  margin: 0 0 12px;
+  color: #8a4b08;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .yamaha-details__contact-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 12px;
 }
 
 .yamaha-details__contact-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 18px 20px;
-  border: 1px solid #d9e4ef;
-  border-radius: 10px;
+  padding: 16px 18px;
+  border: 1.5px solid #d9e4ef;
+  border-radius: 8px;
   background: #f8fafc;
-  box-shadow: 0 2px 8px rgba(0, 43, 102, 0.04);
+  box-shadow: 0 1px 4px rgba(0, 43, 102, 0.03);
   transition: all 180ms ease;
 }
 
 .yamaha-details__contact-card:hover {
   border-color: #0876c9;
   background: #ffffff;
-  box-shadow: 0 6px 18px rgba(8, 118, 201, 0.1);
+  box-shadow: 0 6px 16px rgba(8, 118, 201, 0.1);
   transform: translateY(-2px);
 }
 
 .yamaha-details__contact-card-icon {
-  font-size: 22px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 6px;
+  background: #eaf3fc;
+  color: #0876c9;
   margin-bottom: 8px;
+}
+
+.yamaha-details__contact-card-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.yamaha-details__contact-card--whatsapp .yamaha-details__contact-card-icon {
+  background: #e7f7ed;
+  color: #13873f;
 }
 
 .yamaha-details__contact-card-content {
   flex: 1;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .yamaha-details__contact-card-channel {
@@ -681,20 +885,36 @@
   margin-bottom: 2px;
 }
 
+.yamaha-details__contact-card--whatsapp .yamaha-details__contact-card-channel {
+  color: #13873f;
+}
+
 .yamaha-details__contact-card-title {
-  margin: 0 0 4px;
-  color: #102138;
-  font-size: 16px;
+  margin: 0 0 3px;
+  color: #0b1a30;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .yamaha-details__contact-card-val {
   margin: 0;
   color: #1a2a40;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   line-height: 1.4;
   word-break: break-word;
+}
+
+.yamaha-details__contact-tel-link,
+.yamaha-details__contact-mail-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.yamaha-details__contact-tel-link:hover,
+.yamaha-details__contact-mail-link:hover {
+  color: #0876c9;
+  text-decoration: underline;
 }
 
 .yamaha-details__contact-card-note {
@@ -709,8 +929,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 40px;
-  padding: 0 14px;
+  min-height: 38px;
+  padding: 0 12px;
   border: 1px solid #c8d6e5;
   border-radius: 6px;
   background: #ffffff;
@@ -727,10 +947,6 @@
   border-color: #0876c9;
   background: #0876c9;
   color: #ffffff;
-}
-
-.yamaha-details__contact-card--whatsapp .yamaha-details__contact-card-channel {
-  color: #13873f;
 }
 
 .yamaha-details__contact-card-btn--whatsapp {
@@ -752,53 +968,58 @@
 
 .yamaha-details__contact-card-btn--location:hover {
   background: #065fa4;
+  border-color: #065fa4;
 }
 
 /* ==================================================
-   MOTORCYCLE ENQUIRY FORM
+   7. ENQUIRE ABOUT THIS MOTORCYCLE FORM (Step 03)
 ================================================== */
+.yamaha-details__enquiry-section {
+  margin-bottom: 20px;
+}
+
 .yamaha-details__enquiry-form {
-  padding: 28px;
+  padding: 24px;
   border: 1.5px solid #dce6f2;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #ffffff;
-  box-shadow: 0 4px 20px rgba(0, 43, 102, 0.06);
+  box-shadow: 0 4px 18px rgba(0, 43, 102, 0.05);
 }
 
 .yamaha-details__form-header {
-  margin-bottom: 20px;
-  padding-bottom: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
   border-bottom: 1px solid #edf2f7;
 }
 
 .yamaha-details__form-header h4 {
-  margin: 0 0 4px;
+  margin: 0 0 3px;
   color: #0a192f;
-  font: 700 22px/1.2 'Barlow Condensed', sans-serif;
+  font: 700 21px/1.2 'Barlow Condensed', sans-serif;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
 .yamaha-details__form-subtitle {
   color: #64768b;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 /* Auto-Identified Motorcycle Preview Badge */
 .yamaha-details__auto-selected-badge {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   align-items: center;
-  padding: 14px 18px;
-  margin-bottom: 22px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
   border: 1.5px solid #cfe1f3;
   border-radius: 8px;
   background: linear-gradient(135deg, #f0f7ff 0%, #e6f1fc 100%);
 }
 
 .yamaha-details__auto-selected-thumb {
-  width: 90px;
-  height: 60px;
+  width: 84px;
+  height: 56px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -824,7 +1045,7 @@
 .yamaha-details__auto-tag {
   display: inline-block;
   color: #0876c9;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 800;
   letter-spacing: .12em;
 }
@@ -837,16 +1058,16 @@
 }
 
 .yamaha-details__auto-selected-meta p {
-  margin: 0 0 6px;
+  margin: 0 0 5px;
   color: #556980;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .yamaha-details__auto-prices {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 12px;
+  gap: 10px;
+  font-size: 11.5px;
   color: #334860;
 }
 
@@ -856,18 +1077,19 @@
 
 .yamaha-details__form-error {
   padding: 12px 16px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   border: 1px solid #f2b8b5;
   border-radius: 6px;
   background: #fdf2f2;
   color: #b3261e;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
+/* 2-Column Form Input Grid on Desktop */
 .yamaha-details__form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
+  gap: 16px;
 }
 
 .yamaha-details__field {
@@ -882,7 +1104,7 @@
 
 .yamaha-details__field span {
   color: #33465b;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -894,19 +1116,19 @@
 .yamaha-details__field input,
 .yamaha-details__field select,
 .yamaha-details__field textarea {
-  min-height: 44px;
-  padding: 10px 14px;
+  min-height: 42px;
+  padding: 9px 12px;
   border: 1.5px solid #d0deec;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #ffffff;
   color: #0f1d2e;
   font: inherit;
-  font-size: 13.5px;
+  font-size: 13px;
   transition: all 150ms ease;
 }
 
 .yamaha-details__field textarea {
-  min-height: 85px;
+  min-height: 80px;
   resize: vertical;
 }
 
@@ -918,17 +1140,22 @@
   box-shadow: 0 0 0 3px rgba(8, 118, 201, 0.16);
 }
 
-.yamaha-details__field small {
-  color: #728498;
-  font-size: 11px;
+.yamaha-details__field input:read-only {
+  background: #f2f6fa;
+  color: #33465b;
 }
 
-/* Contact Method Chips */
+.yamaha-details__field small {
+  color: #728498;
+  font-size: 10.5px;
+}
+
+/* Preferred Contact Method Radio Chips */
 .yamaha-details__method-chips {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .yamaha-details__method-chip {
@@ -936,15 +1163,15 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 42px;
   padding: 0 12px;
   border: 1.5px solid #d0deec;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #f8fafc;
   color: #1e2e42;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
   cursor: pointer;
   transition: all 140ms ease;
 }
@@ -958,7 +1185,7 @@
   border-color: #0876c9;
   background: #eaf3fc;
   color: #0876c9;
-  box-shadow: 0 2px 8px rgba(8, 118, 201, 0.15);
+  box-shadow: 0 2px 8px rgba(8, 118, 201, 0.14);
 }
 
 .yamaha-details__chip-radio-circle {
@@ -978,7 +1205,13 @@
 }
 
 .yamaha-details__chip-icon {
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.yamaha-details__chip-icon svg {
+  width: 14px;
+  height: 14px;
 }
 
 .yamaha-details__enquiry-submit-btn {
@@ -986,26 +1219,26 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 50px;
-  margin-top: 24px;
+  min-height: 48px;
+  margin-top: 20px;
   padding: 0 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #0876c9;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 800;
   letter-spacing: .12em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(8, 118, 201, 0.35);
+  box-shadow: 0 4px 14px rgba(8, 118, 201, 0.32);
   transition: all 180ms ease;
 }
 
 .yamaha-details__enquiry-submit-btn:hover:not(:disabled) {
   background: #065fa4;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(8, 118, 201, 0.45);
+  box-shadow: 0 6px 18px rgba(8, 118, 201, 0.42);
 }
 
 .yamaha-details__enquiry-submit-btn:disabled {
@@ -1014,9 +1247,9 @@
 }
 
 .yamaha-details__form-footnote {
-  margin: 14px 0 0;
+  margin: 12px 0 0;
   color: #64748b;
-  font-size: 11.5px;
+  font-size: 11px;
   text-align: center;
   line-height: 1.5;
 }
@@ -1025,24 +1258,25 @@
    ENQUIRY SUCCESS CONFIRMATION PANEL
 ================================================== */
 .yamaha-details__enquiry-success {
-  padding: 36px 28px;
+  padding: 32px 24px;
   border: 1.5px solid #a3d9b4;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #f4faf6;
-  box-shadow: 0 4px 20px rgba(16, 138, 74, 0.08);
+  box-shadow: 0 4px 18px rgba(16, 138, 74, 0.08);
 }
 
 .yamaha-details__success-icon-wrap {
   display: grid;
-  width: 52px;
-  height: 52px;
-  margin: 0 auto 14px;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
   place-items: center;
   border-radius: 50%;
   background: #118a4a;
   color: #ffffff;
-  font-size: 26px;
-  box-shadow: 0 4px 12px rgba(17, 138, 74, 0.3);
+  font-size: 24px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(17, 138, 74, 0.28);
 }
 
 .yamaha-details__success-eyebrow {
@@ -1058,15 +1292,16 @@
 .yamaha-details__success-title {
   margin: 0 0 6px;
   color: #0b3d1f;
-  font: 700 24px/1.2 'Barlow Condensed', sans-serif;
+  font: 700 23px/1.2 'Barlow Condensed', sans-serif;
   letter-spacing: .03em;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .yamaha-details__success-lead {
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   color: #245738;
-  font-size: 14px;
+  font-size: 13.5px;
   text-align: center;
 }
 
@@ -1074,17 +1309,17 @@
   background: #ffffff;
   border: 1px solid #d1ebd8;
   border-radius: 8px;
-  padding: 16px 20px;
-  margin-bottom: 20px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
 }
 
 .yamaha-details__success-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 7px 0;
   border-bottom: 1px solid #f0f7f2;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .yamaha-details__success-row:last-child {
@@ -1102,8 +1337,8 @@
 
 .yamaha-details__success-ref {
   color: #0876c9 !important;
-  font-family: monospace;
-  font-size: 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13.5px;
   letter-spacing: 0.05em;
 }
 
@@ -1111,23 +1346,23 @@
   background: #ffffff;
   border: 1px solid #d1ebd8;
   border-radius: 8px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
   text-align: left;
 }
 
 .yamaha-details__success-dealership-card h4 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   color: #118a4a;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: .12em;
 }
 
 .yamaha-details__success-dealership-card p {
-  margin: 4px 0;
+  margin: 3px 0;
   color: #1f3b2a;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -1139,18 +1374,18 @@
 .yamaha-details__success-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
 }
 
 .yamaha-details__btn-back-motorcycles {
-  min-height: 44px;
-  padding: 0 20px;
+  min-height: 42px;
+  padding: 0 18px;
   border: 1px solid #0876c9;
   border-radius: 6px;
   background: #0876c9;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: .08em;
   cursor: pointer;
@@ -1162,13 +1397,13 @@
 }
 
 .yamaha-details__btn-sub-another {
-  min-height: 44px;
-  padding: 0 18px;
+  min-height: 42px;
+  padding: 0 16px;
   border: 1px solid #c8d6e5;
   border-radius: 6px;
   background: #ffffff;
   color: #122136;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
   transition: all 160ms ease;
@@ -1181,16 +1416,54 @@
 }
 
 /* ==================================================
-   RESPONSIVENESS
+   RESPONSIVE DESIGN (1920px, 1440px, 1024px, 768px, 390px, 360px)
 ================================================== */
+@media (min-width: 1600px) {
+  .yamaha-details__presentation {
+    padding: 48px clamp(36px, 4vw, 56px);
+  }
+
+  .yamaha-details__content {
+    padding: 48px clamp(36px, 4vw, 56px);
+  }
+
+  .yamaha-details__motorcycle-image {
+    max-width: 580px;
+    max-height: 330px;
+  }
+}
+
 @media (max-width: 1024px) {
+  .yamaha-bike-detail {
+    grid-template-columns: 46% 54%;
+  }
+
+  .yamaha-details__presentation {
+    padding: 24px 20px 32px;
+  }
+
+  .yamaha-details__content {
+    padding: 24px 20px 36px;
+  }
+
+  .yamaha-details__key-specs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
   .yamaha-bike-detail {
     grid-template-columns: 1fr;
   }
 
   .yamaha-details__presentation {
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 30px 22px 36px;
+  }
+
+  .yamaha-details__content {
+    padding: 30px 22px 48px;
   }
 
   .yamaha-details__contact-cards {
@@ -1198,16 +1471,28 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 680px) {
   .yamaha-details__presentation {
-    padding: 24px 16px 36px;
+    padding: 22px 16px 32px;
   }
 
   .yamaha-details__content {
-    padding: 28px 16px 48px;
+    padding: 24px 16px 44px;
+  }
+
+  .yamaha-details__model-title {
+    font-size: 34px;
+  }
+
+  .yamaha-details__key-specs-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .yamaha-details__contact-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .yamaha-details__summary-prices {
     grid-template-columns: 1fr;
   }
 
@@ -1235,6 +1520,24 @@
   .yamaha-details__success-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 3px;
+  }
+}
+
+@media (max-width: 390px) {
+  .yamaha-details__presentation {
+    padding: 18px 12px 28px;
+  }
+
+  .yamaha-details__content {
+    padding: 20px 12px 36px;
+  }
+
+  .yamaha-details__model-title {
+    font-size: 30px;
+  }
+
+  .yamaha-details__key-specs-grid {
+    grid-template-columns: 1fr;
   }
 }

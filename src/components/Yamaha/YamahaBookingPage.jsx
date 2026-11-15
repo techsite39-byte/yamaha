@@ -6,15 +6,14 @@ import {
   getCataloguePrice,
   getMotorcycleSlug,
 } from './yamahaCatalogueUtils.js';
+import { getPhoneHref } from './businessConfig.js';
+import { useBusinessSettings } from './useBusinessSettings.js';
 import './YamahaBookingPage.css';
 
 const DEALERSHIPS = [
-  'Vathilai Motors — Anna Salai, Chennai',
-  'Vathilai Motors — Mount Road Flagship, Chennai',
-  'Vathilai Motors — Velachery Service Hub, Chennai',
-  'Vathilai Motors — Ambattur Industrial Estate, Chennai',
-  'Vathilai Motors — Coimbatore Central',
-  'Vathilai Motors — Madurai Bypass',
+  'Vathilai Motors — Main Showroom, Batlagundu (Dindigul)',
+  'Vathilai Motors — Madurai Main Road Branch',
+  'Vathilai Motors — Dindigul Central Hub',
 ];
 
 const TIME_SLOTS = [
@@ -45,13 +44,49 @@ const initialForm = {
   phone: '',
   email: '',
   state: 'Tamil Nadu',
-  city: 'Chennai',
+  city: 'Batlagundu',
   dealership: DEALERSHIPS[0],
   appointmentDate: getTomorrowDateString(),
   appointmentTime: TIME_SLOTS[0],
   message: '',
-  consent: false,
+  consent: true,
 };
+
+export function buildWhatsAppBookingMessage({
+  reference,
+  name,
+  phone,
+  model,
+  variant,
+  price,
+  dealership,
+  appointmentDate,
+  appointmentTime,
+}) {
+  return [
+    `🏍️ *VATHILAI MOTORS — YAMAHA BOOKING CONFIRMATION*`,
+    ``,
+    `Dear *${name}*,`,
+    `Thank you for booking with *Vathilai Motors*! Our team has received your booking enquiry and will shortly consider and contact you.`,
+    ``,
+    `📋 *Booking Details:*`,
+    `• *Reference ID:* ${reference}`,
+    `• *Motorcycle:* ${model}`,
+    `• *Variant:* ${variant || 'Standard'}`,
+    `• *Ex-Showroom Price:* ${price || 'Verified Pricing'}`,
+    `• *Customer Name:* ${name}`,
+    `• *Mobile Number:* ${phone}`,
+    `• *Dealership:* ${dealership}`,
+    `• *Appointment Date:* ${appointmentDate}`,
+    `• *Preferred Time Slot:* ${appointmentTime}`,
+    ``,
+    `📍 *Dealership Location:*`,
+    `Parimalam Theatre Complex, Main Road, Opp. Union Office Madurai, Batlagundu, Dindigul, Tamil Nadu – 624202.`,
+    `📞 *Dealership Phone:* 081444 45566`,
+    ``,
+    `Thank you for choosing Yamaha & Vathilai Motors!`,
+  ].join('\n');
+}
 
 export function resolveSelectedBike(bikes, searchString, fallbackBike = null) {
   if (!Array.isArray(bikes) || bikes.length === 0) return fallbackBike;
@@ -106,7 +141,10 @@ function YamahaBookingPage({
   initialVariant = '',
   onBack,
 }) {
+  const { business } = useBusinessSettings();
   const [form, setForm] = useState(initialForm);
+  const nameInputRef = useRef(null);
+  const formSectionRef = useRef(null);
 
   // 1. Single reliable selectedBikeId state, initialized from URL or verified catalogue
   const [selectedBikeId, setSelectedBikeId] = useState(() => {
@@ -187,8 +225,9 @@ function YamahaBookingPage({
     setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  // When customer clicks a bike card
-  const handleSelectBike = (bike) => {
+  // When customer clicks BOOK NOW on a bike card:
+  // Automatically select the bike and smooth scroll to the basic info form (Name & Mobile)
+  const handleBookNowClick = (bike) => {
     if (!bike) return;
     setSelectedBikeId(bike.id);
     const newVariant = bike.catalogue?.variants?.[0] ?? '';
@@ -198,6 +237,15 @@ function YamahaBookingPage({
 
     // Synchronise all URL parameters cleanly using the genuine motorcycle record
     syncUrlWithMotorcycle(bike, newVariant);
+
+    // Smoothly scroll down to the basic info form and focus the name input
+    setTimeout(() => {
+      const section = formSectionRef.current || document.getElementById('booking-form-section');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      nameInputRef.current?.focus();
+    }, 60);
   };
 
   const handleVariantChange = (event) => {
@@ -218,6 +266,7 @@ function YamahaBookingPage({
 
     if (!form.name.trim() || form.name.trim().length < 2) {
       setError('Please enter your full name (minimum 2 characters).');
+      nameInputRef.current?.focus();
       return;
     }
 
@@ -227,25 +276,18 @@ function YamahaBookingPage({
       return;
     }
 
-    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      setError('Please enter a valid email address.');
+    const trimmedEmail = form.email.trim();
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError('Please enter a valid email address, or leave it blank.');
       return;
     }
+    const finalEmail = trimmedEmail || `${cleanPhone}@vathilaimotors.in`;
 
-    if (!form.city.trim()) {
-      setError('Please enter your city.');
-      return;
-    }
-
-    if (!form.appointmentDate) {
-      setError('Please select an appointment date.');
-      return;
-    }
-
-    if (!form.consent) {
-      setError('Please agree to the contact consent checkbox before submitting.');
-      return;
-    }
+    const city = form.city.trim() || 'Batlagundu';
+    const state = form.state.trim() || 'Tamil Nadu';
+    const dealership = form.dealership.trim() || DEALERSHIPS[0];
+    const appointmentDate = form.appointmentDate || getTomorrowDateString();
+    const appointmentTime = form.appointmentTime || TIME_SLOTS[0];
 
     setSubmitting(true);
     setError('');
@@ -263,19 +305,20 @@ function YamahaBookingPage({
           requestId: submissionId.current,
           motorcycleId: motorcycle.id,
           variant: selectedVariant,
-          appointmentDate: form.appointmentDate,
-          appointmentTime: form.appointmentTime,
-          dealership: form.dealership,
+          appointmentDate,
+          appointmentTime,
+          dealership,
           customer: {
             name: form.name.trim(),
             phone: cleanPhone,
-            email: form.email.trim(),
-            city: form.city.trim(),
-            state: form.state.trim(),
-            dealership: form.dealership.trim(),
-            appointmentDate: form.appointmentDate,
-            appointmentTime: form.appointmentTime,
+            email: finalEmail,
+            city,
+            state,
+            dealership,
+            appointmentDate,
+            appointmentTime,
             message: form.message.trim(),
+            preferredContactMethod: 'WhatsApp',
           },
           consent: true,
         }),
@@ -288,6 +331,7 @@ function YamahaBookingPage({
       if (typeof result?.reference !== 'string' || !result.reference.trim()) {
         throw new Error('The server did not return a valid booking reference. Please contact the dealership.');
       }
+
       setReference(result.reference);
     } catch (requestError) {
       setError(requestError.message || 'We could not submit your booking request. Please try again.');
@@ -305,14 +349,16 @@ function YamahaBookingPage({
 
   // SUCCESS CONFIRMATION STATE
   if (reference) {
+    const cleanPhone = form.phone.replace(/[\s-]/g, '');
+
     return (
       <main className="yamaha-booking yamaha-booking--success">
         <div className="yamaha-booking__success-container">
           <div className="yamaha-booking__success-icon" aria-hidden="true">✓</div>
           <p className="yamaha-booking__eyebrow">BOOKING ENQUIRY CONFIRMED</p>
-          <h1>Thank you, {form.name.trim() || 'Rider'}. We’ll be in touch!</h1>
+          <h1>Thank you, {form.name.trim() || 'Valued Customer'}!</h1>
           <p className="yamaha-booking__success-message">
-            Your booking request for the <strong>{motorcycle?.model ?? 'Yamaha Motorcycle'}</strong> has been verified and registered directly with Vathilai Motors.
+            Your booking request for the <strong>{motorcycle?.model ?? 'Yamaha Motorcycle'}</strong> has been registered directly with Vathilai Motors. Our team will shortly consider and contact you!
           </p>
 
           <div className="yamaha-booking__reference-box">
@@ -320,21 +366,26 @@ function YamahaBookingPage({
             <strong>{reference}</strong>
           </div>
 
+          <div className="yamaha-booking__whatsapp-status-badge">
+            <span className="yamaha-booking__status-dot" aria-hidden="true" />
+            <span>Booking details sent automatically to your WhatsApp: <strong>+91 {cleanPhone}</strong></span>
+          </div>
+
           <div className="yamaha-booking__confirmation-details">
             <dl>
               <div><dt>Model & Variant</dt><dd>{motorcycle?.model} ({selectedVariant || 'Standard'})</dd></div>
               <div><dt>Indicative Ex-Showroom</dt><dd>{formatINR(price?.exShowroom)}</dd></div>
-              <div><dt>Estimated On-Road (Chennai)</dt><dd>{formatINR(price?.onRoad)}</dd></div>
+              <div><dt>Estimated On-Road (Tamil Nadu)</dt><dd>{formatINR(price?.onRoad)}</dd></div>
               <div><dt>Dealership</dt><dd>{form.dealership}</dd></div>
               <div><dt>Appointment Date</dt><dd>{form.appointmentDate}</dd></div>
               <div><dt>Preferred Time Slot</dt><dd>{form.appointmentTime}</dd></div>
-              <div><dt>Contact Mobile</dt><dd>{form.phone}</dd></div>
-              <div><dt>Email Address</dt><dd>{form.email}</dd></div>
+              <div><dt>Customer Name</dt><dd>{form.name.trim()}</dd></div>
+              <div><dt>WhatsApp Mobile</dt><dd>+91 {cleanPhone}</dd></div>
             </dl>
           </div>
 
           <p className="yamaha-booking__no-payment">
-            <strong>Important Notice:</strong> No payment has been taken online. This submission reserves your showroom appointment and priority consultation with our Yamaha sales advisors.
+            <strong>Important Notice:</strong> No payment has been taken online. This submission reserves your showroom appointment and priority consultation with our Vathilai Motors Yamaha sales team.
           </p>
 
           <div className="yamaha-booking__success-actions">
@@ -344,8 +395,8 @@ function YamahaBookingPage({
             <button type="button" className="yamaha-booking__btn-secondary" onClick={onBack}>
               BACK TO MOTORCYCLES
             </button>
-            <a href="tel:+919840123456" className="yamaha-booking__btn-call">
-              CALL DEALERSHIP: +91 98401 23456
+            <a href={getPhoneHref(business.phone || '081444 45566')} className="yamaha-booking__btn-call">
+              CALL DEALERSHIP: {business.phone || '081444 45566'}
             </a>
           </div>
         </div>
@@ -395,13 +446,13 @@ function YamahaBookingPage({
                 <article
                   key={bike.id}
                   className={`yamaha-booking__bike-card${isSelected ? ' is-selected' : ''}`}
-                  onClick={() => handleSelectBike(bike)}
+                  onClick={() => handleBookNowClick(bike)}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      handleSelectBike(bike);
+                      handleBookNowClick(bike);
                     }
                   }}
                   aria-pressed={isSelected}
@@ -430,16 +481,16 @@ function YamahaBookingPage({
                       className={`yamaha-booking__bike-select-btn${isSelected ? ' is-active' : ''}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleSelectBike(bike);
+                        handleBookNowClick(bike);
                       }}
                     >
                       {isSelected ? (
                         <>
                           <span className="yamaha-booking__btn-check" aria-hidden="true">✓</span>
-                          <span>SELECTED</span>
+                          <span>SELECTED · BOOK NOW →</span>
                         </>
                       ) : (
-                        <span>SELECT BIKE</span>
+                        <span>BOOK NOW →</span>
                       )}
                     </button>
                   </div>
@@ -450,22 +501,44 @@ function YamahaBookingPage({
         </section>
 
         {/* FORM & STICKY SUMMARY LAYOUT */}
-        <div className="yamaha-booking__form-layout">
+        <div className="yamaha-booking__form-layout" ref={formSectionRef} id="booking-form-section">
           <form className="yamaha-booking__form" onSubmit={handleSubmit} noValidate>
-            {/* SECTION C — CUSTOMER INFORMATION */}
+            {/* SECTION C — BASIC INFORMATION */}
             <section className="yamaha-booking__section" aria-labelledby="customer-details-title">
               <div className="yamaha-booking__section-header">
                 <span className="yamaha-booking__step-indicator">02</span>
                 <div>
-                  <h2 id="customer-details-title">Customer Information</h2>
-                  <p>Provide your contact details so our dealership team can schedule your appointment.</p>
+                  <h2 id="customer-details-title">Basic Information</h2>
+                  <p>Provide your name and WhatsApp mobile number to complete your booking with Vathilai Motors.</p>
                 </div>
               </div>
+
+              {motorcycle && (
+                <div className="yamaha-booking__selected-bike-banner">
+                  <div className="yamaha-booking__selected-bike-badge">
+                    <span className="yamaha-booking__badge-pulse" aria-hidden="true" />
+                    <span>MOTORCYCLE AUTOMATICALLY SELECTED</span>
+                  </div>
+                  <div className="yamaha-booking__selected-bike-info">
+                    <div className="yamaha-booking__selected-bike-title">
+                      <h3>{motorcycle.model}</h3>
+                      <span className="yamaha-booking__selected-bike-variant">
+                        Variant: <strong>{selectedVariant || 'Standard'}</strong>
+                      </span>
+                    </div>
+                    <div className="yamaha-booking__selected-bike-price">
+                      <span>Ex-Showroom Price</span>
+                      <strong>{formatINR(price?.exShowroom)}</strong>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="yamaha-booking__form-grid">
                 <label className="yamaha-booking__field">
                   <span>FULL NAME <b aria-hidden="true">*</b></span>
                   <input
+                    ref={nameInputRef}
                     name="name"
                     type="text"
                     autoComplete="name"
@@ -478,7 +551,7 @@ function YamahaBookingPage({
                 </label>
 
                 <label className="yamaha-booking__field">
-                  <span>MOBILE NUMBER <b aria-hidden="true">*</b></span>
+                  <span>MOBILE NUMBER (WHATSAPP) <b aria-hidden="true">*</b></span>
                   <input
                     name="phone"
                     type="tel"
@@ -490,21 +563,21 @@ function YamahaBookingPage({
                     value={form.phone}
                     onChange={updateForm}
                   />
-                  <small>10-digit Indian mobile number</small>
+                  <small>Booking details will be sent automatically to this WhatsApp number</small>
                 </label>
 
                 <label className="yamaha-booking__field">
-                  <span>EMAIL ADDRESS <b aria-hidden="true">*</b></span>
+                  <span>EMAIL ADDRESS (OPTIONAL)</span>
                   <input
                     name="email"
                     type="email"
                     autoComplete="email"
                     maxLength="254"
-                    placeholder="name@example.com"
-                    required
+                    placeholder="name@example.com (optional)"
                     value={form.email}
                     onChange={updateForm}
                   />
+                  <small>Optional — you can leave this blank</small>
                 </label>
 
                 <label className="yamaha-booking__field">
@@ -617,16 +690,16 @@ function YamahaBookingPage({
                 disabled={submitting || !motorcycle}
               >
                 {submitting ? (
-                  <span>SUBMITTING ENQUIRY…</span>
+                  <span>SUBMITTING BOOKING…</span>
                 ) : (
                   <>
-                    <span>SUBMIT BOOKING ENQUIRY</span>
+                    <span>CONFIRM BOOKING NOW</span>
                     <span aria-hidden="true">→</span>
                   </>
                 )}
               </button>
               <p className="yamaha-booking__submit-note">
-                No credit card or online payment required. Your information is securely submitted to Vathilai Motors.
+                No payment required. Booking details will be sent automatically to your WhatsApp number.
               </p>
             </div>
           </form>

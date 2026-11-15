@@ -32,14 +32,28 @@ function YamahaHeader({
     <header className="yamaha-header">
       <a
         href="/"
-        className="yamaha-header__wordmark"
-        aria-label="Vathilai Yamaha Home"
+        className="yamaha-header__brand"
+        aria-label="Vathilai Motors — Authorised Yamaha Dealership"
         onClick={(event) => {
           event.preventDefault();
           closeMenuAnd(onOverview);
         }}
       >
-        YAMAHA<span>®</span>
+        <div className="yamaha-header__logo-container">
+          <img
+            src="/imgs/favicon.png"
+            alt="Vathilai Motors Logo"
+            className="yamaha-header__logo-img"
+          />
+        </div>
+        <div className="yamaha-header__titles">
+          <div className="yamaha-header__primary-line">
+            <span className="yamaha-header__yamaha-mark">YAMAHA</span>
+            <span className="yamaha-header__sep" aria-hidden="true">|</span>
+            <span className="yamaha-header__dealership-name">VATHILAI MOTORS</span>
+          </div>
+          <span className="yamaha-header__tagline">AUTHORISED DEALERSHIP</span>
+        </div>
       </a>
 
       <nav className="yamaha-header__sections" aria-label="Main navigation">

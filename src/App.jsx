@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import YamahaHeader from './components/Yamaha/YamahaHeader.jsx';
+import YamahaFooter from './components/Yamaha/YamahaFooter.jsx';
 import {
   defaultYamahaMotorcycle,
   getYamahaMotorcycle,
@@ -112,8 +113,8 @@ function App() {
   }, [motorcycles]);
 
   const navigateToDetails = (bikeId) => {
-    if (route === '/motorcycle-details') return;
-    const motorcycle = getYamahaMotorcycle(bikeId);
+    const published = getPublishedIndiaBikes(motorcycles);
+    const motorcycle = findMotorcycleByIdOrSlug(published, bikeId) || getYamahaMotorcycle(bikeId);
     const path = `/motorcycle-details?bike=${encodeURIComponent(motorcycle.id)}`;
     window.history.pushState({
       fromHome: route === '/',
@@ -143,11 +144,19 @@ function App() {
   };
 
   const navigateCatalogBike = (bikeId) => {
-    const motorcycle = findMotorcycleByIdOrSlug(getPublishedIndiaBikes(motorcycles), bikeId);
+    const published = getPublishedIndiaBikes(motorcycles);
+    const motorcycle = findMotorcycleByIdOrSlug(published, bikeId) || getYamahaMotorcycle(bikeId);
     if (!motorcycle) return;
+    if (route === '/motorcycle-details') {
+      const path = `/motorcycle-details?bike=${encodeURIComponent(motorcycle.id)}`;
+      window.history.pushState(window.history.state, '', path);
+      setSelectedBikeId(motorcycle.id);
+      window.scrollTo(0, 0);
+      return;
+    }
     const slug = getMotorcycleSlug(motorcycle);
     const path = `/bike-details/${slug}?bike=${encodeURIComponent(motorcycle.id)}`;
-    window.history.replaceState(window.history.state, '', path);
+    window.history.pushState(window.history.state, '', path);
     setCatalogBikeId(motorcycle.id);
     setBookingVariant('');
     setBookingColor('');
@@ -274,22 +283,38 @@ function App() {
       onContact={() => navigateToHome('#yamaha-footer')}
     />
   );
+  const footer = (
+    <YamahaFooter
+      selectedBikeId={catalogBikeId || selectedBikeId || catalogBikes[0]?.id}
+      onHome={() => navigateToHome()}
+      onCatalog={navigateToCatalog}
+      onDetails={() => navigateToDetails(selectedBikeId || catalogBikes[0]?.id)}
+      onServices={navigateToServices}
+      onBookNow={() => navigateToBooking(catalogBikeId || selectedBikeId || catalogBikes[0]?.id)}
+      onContact={() => navigateToHome('#yamaha-footer')}
+    />
+  );
 
   if (route === '/motorcycle-details') {
-    const bike = findMotorcycleByIdOrSlug(catalogBikes, selectedBikeId) || getYamahaMotorcycle(selectedBikeId);
+    const params = new URLSearchParams(window.location.search);
+    const bikeParam = params.get('bike') || params.get('slug') || params.get('model') || selectedBikeId;
+    const allAvailableBikes = catalogBikes.length ? catalogBikes : yamahaAllMotorcycles;
+    const bike = findMotorcycleByIdOrSlug(allAvailableBikes, bikeParam) || getYamahaMotorcycle(bikeParam);
     return (
       <>
         {header}
         <Suspense fallback={<main className="yamaha-bike-detail" aria-label="Loading motorcycle details" />}>
           <YamahaBikeDetailsPage
+            key={bike.id}
             motorcycle={bike}
-            motorcycles={catalogBikes}
+            motorcycles={allAvailableBikes}
             onBack={navigateBack}
             onSelectBike={navigateCatalogBike}
             onBookBike={navigateToBooking}
             onContact={() => navigateToHome('#yamaha-footer')}
           />
         </Suspense>
+        {footer}
       </>
     );
   }
@@ -306,6 +331,7 @@ function App() {
             onBookBike={(bikeId) => navigateToBooking(bikeId)}
           />
         </Suspense>
+        {footer}
       </>
     );
   }
@@ -333,6 +359,7 @@ function App() {
             </main>
           )}
         </Suspense>
+        {footer}
       </>
     );
   }
@@ -356,6 +383,7 @@ function App() {
             onBack={navigateBackToCatalog}
           />
         </Suspense>
+        {footer}
       </>
     );
   }
@@ -367,6 +395,7 @@ function App() {
         <Suspense fallback={<main style={{ height: '100svh', minHeight: 320, background: '#05080f' }} />}>
           <YamahaServices />
         </Suspense>
+        {footer}
       </>
     );
   }
@@ -379,8 +408,10 @@ function App() {
         selectedBikeId={selectedBikeId}
         onActiveBikeChange={handleActiveBikeChange}
         onDealerContact={navigateToDetails}
+        onBookNow={navigateToBooking}
       />
     </Suspense>
+    {footer}
   </>;
 }
 

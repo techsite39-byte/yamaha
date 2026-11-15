@@ -371,7 +371,7 @@ function DemoCollectionPage({ collectionKey, title }) {
   );
 }
 
-function AdminDemoMode() {
+function AdminDemoMode({ onSwitchToApi }) {
   const [pathname, setPathname] = useState(window.location.pathname.replace(/\/+$/, '') || '/admin');
   const [resetNotice, setResetNotice] = useState('');
   const pageTitle = pageTitles.get(pathname) ?? 'Admin Demo';
@@ -436,7 +436,22 @@ function AdminDemoMode() {
       <section className="admin-main">
         <header className="admin-topbar">
           <div className="admin-breadcrumb"><span>YAMAHA</span><i>/</i><strong>{pageTitle}</strong></div>
-          <div className="admin-account"><span className="admin-account__status"><i /> DEVELOPMENT DEMO</span><span className="admin-account__name">Demo Administrator</span><a href="/" className="admin-logout">EXIT DEMO</a></div>
+          <div className="admin-account">
+            <span className="admin-account__status"><i /> DEVELOPMENT DEMO</span>
+            <span className="admin-account__name">Demo Administrator</span>
+            {onSwitchToApi && (
+              <button
+                type="button"
+                className="admin-logout"
+                style={{ cursor: 'pointer', background: 'transparent' }}
+                onClick={onSwitchToApi}
+                title="Connect to live API server"
+              >
+                LIVE API
+              </button>
+            )}
+            <a href="/" className="admin-logout">EXIT DEMO</a>
+          </div>
         </header>
         <div className="admin-page">
           <div className="admin-page-heading">

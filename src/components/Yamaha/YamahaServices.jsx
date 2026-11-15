@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { getPhoneHref } from './businessConfig.js';
+import { useBusinessSettings } from './useBusinessSettings.js';
 import './YamahaServices.css';
 import './YamahaServicesVideo.css';
 
@@ -102,9 +104,11 @@ const serviceSteps = [
 ];
 
 function YamahaServices() {
+  const { business } = useBusinessSettings();
   const [activeSlot, setActiveSlot] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const [isMuted, setIsMuted] = useState(true);
   const [mediaError, setMediaError] = useState('');
   const videoRefs = useRef([]);
 
@@ -133,25 +137,75 @@ function YamahaServices() {
       activeVideo.pause();
       return;
     }
-    activeVideo.play().catch(() => {
-      setIsPlaying(false);
-    });
-  }, [activeIndex, activeSlot, isPlaying]);
+    activeVideo.muted = isMuted;
+    const playPromise = activeVideo.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Fallback for browser autoplay policies: enforce muted and retry
+        if (!activeVideo.muted) {
+          activeVideo.muted = true;
+          setIsMuted(true);
+          activeVideo.play().catch(() => setIsPlaying(false));
+        } else {
+          setIsPlaying(false);
+        }
+      });
+    }
+  }, [activeIndex, activeSlot, isPlaying, isMuted]);
 
   const togglePlayback = () => {
     setIsPlaying((prev) => !prev);
   };
 
+  const toggleSound = () => {
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    const activeVideo = videoRefs.current[activeSlot];
+    if (activeVideo) {
+      activeVideo.muted = nextMuted;
+    }
+  };
+
   const handleVideoEnded = () => {
     const nextIndex = (activeIndex + 1) % serviceVideos.length;
     const nextSlot = 1 - activeSlot;
+    const nextVideo = videoRefs.current[nextSlot];
+    if (nextVideo) {
+      try {
+        nextVideo.currentTime = 0;
+      } catch (_) {}
+    }
     setActiveIndex(nextIndex);
     setActiveSlot(nextSlot);
   };
 
+  const handleSelectVideo = (targetIndex) => {
+    if (targetIndex === activeIndex) return;
+    const nextSlot = 1 - activeSlot;
+    const nextVideo = videoRefs.current[nextSlot];
+    if (nextVideo) {
+      nextVideo.src = serviceVideos[targetIndex];
+      try {
+        nextVideo.currentTime = 0;
+      } catch (_) {}
+      nextVideo.muted = isMuted;
+      nextVideo.load();
+    }
+    setActiveIndex(targetIndex);
+    setActiveSlot(nextSlot);
+    setIsPlaying(true);
+  };
+
+  const scrollToContent = () => {
+    const target = document.getElementById('service-intro') || document.getElementById('service-expertise');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <main className="yamaha-services">
-      {/* 1. Full-Width Video Hero */}
+      {/* 1. Full-Width Clean Video Hero (Autoplay, Unobstructed, Zero Text Overlay) */}
       <section className="service-video-hero" aria-label="Yamaha motorcycle service video showcase">
         {serviceVideos.slice(0, 2).map((_, slot) => {
           const isActive = slot === activeSlot;
@@ -161,11 +215,17 @@ function YamahaServices() {
           return (
             <video
               key={slot}
-              ref={(element) => { videoRefs.current[slot] = element; }}
+              ref={(element) => {
+                videoRefs.current[slot] = element;
+                if (element) {
+                  element.muted = isMuted;
+                  element.defaultMuted = true;
+                }
+              }}
               className={`service-video-hero__video${isActive ? ' is-active' : ''}`}
               src={source}
               autoPlay={isActive && isPlaying}
-              muted
+              muted={isMuted}
               playsInline
               loop={false}
               poster="/imgs/Yamaha%20R15M.webp"
@@ -177,27 +237,47 @@ function YamahaServices() {
           );
         })}
 
-        <div className="service-video-hero__overlay" aria-hidden="true" />
+        {/* Minimal Bottom Fade into Page Background */}
+        <div className="service-video-hero__fade" aria-hidden="true" />
 
-        <div className="service-video-hero__copy">
-          <p className="service-video-hero__eyebrow">
-            <span aria-hidden="true" /> VATHILAI MOTORS · AUTHORISED YAMAHA SERVICE
-          </p>
-          <h1>PRECISION CARE.<br />UNCOMPROMISED PERFORMANCE.</h1>
-          <p className="service-video-hero__subtitle">
-            Factory-certified Yamaha technicians, genuine Yamalube lubricants and state-of-the-art diagnostic tooling for your machine.
-          </p>
-          <div className="service-video-hero__actions">
-            <a href="/book-now" className="service-btn service-btn--primary">
-              BOOK A SERVICE VISIT <span aria-hidden="true">→</span>
-            </a>
-            <a href="#service-expertise" className="service-btn service-btn--outline">
-              VIEW WORKSHOP SERVICES <span aria-hidden="true">↓</span>
-            </a>
-          </div>
-        </div>
-
+        {/* Floating Minimal Controls (Bottom-Right) */}
         <div className="service-video-hero__controls">
+          <div className="service-video-hero__dots" role="tablist" aria-label="Service video playlist">
+            {serviceVideos.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                role="tab"
+                aria-selected={idx === activeIndex}
+                aria-label={`Play service clip ${idx + 1} of ${serviceVideos.length}`}
+                className={`service-video-hero__dot${idx === activeIndex ? ' is-active' : ''}`}
+                onClick={() => handleSelectVideo(idx)}
+              />
+            ))}
+          </div>
+
+          <button
+            className="service-video-hero__control"
+            type="button"
+            aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+            aria-pressed={!isMuted}
+            onClick={toggleSound}
+          >
+            {isMuted ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" opacity="0.3" />
+                <line x1="23" y1="9" x2="17" y2="15" />
+                <line x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+              </svg>
+            )}
+            <span>{isMuted ? 'AUDIO OFF' : 'AUDIO ON'}</span>
+          </button>
+
           <button
             className="service-video-hero__control"
             type="button"
@@ -210,8 +290,75 @@ function YamahaServices() {
             ) : (
               <svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="5 3.5 13 8 5 12.5 5 3.5" fill="currentColor" /></svg>
             )}
-            <span>{isPlaying ? 'PAUSE VIDEO' : 'PLAY VIDEO'}</span>
+            <span>{isPlaying ? 'PAUSE' : 'PLAY'}</span>
           </button>
+        </div>
+
+        {/* Scroll Cue at Bottom Center */}
+        <button
+          className="service-video-hero__scroll-cue"
+          type="button"
+          onClick={scrollToContent}
+          aria-label="Scroll down to workshop service details"
+        >
+          <span>WORKSHOP DETAILS</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+      </section>
+
+      {/* 2. Service Intro Section (Positioned Cleanly BELOW Full Video) */}
+      <section className="service-intro-section" id="service-intro" aria-label="Authorised service intro">
+        <div className="service-container">
+          <div className="service-intro-content">
+            <p className="service-intro-eyebrow">
+              <span aria-hidden="true" /> VATHILAI MOTORS · AUTHORISED YAMAHA SERVICE
+            </p>
+            <h1>PRECISION CARE.<br />UNCOMPROMISED PERFORMANCE.</h1>
+            <p className="service-intro-subtitle">
+              Factory-certified Yamaha technicians, genuine Yamalube lubricants and state-of-the-art diagnostic tooling engineered specifically for your machine.
+            </p>
+
+            <div className="service-intro-badges">
+              <span className="service-intro-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Authorised Yamaha Workshop
+              </span>
+              <span className="service-intro-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                100% Genuine Yamalube Oils
+              </span>
+              <span className="service-intro-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Yamaha Certified Master Techs
+              </span>
+              <span className="service-intro-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Computerized Diagnostic Bays
+              </span>
+            </div>
+
+            <div className="service-intro-actions">
+              <a href="/book-now" className="service-btn service-btn--primary">
+                BOOK A SERVICE VISIT <span aria-hidden="true">→</span>
+              </a>
+              <a href="#service-expertise" className="service-btn service-btn--outline">
+                VIEW WORKSHOP SERVICES <span aria-hidden="true">↓</span>
+              </a>
+              <a href={getPhoneHref(business.phone)} className="service-btn service-btn--ghost">
+                CALL DEALERSHIP: {business.phone}
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -309,8 +456,8 @@ function YamahaServices() {
               <a href="/book-now" className="service-btn service-btn--primary">
                 SCHEDULE WORKSHOP VISIT <span aria-hidden="true">→</span>
               </a>
-              <a href="tel:+919876543210" className="service-btn service-btn--outline">
-                CALL SERVICE DESK: +91 98765 43210
+              <a href={getPhoneHref(business.phone)} className="service-btn service-btn--outline">
+                CALL DEALERSHIP: {business.phone}
               </a>
             </div>
           </div>

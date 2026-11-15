@@ -29,18 +29,40 @@ async function copyPublicFiles(sourceDirectory, outputDirectory) {
         }
         continue;
       }
-      await copyFile(sourcePath, outputPath);
+      try {
+        await copyFile(sourcePath, outputPath);
+      } catch (err) {
+        if (err.code !== 'EBUSY') throw err;
+      }
     }
   }
 }
 
 export default defineConfig(({ mode }) => {
   const environment = loadEnv(mode, projectRoot, '');
-  const adminApiTarget = environment.VITE_ADMIN_API_URL || 'http://127.0.0.1:3001';
+  const adminApiTarget = environment.VITE_ADMIN_API_URL;
 
   return {
     plugins: [
       react(),
+      {
+        name: 'yamaha-admin-backend-middleware',
+        async configureServer(server) {
+          try {
+            const { app, initializeMongoDatabase } = await import('./server/index.js');
+            initializeMongoDatabase().catch((err) => console.warn('Database note:', err.message));
+            server.middlewares.use((req, res, next) => {
+              const url = req.url || '';
+              if (url.startsWith('/api') || url.startsWith('/login') || url.startsWith('/logout') || url.startsWith('/callback')) {
+                return app(req, res, next);
+              }
+              next();
+            });
+          } catch (err) {
+            console.warn('Backend middleware could not be loaded into Vite:', err.message);
+          }
+        },
+      },
       {
         name: 'copy-public-assets-without-archives',
         apply: 'build',
@@ -50,15 +72,18 @@ export default defineConfig(({ mode }) => {
       },
     ],
     build: {
+      emptyOutDir: false,
       copyPublicDir: false,
     },
-    server: {
-      proxy: {
-        '/api': adminApiTarget,
-        '/login': adminApiTarget,
-        '/logout': adminApiTarget,
-        '/callback': adminApiTarget,
+    ...(adminApiTarget ? {
+      server: {
+        proxy: {
+          '/api': adminApiTarget,
+          '/login': adminApiTarget,
+          '/logout': adminApiTarget,
+          '/callback': adminApiTarget,
+        },
       },
-    },
+    } : {}),
   };
 });

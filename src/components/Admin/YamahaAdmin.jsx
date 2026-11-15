@@ -1,39 +1,29 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './YamahaAdmin.css';
+import { AdminIcon } from './adminIcons.jsx';
+import { navigation, pageTitles } from './adminNavigation.js';
+import { requestJson, downloadCsv, uploadMediaBinary } from './adminApi.js';
+import { createBookingDetailsDocument } from './customerDetailsDocument.js';
 import {
-  AdminAnalytics,
-  AdminProfileSettings,
+  SectionIntro,
+  SocialPlatformSummary,
+  SocialMediaDashboard,
+  SocialPosts,
   ContactEnquiries,
   CustomerReviews,
   GalleryManagement,
-  SocialMediaDashboard,
-  SocialPlatformSummary,
-  SocialPosts,
   WebsiteContent,
+  HomePageEditor,
+  WebsiteSections,
+  MediaLibrary,
+  AdminAnalytics,
+  AdminProfileSettings,
+  SeoSettings,
+  UsersManagement,
+  ActivityLogs,
+  SiteSettings,
+  ServiceVideosManagement,
 } from './YamahaAdminSections.jsx';
-import AdminDemoMode from './YamahaAdminDemo.jsx';
-import { DEMO_MODE_ENABLED } from './adminDemoProvider.js';
-import { navigation, pageTitles } from './adminNavigation.js';
-
-async function requestJson(path, { method = 'GET', body } = {}) {
-  const headers = { Accept: 'application/json' };
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
-  const response = await fetch(path, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-    cache: 'no-store',
-    credentials: 'same-origin',
-  });
-  const result = response.status === 204 ? {} : await response.json();
-  if (!response.ok) {
-    const error = new Error(result.message ?? result.code ?? `Request failed (${response.status}).`);
-    error.status = response.status;
-    error.code = result.code;
-    throw error;
-  }
-  return result;
-}
 
 function YamahaMark() {
   return (
@@ -45,78 +35,127 @@ function YamahaMark() {
   );
 }
 
-function formatBytes(bytes) {
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-}
-
-function AdminLoading() {
-  return <div className="admin-state" role="status">CONNECTING TO ADMIN SERVICES…</div>;
+function AdminLoading({ overview = false }) {
+  return (
+    <div className="admin-state" role="status">
+      <div className="admin-state__spinner" style={{ width: 32, height: 32, border: '3px solid #cbd5e1', borderTopColor: '#0879D1', borderRadius: '50%', marginBottom: 12 }} />
+      <strong>{overview ? 'Loading live overview…' : 'Loading admin data…'}</strong>
+      <span>Waiting for the admin API to confirm the latest data.</span>
+    </div>
+  );
 }
 
 function AdminError({ message, onRetry }) {
   return (
     <div className="admin-state admin-state--error" role="alert">
-      <strong>ADMIN SERVICE UNAVAILABLE</strong>
-      <span>{message}</span>
-      <button className="admin-button" type="button" onClick={onRetry}>RETRY</button>
+      <strong>DATABASE CONNECTION ERROR</strong>
+      <span style={{ margin: '8px 0 16px' }}>{message}</span>
+      <button className="admin-button admin-button--primary" type="button" onClick={onRetry}>
+        RETRY CONNECTION
+      </button>
     </div>
   );
 }
 
-const catalogueCategories = ['Sport Bikes', 'Street Bikes', 'Naked Bikes', 'Hybrid Bikes'];
-const bookingStatuses = ['new', 'contacted', 'confirmed', 'cancelled'];
+const catalogueCategories = ['Sport Bikes', 'Street Bikes', 'Naked Bikes', 'Hybrid Bikes', 'Scooters', 'Superbikes'];
+const bookingStatuses = ['pending', 'contacted', 'confirmed', 'completed', 'cancelled'];
 
-function createCatalogueDraft(catalogue = {}) {
+function createCatalogueDraft(catalogue = {}, motorcycle = {}) {
+  const specs = Array.isArray(catalogue.specifications) ? catalogue.specifications : [];
+  const findSpec = (keyword) => specs.find((s) => s.label.toLowerCase().includes(keyword.toLowerCase()))?.value || '';
+
+  const prices = Array.isArray(catalogue.prices) && catalogue.prices.length > 0 ? catalogue.prices : [
+    {
+      variant: catalogue.variants?.[0] || 'Standard',
+      city: 'Chennai',
+      exShowroom: 150000,
+      onRoad: 175000,
+      source: 'Vathilai Motors Showroom',
+      checkedAt: new Date().toISOString().slice(0, 10),
+      estimated: true,
+    },
+  ];
+
   return {
     category: catalogue.category ?? 'Sport Bikes',
     market: catalogue.market ?? 'IN',
-    published: Boolean(catalogue.published),
+    published: catalogue.published !== false,
     available: catalogue.available !== false,
-    variants: Array.isArray(catalogue.variants) ? [...catalogue.variants] : [],
-    colors: Array.isArray(catalogue.colors) ? [...catalogue.colors] : [],
-    specifications: Array.isArray(catalogue.specifications)
-      ? catalogue.specifications.map((row) => ({ section: row.section ?? '', label: row.label ?? '', value: row.value ?? '' }))
-      : [],
-    prices: Array.isArray(catalogue.prices)
-      ? catalogue.prices.map((row) => ({
-        variant: row.variant ?? '',
-        city: row.city ?? '',
-        exShowroom: row.exShowroom ?? null,
-        onRoad: row.onRoad ?? null,
-        source: row.source ?? '',
-        sourceUrl: row.sourceUrl ?? '',
-        checkedAt: row.checkedAt ?? '',
-        estimated: Boolean(row.estimated),
-      }))
-      : [],
+    featured: Boolean(catalogue.featured || motorcycle.featured),
+    displacementCc: motorcycle.displacementCc || parseInt(findSpec('displacement') || findSpec('engine') || '0', 10) || '',
+    power: motorcycle.specs?.power || findSpec('power') || '',
+    torque: motorcycle.specs?.torque || findSpec('torque') || '',
+    transmission: motorcycle.specs?.transmission || findSpec('transmission') || findSpec('gear') || 'Constant Mesh 6-speed',
+    mileage: motorcycle.specs?.mileage || findSpec('mileage') || '',
+    topSpeed: motorcycle.specs?.topSpeed || findSpec('speed') || '',
+    variants: Array.isArray(catalogue.variants) && catalogue.variants.length > 0 ? [...catalogue.variants] : ['Standard'],
+    colors: Array.isArray(catalogue.colors) && catalogue.colors.length > 0 ? [...catalogue.colors] : ['Racing Blue', 'Tech Black'],
+    specifications: specs.map((row) => ({ section: row.section ?? '', label: row.label ?? '', value: row.value ?? '' })),
+    prices: prices.map((row) => ({
+      variant: row.variant ?? '',
+      city: row.city ?? 'Chennai',
+      exShowroom: Number(row.exShowroom) || 0,
+      onRoad: Number(row.onRoad) || 0,
+      source: row.source ?? 'Vathilai Motors Showroom',
+      checkedAt: row.checkedAt ?? new Date().toISOString().slice(0, 10),
+      estimated: Boolean(row.estimated),
+    })),
     gallery: Array.isArray(catalogue.gallery) ? [...catalogue.gallery] : [],
     officialSourceUrl: catalogue.officialSourceUrl ?? '',
-    priceNote: catalogue.priceNote ?? '',
+    priceNote: catalogue.priceNote ?? 'Ex-showroom and on-road prices for Chennai showroom.',
   };
 }
 
 function MotorcycleEditor({ motorcycle, onClose, onSave, saving, error }) {
   const [draft, setDraft] = useState(() => ({
     model: motorcycle?.model ?? '',
-    category: motorcycle?.category ?? '',
+    slug: motorcycle?.slug ?? (motorcycle?.id || ''),
+    category: motorcycle?.category ?? 'SPORT',
     description: motorcycle?.description ?? '',
-    cta: motorcycle?.cta ?? '',
-    image: motorcycle?.image ?? '',
-    catalogue: createCatalogueDraft(motorcycle?.catalogue),
+    cta: motorcycle?.cta ?? 'EXPLORE SPECIFICATIONS',
+    image: motorcycle?.image ?? '/imgs/1.%20Yamaha%20YZF-R1.webp',
+    catalogue: createCatalogueDraft(motorcycle?.catalogue, motorcycle),
   }));
+
   const [uploadTarget, setUploadTarget] = useState('main');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [uploadMessage, setUploadMessage] = useState('');
+
   const setCatalogueValue = (key, value) => setDraft((current) => ({
     ...current,
     catalogue: { ...current.catalogue, [key]: value },
   }));
+
   const updateList = (key, index, value) => setCatalogueValue(
     key,
-    draft.catalogue[key].map((item, itemIndex) => itemIndex === index ? value : item),
+    draft.catalogue[key].map((item, itemIndex) => (itemIndex === index ? value : item)),
   );
+
+  const handlePriceChange = (field, value) => {
+    const num = parseInt(value, 10) || 0;
+    setDraft((curr) => {
+      const updatedPrices = (curr.catalogue.prices || []).map((p, idx) =>
+        idx === 0 ? { ...p, [field]: num } : p
+      );
+      if (!updatedPrices.length) {
+        updatedPrices.push({
+          variant: curr.catalogue.variants[0] || 'Standard',
+          city: 'Chennai',
+          exShowroom: field === 'exShowroom' ? num : 0,
+          onRoad: field === 'onRoad' ? num : 0,
+          source: 'Vathilai Motors Showroom',
+          checkedAt: new Date().toISOString().slice(0, 10),
+          estimated: true,
+        });
+      }
+      return {
+        ...curr,
+        catalogue: { ...curr.catalogue, prices: updatedPrices },
+      };
+    });
+  };
+
   const uploadImage = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -127,29 +166,16 @@ function MotorcycleEditor({ motorcycle, onClose, onSave, saving, error }) {
       event.target.value = '';
       return;
     }
-    if (!motorcycle?.id) {
-      setUploadError('Save this motorcycle first, then reopen it to upload images.');
-      event.target.value = '';
-      return;
-    }
+
     setUploading(true);
     try {
-      const response = await fetch(`/api/admin/motorcycles/${encodeURIComponent(motorcycle.id)}/images`, {
-        method: 'POST',
-        headers: { Accept: 'application/json', 'Content-Type': file.type },
-        body: file,
-        cache: 'no-store',
-        credentials: 'same-origin',
-      });
-      const result = response.status === 204 ? {} : await response.json();
-      if (!response.ok) throw new Error(result.message ?? result.code ?? `Image upload failed (${response.status}).`);
-      if (typeof result.imagePath !== 'string' || !result.imagePath) throw new Error('The image service did not return an image path.');
+      const uploaded = await uploadMediaBinary(file);
       if (uploadTarget === 'main') {
-        setDraft((current) => ({ ...current, image: result.imagePath }));
+        setDraft((current) => ({ ...current, image: uploaded.url }));
       } else {
-        setCatalogueValue('gallery', [...draft.catalogue.gallery, result.imagePath]);
+        setCatalogueValue('gallery', [...draft.catalogue.gallery, uploaded.url]);
       }
-      setUploadMessage(`${file.name} uploaded. Save the motorcycle to apply the image path.`);
+      setUploadMessage(`${file.name} uploaded successfully.`);
     } catch (uploadFailure) {
       setUploadError(uploadFailure.message);
     } finally {
@@ -158,154 +184,193 @@ function MotorcycleEditor({ motorcycle, onClose, onSave, saving, error }) {
     }
   };
 
+  const currentPrice = draft.catalogue.prices?.[0] || { exShowroom: 0, onRoad: 0 };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const cleanCatalogue = {
+      ...draft.catalogue,
+      prices: (draft.catalogue.prices || []).map((p) => ({
+        ...p,
+        variant: p.variant || draft.catalogue.variants[0] || 'Standard',
+        city: p.city || 'Chennai',
+        source: p.source || 'Vathilai Motors Showroom',
+        checkedAt: p.checkedAt || new Date().toISOString().slice(0, 10),
+        estimated: true,
+      })),
+      variants: draft.catalogue.variants.filter((v) => v && v.trim()),
+      colors: draft.catalogue.colors.filter((c) => c && c.trim()),
+    };
+    onSave({
+      ...draft,
+      catalogue: cleanCatalogue,
+    });
+  };
+
   return (
-    <div className="admin-demo-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <section className="admin-demo-modal" role="dialog" aria-modal="true" aria-labelledby="admin-motorcycle-form-title">
-        <div className="admin-panel__heading">
-          <div><span className="admin-eyebrow">PUBLIC MOTORCYCLE CATALOG</span><h3 id="admin-motorcycle-form-title">{motorcycle ? 'Edit motorcycle' : 'Add motorcycle'}</h3></div>
-          <button type="button" className="admin-icon-button" onClick={onClose} aria-label="Close form">×</button>
+    <div className="admin-modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <section className="admin-modal-card admin-modal-card--wide" role="dialog" aria-modal="true" aria-labelledby="motorcycle-modal-title">
+        <div className="admin-modal-heading">
+          <div>
+            <span className="admin-eyebrow">MOTORCYCLE INVENTORY</span>
+            <h3 id="motorcycle-modal-title">{motorcycle ? `Edit ${motorcycle.model}` : 'Add New Motorcycle'}</h3>
+          </div>
+          <button type="button" className="admin-modal-close" onClick={onClose} aria-label="Close form">✕</button>
         </div>
-        <p className="admin-panel__footnote">Changes are saved through the motorcycle API. Uploaded images require an existing motorcycle record; new records can be saved and reopened for upload.</p>
-        <form className="admin-demo-form" onSubmit={(event) => { event.preventDefault(); onSave(draft); }}>
-          <label className="admin-demo-field">
-            <span>Model <i aria-hidden="true">*</i></span>
-            <input required maxLength="80" value={draft.model} onChange={(event) => setDraft((current) => ({ ...current, model: event.target.value }))} />
-          </label>
-          <label className="admin-demo-field">
-            <span>Existing website category <i aria-hidden="true">*</i></span>
-            <input required maxLength="100" value={draft.category} onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))} />
-          </label>
-          <label className="admin-demo-field admin-demo-field--wide">
-            <span>Catalogue category <i aria-hidden="true">*</i></span>
-            <select required value={draft.catalogue.category} onChange={(event) => setCatalogueValue('category', event.target.value)}>
-              {catalogueCategories.map((category) => <option key={category} value={category}>{category}</option>)}
-            </select>
-          </label>
-          <label className="admin-demo-field admin-demo-field--wide">
-            <span>Main image path <i aria-hidden="true">*</i></span>
-            <input required maxLength="500" value={draft.image} onChange={(event) => setDraft((current) => ({ ...current, image: event.target.value }))} />
-          </label>
-          <label className="admin-demo-field">
-            <span>Call-to-action <i aria-hidden="true">*</i></span>
-            <input required maxLength="120" value={draft.cta} onChange={(event) => setDraft((current) => ({ ...current, cta: event.target.value }))} />
-          </label>
-          <label className="admin-demo-field admin-demo-field--wide">
-            <span>Description <i aria-hidden="true">*</i></span>
-            <textarea required maxLength="2000" rows="4" value={draft.description} onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))} />
-          </label>
-          <div className="admin-catalogue-section admin-demo-field--wide">
-            <span className="admin-eyebrow">CATALOGUE VISIBILITY</span>
-            <div className="admin-catalogue-toggles">
-              <label><input type="checkbox" checked={draft.catalogue.published} onChange={(event) => setCatalogueValue('published', event.target.checked)} /> Published</label>
-              <label><input type="checkbox" checked={draft.catalogue.available} onChange={(event) => setCatalogueValue('available', event.target.checked)} /> Available</label>
-            </div>
-          </div>
-          <label className="admin-demo-field">
-            <span>Market</span>
-            <input maxLength="10" value={draft.catalogue.market} onChange={(event) => setCatalogueValue('market', event.target.value)} />
-          </label>
-          <label className="admin-demo-field">
-            <span>Official source URL</span>
-            <input type="url" value={draft.catalogue.officialSourceUrl} onChange={(event) => setCatalogueValue('officialSourceUrl', event.target.value)} />
-          </label>
-          <label className="admin-demo-field admin-demo-field--wide">
-            <span>Price and availability note</span>
-            <textarea maxLength="1000" rows="3" value={draft.catalogue.priceNote} onChange={(event) => setCatalogueValue('priceNote', event.target.value)} />
-          </label>
-          {['variants', 'colors'].map((key) => (
-            <div className="admin-catalogue-section admin-demo-field--wide" key={key}>
-              <div className="admin-catalogue-section__heading">
-                <span className="admin-eyebrow">{key === 'variants' ? 'VARIANTS' : 'COLORS'}</span>
-                <button type="button" className="admin-text-button" onClick={() => setCatalogueValue(key, [...draft.catalogue[key], ''])}>ADD {key === 'variants' ? 'VARIANT' : 'COLOR'}</button>
-              </div>
-              {draft.catalogue[key].map((value, index) => (
-                <div className="admin-catalogue-row" key={`${key}-${index}`}>
-                  <input aria-label={`${key} ${index + 1}`} value={value} onChange={(event) => updateList(key, index, event.target.value)} />
-                  <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => setCatalogueValue(key, draft.catalogue[key].filter((_, itemIndex) => itemIndex !== index))}>REMOVE</button>
-                </div>
-              ))}
-            </div>
-          ))}
-          <div className="admin-catalogue-section admin-demo-field--wide">
-            <div className="admin-catalogue-section__heading">
-              <span className="admin-eyebrow">VERIFIED SPECIFICATIONS</span>
-              <button type="button" className="admin-text-button" onClick={() => setCatalogueValue('specifications', [...draft.catalogue.specifications, { section: '', label: '', value: '' }])}>ADD SPEC</button>
-            </div>
-            {draft.catalogue.specifications.map((spec, index) => (
-              <div className="admin-catalogue-row admin-catalogue-row--spec" key={`spec-${index}`}>
-                {['section', 'label', 'value'].map((key) => (
-                  <input key={key} aria-label={`Specification ${index + 1} ${key}`} placeholder={key} value={spec[key]} onChange={(event) => {
-                    const specifications = draft.catalogue.specifications.map((row, rowIndex) => rowIndex === index ? { ...row, [key]: event.target.value } : row);
-                    setCatalogueValue('specifications', specifications);
-                  }} />
+
+        <form onSubmit={handleSubmit}>
+          <div className="admin-form-grid">
+            <label className="admin-field">
+              <span>Model Name <b aria-hidden="true">*</b></span>
+              <input
+                required
+                maxLength="80"
+                value={draft.model}
+                placeholder="e.g. YZF-R7, YZF-R15 V4"
+                onChange={(e) => setDraft((curr) => ({ ...curr, model: e.target.value }))}
+              />
+            </label>
+
+            <label className="admin-field">
+              <span>Slug / Identifier</span>
+              <input
+                maxLength="80"
+                value={draft.slug}
+                placeholder="e.g. yzf-r7, yamaha-r15"
+                onChange={(e) => setDraft((curr) => ({ ...curr, slug: e.target.value }))}
+              />
+            </label>
+
+            <label className="admin-field">
+              <span>Catalogue Category <b aria-hidden="true">*</b></span>
+              <select
+                value={draft.catalogue.category}
+                onChange={(e) => setCatalogueValue('category', e.target.value)}
+              >
+                {catalogueCategories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
                 ))}
-                <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => setCatalogueValue('specifications', draft.catalogue.specifications.filter((_, itemIndex) => itemIndex !== index))}>REMOVE</button>
-              </div>
-            ))}
-          </div>
-          <div className="admin-catalogue-section admin-demo-field--wide">
-            <div className="admin-catalogue-section__heading">
-              <span className="admin-eyebrow">CITY PRICE ROWS</span>
-              <button type="button" className="admin-text-button" onClick={() => setCatalogueValue('prices', [...draft.catalogue.prices, { variant: '', city: '', exShowroom: null, onRoad: null, source: '', sourceUrl: '', checkedAt: '', estimated: false }])}>ADD PRICE</button>
-            </div>
-            {draft.catalogue.prices.map((price, index) => (
-              <div className="admin-catalogue-price" key={`price-${index}`}>
-                {['variant', 'city', 'exShowroom', 'onRoad', 'source', 'sourceUrl', 'checkedAt'].map((key) => (
-                  <label className="admin-demo-field" key={key}>
-                    <span>{key === 'exShowroom' ? 'Ex-showroom' : key === 'onRoad' ? 'On-road' : key === 'checkedAt' ? 'Checked date' : key}</span>
-                    <input
-                      type={['exShowroom', 'onRoad'].includes(key) ? 'number' : key === 'checkedAt' ? 'date' : key === 'sourceUrl' ? 'url' : 'text'}
-                      min={['exShowroom', 'onRoad'].includes(key) ? '0' : undefined}
-                      step={['exShowroom', 'onRoad'].includes(key) ? '1' : undefined}
-                      value={key === 'checkedAt' && price[key] ? String(price[key]).slice(0, 10) : price[key] ?? ''}
-                      onChange={(event) => {
-                        const value = ['exShowroom', 'onRoad'].includes(key)
-                          ? (event.target.value === '' ? null : Number(event.target.value))
-                          : event.target.value;
-                        const prices = draft.catalogue.prices.map((row, rowIndex) => rowIndex === index ? { ...row, [key]: value } : row);
-                        setCatalogueValue('prices', prices);
-                      }}
-                    />
-                  </label>
-                ))}
-                <label className="admin-catalogue-check"><input type="checkbox" checked={price.estimated} onChange={(event) => {
-                  const prices = draft.catalogue.prices.map((row, rowIndex) => rowIndex === index ? { ...row, estimated: event.target.checked } : row);
-                  setCatalogueValue('prices', prices);
-                }} /> Estimated</label>
-                <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => setCatalogueValue('prices', draft.catalogue.prices.filter((_, itemIndex) => itemIndex !== index))}>REMOVE PRICE</button>
-              </div>
-            ))}
-          </div>
-          <div className="admin-catalogue-section admin-demo-field--wide">
-            <div className="admin-catalogue-section__heading">
-              <span className="admin-eyebrow">GALLERY IMAGE PATHS</span>
-              <button type="button" className="admin-text-button" onClick={() => setCatalogueValue('gallery', [...draft.catalogue.gallery, ''])}>ADD PATH</button>
-            </div>
-            {draft.catalogue.gallery.map((imagePath, index) => (
-              <div className="admin-catalogue-row" key={`gallery-${index}`}>
-                <input aria-label={`Gallery image path ${index + 1}`} value={imagePath} onChange={(event) => updateList('gallery', index, event.target.value)} />
-                <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => setCatalogueValue('gallery', draft.catalogue.gallery.filter((_, itemIndex) => itemIndex !== index))}>REMOVE</button>
-              </div>
-            ))}
-          </div>
-          <div className="admin-catalogue-section admin-demo-field--wide">
-            <span className="admin-eyebrow">UPLOAD IMAGE</span>
-            <div className="admin-catalogue-upload">
-              <select aria-label="Image upload destination" value={uploadTarget} onChange={(event) => setUploadTarget(event.target.value)}>
-                <option value="main">Set as main image</option>
-                <option value="gallery">Append to gallery</option>
               </select>
-              <input aria-label="Choose image to upload" type="file" accept="image/webp,image/jpeg,image/png" onChange={uploadImage} disabled={uploading || !motorcycle?.id} />
+            </label>
+
+            <label className="admin-field">
+              <span>Marketing Segment</span>
+              <input
+                maxLength="60"
+                value={draft.category}
+                placeholder="e.g. SUPERSPORT / RACE-BRED"
+                onChange={(e) => setDraft((curr) => ({ ...curr, category: e.target.value }))}
+              />
+            </label>
+
+            <label className="admin-field admin-field--full">
+              <span>Model Description</span>
+              <textarea
+                rows="3"
+                value={draft.description}
+                placeholder="Official model overview and engineering highlights..."
+                onChange={(e) => setDraft((curr) => ({ ...curr, description: e.target.value }))}
+              />
+            </label>
+
+            {/* Technical Specifications */}
+            <label className="admin-field">
+              <span>Engine Displacement (cc)</span>
+              <input
+                type="number"
+                min="0"
+                value={draft.catalogue.displacementCc}
+                placeholder="e.g. 689"
+                onChange={(e) => setCatalogueValue('displacementCc', e.target.value)}
+              />
+            </label>
+
+            <label className="admin-field">
+              <span>Power Output</span>
+              <input
+                value={draft.catalogue.power}
+                placeholder="e.g. 73.4 PS @ 8,750 rpm"
+                onChange={(e) => setCatalogueValue('power', e.target.value)}
+              />
+            </label>
+
+            <label className="admin-field">
+              <span>Max Torque</span>
+              <input
+                value={draft.catalogue.torque}
+                placeholder="e.g. 67.0 Nm @ 6,500 rpm"
+                onChange={(e) => setCatalogueValue('torque', e.target.value)}
+              />
+            </label>
+
+            <label className="admin-field">
+              <span>Transmission</span>
+              <input
+                value={draft.catalogue.transmission}
+                placeholder="e.g. Constant Mesh 6-speed"
+                onChange={(e) => setCatalogueValue('transmission', e.target.value)}
+              />
+            </label>
+
+            {/* Pricing Section */}
+            <label className="admin-field">
+              <span>Ex-Showroom Price (₹) <b aria-hidden="true">*</b></span>
+              <input
+                type="number"
+                min="0"
+                required
+                value={currentPrice.exShowroom || ''}
+                placeholder="e.g. 980000"
+                onChange={(e) => handlePriceChange('exShowroom', e.target.value)}
+              />
+            </label>
+
+            <label className="admin-field">
+              <span>Estimated On-Road Price (₹)</span>
+              <input
+                type="number"
+                min="0"
+                value={currentPrice.onRoad || ''}
+                placeholder="e.g. 1120000"
+                onChange={(e) => handlePriceChange('onRoad', e.target.value)}
+              />
+            </label>
+
+            {/* Image Preview & Upload */}
+            <div className="admin-field admin-field--full">
+              <span>Motorcycle Hero Image</span>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginTop: '6px' }}>
+                <div style={{ width: 120, height: 80, background: '#1e293b', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px' }}>
+                  <img src={draft.image} alt="Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <input
+                    value={draft.image}
+                    placeholder="/imgs/... or https://..."
+                    onChange={(e) => setDraft((curr) => ({ ...curr, image: e.target.value }))}
+                  />
+                  <div style={{ marginTop: '8px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <label className="admin-button admin-button--secondary admin-button--sm">
+                      <input type="file" accept="image/webp,image/jpeg,image/png" style={{ display: 'none' }} onChange={uploadImage} />
+                      {uploading ? 'Uploading…' : 'Upload Image File'}
+                    </label>
+                    {uploadMessage && <small style={{ color: '#10b981' }}>{uploadMessage}</small>}
+                    {uploadError && <small style={{ color: '#ef4444' }}>{uploadError}</small>}
+                  </div>
+                </div>
+              </div>
             </div>
-            {!motorcycle?.id && <small className="admin-catalogue-help">Save and reopen a new motorcycle before uploading its images.</small>}
-            {uploading && <p className="admin-catalogue-help" role="status">Uploading image…</p>}
-            {uploadError && <p className="admin-demo-form-error" role="alert">{uploadError}</p>}
-            {uploadMessage && <p className="admin-catalogue-success" role="status">{uploadMessage}</p>}
           </div>
-          {error && <p className="admin-demo-form-error" role="alert">{error}</p>}
-          <div className="admin-demo-form__actions">
-            <button type="button" className="admin-button" onClick={onClose}>CANCEL</button>
-            <button type="submit" className="admin-button admin-button--primary" disabled={saving || uploading}>{saving ? 'SAVING…' : 'SAVE MOTORCYCLE'}</button>
+
+          {error && <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '12px' }}>{error}</p>}
+
+          <div className="admin-modal-actions">
+            <button type="button" className="admin-button admin-button--secondary" onClick={onClose} disabled={saving}>
+              Cancel
+            </button>
+            <button type="submit" className="admin-button admin-button--primary" disabled={saving}>
+              {saving ? 'Saving to MongoDB…' : (motorcycle ? 'Save Changes' : 'Create Motorcycle')}
+            </button>
           </div>
         </form>
       </section>
@@ -313,349 +378,782 @@ function MotorcycleEditor({ motorcycle, onClose, onSave, saving, error }) {
   );
 }
 
-function bookingValue(booking, keys, fallback = '—') {
-  for (const key of keys) {
-    const value = key.split('.').reduce((current, part) => current?.[part], booking);
-    if (value !== undefined && value !== null && value !== '') return value;
-  }
-  return fallback;
-}
+function MotorcyclesManagement({ motorcycles = [], onEdit, onDelete, onAddNew, query = '' }) {
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
 
-function bookingPrice(booking) {
-  const snapshot = bookingValue(booking, ['priceSnapshot', 'bookingSnapshot.price', 'price', 'priceSnapshot.onRoad']);
-  if (typeof snapshot !== 'object' || snapshot === null) return snapshot;
-  const parts = [
-    snapshot.variant,
-    snapshot.city,
-    snapshot.exShowroom != null ? `Ex-showroom ₹${Number(snapshot.exShowroom).toLocaleString('en-IN')}` : null,
-    snapshot.onRoad != null ? `On-road ₹${Number(snapshot.onRoad).toLocaleString('en-IN')}` : null,
-    snapshot.amount != null ? `${snapshot.currency ?? '₹'}${Number(snapshot.amount).toLocaleString('en-IN')}` : null,
-  ].filter(Boolean);
-  return parts.length ? parts.join(' · ') : JSON.stringify(snapshot);
-}
-
-function BookingsManagement({ bookings, onStatusChange, updates }) {
-  const [activeDetail, setActiveDetail] = useState(null);
+  const filtered = useMemo(() => {
+    return motorcycles.filter((bike) => {
+      const matchesCategory = categoryFilter === 'ALL' || bike.catalogue?.category === categoryFilter;
+      const normalizedQuery = query.trim().toLowerCase();
+      const matchesQuery = !normalizedQuery || `${bike.model} ${bike.category} ${bike.id}`.toLowerCase().includes(normalizedQuery);
+      return matchesCategory && matchesQuery;
+    });
+  }, [motorcycles, categoryFilter, query]);
 
   return (
-    <section className="admin-panel admin-table-panel admin-bookings-panel">
-      <div className="admin-panel__heading">
-        <div><span className="admin-eyebrow">CUSTOMER BOOKINGS & ENQUIRIES</span><h3>Dealership enquiries and requests</h3></div>
-        <span className="admin-panel__hint">{bookings.length} records</span>
+    <>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {['ALL', ...catalogueCategories].map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className={`admin-button admin-button--sm ${categoryFilter === cat ? 'admin-button--primary' : 'admin-button--secondary'}`}
+              onClick={() => setCategoryFilter(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+        <button type="button" className="admin-button admin-button--primary" onClick={onAddNew}>
+          <AdminIcon name="plus" size={15} />
+          <span>Add New Motorcycle</span>
+        </button>
       </div>
-      <p className="admin-panel__footnote">Customer enquiry and booking details are shown from each saved request snapshot.</p>
-      <div className="admin-table-scroll">
-        <table className="admin-table admin-bookings-table">
-          <thead><tr><th>Reference</th><th>Customer</th><th>Motorcycle</th><th>Location</th><th>Date</th><th>Price snapshot</th><th>Status</th><th>Actions</th></tr></thead>
+
+      <div className="admin-motorcycles-grid">
+        {filtered.map((bike) => {
+          const price = bike.catalogue?.prices?.[0];
+          return (
+            <article className="admin-motorcycle-card" key={bike.id}>
+              <div className="admin-motorcycle-card__thumb">
+                <img src={bike.image} alt={bike.model} loading="lazy" />
+              </div>
+              <div className="admin-motorcycle-card__body">
+                <span className="admin-eyebrow">{bike.catalogue?.category || 'SPORT'}</span>
+                <h3 className="admin-motorcycle-card__title">{bike.model}</h3>
+                <div className="admin-motorcycle-card__meta">
+                  {bike.displacementCc ? `${bike.displacementCc} cc` : ''} · {bike.category}
+                </div>
+                <div className="admin-motorcycle-card__prices">
+                  <span>Ex-Showroom:</span>
+                  <strong>{price?.exShowroom ? `₹${price.exShowroom.toLocaleString('en-IN')}` : 'Price on request'}</strong>
+                </div>
+              </div>
+              <div className="admin-motorcycle-card__actions">
+                <button
+                  type="button"
+                  className="admin-button admin-button--secondary admin-button--sm"
+                  style={{ flex: 1 }}
+                  onClick={() => onEdit(bike)}
+                >
+                  Edit Details
+                </button>
+                <button
+                  type="button"
+                  className="admin-button admin-button--danger admin-button--sm"
+                  onClick={() => onDelete(bike)}
+                  aria-label={`Delete ${bike.model}`}
+                >
+                  Delete
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="admin-state">
+          <strong>No motorcycles found</strong>
+          <span>Try adjusting your category filter or search query.</span>
+        </div>
+      )}
+    </>
+  );
+}
+
+function getAdminWhatsAppUrl(booking) {
+  if (!booking) return '#';
+  const customer = booking.customer || {};
+  const rawPhone = String(customer.phone || booking.phone || '').replace(/[\s-]/g, '');
+  const cleanPhone = rawPhone.startsWith('91') ? rawPhone : (rawPhone ? `91${rawPhone}` : '');
+  if (!cleanPhone) return '#';
+
+  const ref = booking.reference ?? booking.bookingReference ?? booking.id ?? '';
+  const model = booking.model || booking.motorcycleModel || booking.motorcycleId || 'Yamaha Motorcycle';
+  const variant = booking.variant || 'Standard';
+  const name = customer.name || booking.name || 'Valued Customer';
+  const date = booking.appointmentDate || 'Tomorrow';
+  const slot = booking.appointmentTime || booking.preferredSlot || booking.slot || 'Flexible';
+  const price = booking.priceSnapshot?.exShowroom
+    ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(booking.priceSnapshot.exShowroom)
+    : '';
+
+  const message = [
+    `🏍️ *VATHILAI MOTORS — YAMAHA BOOKING CONFIRMATION*`,
+    ``,
+    `Dear *${name}*,`,
+    `Thank you for choosing *Vathilai Motors*! Our sales team has received your booking enquiry and will shortly assist you with priority showroom delivery and test ride scheduling.`,
+    ``,
+    `📋 *Booking Details:*`,
+    `• *Booking Reference:* ${ref}`,
+    `• *Motorcycle:* ${model}`,
+    `• *Variant:* ${variant}`,
+    price ? `• *Ex-Showroom Price:* ${price}` : null,
+    `• *Customer Name:* ${name}`,
+    `• *Contact Number:* ${customer.phone || booking.phone}`,
+    `• *Dealership:* Vathilai Motors — Batlagundu`,
+    `• *Appointment Date:* ${date}`,
+    `• *Time Slot:* ${slot}`,
+    ``,
+    `📍 *Dealership Address:*`,
+    `Parimalam Theatre Complex, Main Road, Opp. Union Office Madurai, Batlagundu, Dindigul, Tamil Nadu – 624202.`,
+    `📞 *Dealership Contact:* 081444 45566`,
+    ``,
+    `Thank you for choosing Yamaha & Vathilai Motors!`,
+  ].filter(Boolean).join('\n');
+
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+}
+
+function getWhatsAppStatusBadge(status) {
+  const upper = String(status || 'NOT_SENT').toUpperCase();
+  switch (upper) {
+    case 'SENT':
+      return { label: 'SENT', className: 'admin-badge--wa-sent' };
+    case 'DELIVERED':
+      return { label: 'DELIVERED', className: 'admin-badge--wa-delivered' };
+    case 'READ':
+      return { label: 'READ', className: 'admin-badge--wa-read' };
+    case 'FAILED':
+      return { label: 'FAILED', className: 'admin-badge--wa-failed' };
+    case 'QUEUED':
+      return { label: 'QUEUED', className: 'admin-badge--wa-queued' };
+    case 'NOT_SENT':
+    default:
+      return { label: 'NOT SENT', className: 'admin-badge--wa-not-sent' };
+  }
+}
+
+function BookingsManagement({ bookings = [], onUpdateStatus, onDelete, onSendWhatsApp, updates = {} }) {
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [selectedBooking, setSelectedBooking] = useState(null);
+
+  useEffect(() => {
+    if (!selectedBooking) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setSelectedBooking(null);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [selectedBooking]);
+
+  const filtered = useMemo(() => {
+    return bookings.filter((b) => {
+      const matchesStatus = filter === 'all' || b.status === filter;
+      const q = search.trim().toLowerCase();
+      const matchesSearch = !q || `${b.customer?.name || b.name} ${b.customer?.phone || b.phone} ${b.model || ''} ${b.reference || ''}`.toLowerCase().includes(q);
+      return matchesStatus && matchesSearch;
+    });
+  }, [bookings, filter, search]);
+
+  return (
+    <>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '14px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {['all', 'new', 'contacted', 'confirmed', 'converted', 'cancelled'].map((st) => (
+            <button
+              key={st}
+              type="button"
+              className={`admin-button admin-button--sm ${filter === st ? 'admin-button--primary' : 'admin-button--secondary'}`}
+              onClick={() => setFilter(st)}
+            >
+              {st.toUpperCase()}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <label className="admin-search">
+            <AdminIcon name="search" size={15} />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search bookings..."
+            />
+          </label>
+          <button
+            type="button"
+            className="admin-button admin-button--secondary"
+            onClick={() => downloadCsv('bookings-vathilai.csv', filtered, [
+              { label: 'Reference', key: 'reference' },
+              { label: 'Customer', getter: (b) => b.customer?.name || b.name },
+              { label: 'Phone', getter: (b) => b.customer?.phone || b.phone },
+              { label: 'Motorcycle', getter: (b) => b.model || b.motorcycleId },
+              { label: 'Slot', getter: (b) => b.slot || b.preferredSlot || 'Flexible' },
+              { label: 'WhatsApp Status', getter: (b) => String(b.whatsappStatus || (b.whatsappMessageId ? 'SENT' : 'NOT_SENT')).toUpperCase() },
+              { label: 'Status', key: 'status' },
+              { label: 'Date', key: 'createdAt' },
+            ])}
+          >
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Motorcycle Model</th>
+              <th>Preferred Slot</th>
+              <th>WhatsApp Status</th>
+              <th>Status</th>
+              <th>Update Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
           <tbody>
-            {bookings.map((booking) => {
-              const reference = bookingValue(booking, ['reference', 'bookingReference', 'id']);
-              const update = updates[reference] ?? {};
-              const customer = bookingValue(booking, ['customer.name', 'customerName', 'name', 'customerDetails.name']);
-              const email = bookingValue(booking, ['customer.email', 'email', 'customerDetails.email'], '');
-              const phone = bookingValue(booking, ['customer.phone', 'phone', 'mobile', 'customerDetails.phone'], '');
-              const bike = bookingValue(booking, ['motorcycle.model', 'bike.model', 'motorcycleModel', 'bikeModel', 'motorcycleName', 'model']);
-              const variant = bookingValue(booking, ['variant', 'motorcycle.variant', 'bike.variant', 'selectedVariant'], '');
-              const location = bookingValue(booking, ['location', 'city', 'priceSnapshot.city', 'price.city', 'customer.city']);
-              const date = bookingValue(booking, ['preferredDate', 'bookingDate', 'date', 'createdAt', 'requestedAt']);
-              const status = bookingStatuses.includes(booking.status) ? booking.status : 'new';
-              const parsedDate = date === '—' ? null : new Date(date);
-              const dateLabel = !parsedDate || Number.isNaN(parsedDate.getTime()) ? date : parsedDate.toLocaleDateString();
-              const isEnquiry = booking.type === 'enquiry' || Boolean(booking.enquiry);
+            {filtered.map((b) => {
+              const ref = b.reference ?? b.bookingReference ?? b.id;
+              const update = updates[ref] || {};
+              const waStatus = String(b.whatsappStatus || (b.whatsappMessageId ? 'SENT' : 'NOT_SENT')).toUpperCase();
+              const badge = getWhatsAppStatusBadge(waStatus);
+              const isSending = Boolean(update.sendingWhatsApp);
 
               return (
-                <tr key={reference}>
+                <tr key={ref}>
+                  <td><code>{ref}</code></td>
+                  <td><strong>{b.customer?.name || b.name}</strong></td>
+                  <td><a href={`tel:${b.customer?.phone || b.phone}`}>{b.customer?.phone || b.phone}</a></td>
+                  <td>{b.model || b.motorcycleId}</td>
+                  <td><small>{b.slot || b.preferredSlot || 'Flexible'}</small></td>
                   <td>
-                    <code>{reference}</code>
-                    <small style={{ display: 'block', color: isEnquiry ? '#0876c9' : '#059669', fontWeight: 600 }}>
-                      {isEnquiry ? 'ENQUIRY' : 'BOOKING'}
-                    </small>
-                  </td>
-                  <td><strong>{customer}</strong>{email && <small>{email}</small>}{phone && <small>{phone}</small>}</td>
-                  <td><strong>{bike}</strong>{variant && <small>{variant}</small>}</td>
-                  <td>{location}</td>
-                  <td>{dateLabel}</td>
-                  <td>{bookingPrice(booking)}</td>
-                  <td>
-                    <select className="admin-booking-status" aria-label={`Status for booking ${reference}`} value={status} disabled={update.saving} onChange={(event) => onStatusChange(booking, event.target.value)}>
-                      {bookingStatuses.map((value) => <option key={value} value={value}>{value[0].toUpperCase() + value.slice(1)}</option>)}
-                    </select>
-                    {update.saving && <small role="status">Saving…</small>}
-                    {update.error && <small className="admin-booking-error" role="alert">{update.error}</small>}
-                    {update.success && <small className="admin-booking-success" role="status">{update.success}</small>}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                      <button
-                        type="button"
-                        className="admin-button"
-                        style={{ padding: '4px 10px', fontSize: '11px', letterSpacing: '0.04em' }}
-                        onClick={() => setActiveDetail(booking)}
-                      >
-                        DETAILS
-                      </button>
-                      {status === 'new' && (
+                    <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <span
+                          className={`admin-badge ${badge.className}`}
+                          title={b.whatsappError || (b.whatsappMessageId ? `Message ID: ${b.whatsappMessageId}` : undefined)}
+                        >
+                          {badge.label}
+                        </span>
                         <button
                           type="button"
-                          className="admin-button admin-button--primary"
-                          style={{ padding: '4px 10px', fontSize: '11px', letterSpacing: '0.04em' }}
-                          disabled={update.saving}
-                          onClick={() => onStatusChange(booking, 'contacted')}
-                          title="Mark this customer as contacted"
+                          disabled={isSending}
+                          onClick={() => onSendWhatsApp && onSendWhatsApp(b)}
+                          className={`admin-button admin-button--sm ${waStatus === 'FAILED' ? 'admin-button--warning' : ''}`}
+                          title={waStatus === 'FAILED' ? `Delivery failed: ${b.whatsappError || 'Error'}. Click to retry.` : 'Send WhatsApp booking confirmation'}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '3px 8px',
+                            background: isSending ? '#9ca3af' : (waStatus === 'FAILED' ? '#ef4444' : '#25D366'),
+                            color: '#ffffff',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            border: 'none',
+                            whiteSpace: 'nowrap',
+                            cursor: isSending ? 'not-allowed' : 'pointer',
+                            opacity: isSending ? 0.7 : 1,
+                          }}
                         >
-                          CONTACTED
+                          {isSending ? (
+                            <span>⏳ Sending...</span>
+                          ) : waStatus === 'FAILED' ? (
+                            <span>🔄 Retry</span>
+                          ) : waStatus === 'SENT' || waStatus === 'DELIVERED' || waStatus === 'READ' ? (
+                            <span>💬 Resend</span>
+                          ) : (
+                            <span>💬 Send</span>
+                          )}
                         </button>
+                      </div>
+                      {update.waError && (
+                        <small style={{ color: '#dc2626', fontSize: '10px', maxWidth: '190px', lineHeight: '1.2' }}>
+                          {update.waError}
+                        </small>
                       )}
+                      {!update.waError && b.whatsappError && waStatus === 'FAILED' && (
+                        <small style={{ color: '#dc2626', fontSize: '10px', maxWidth: '190px', lineHeight: '1.2' }}>
+                          {b.whatsappError}
+                        </small>
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`admin-badge ${b.status ? `admin-badge--${b.status}` : ''}`}>
+                      {b.status || 'new'}
+                    </span>
+                  </td>
+                  <td>
+                    <select
+                      value={b.status || 'new'}
+                      disabled={update.saving}
+                      onChange={(e) => onUpdateStatus(b, e.target.value)}
+                      style={{ height: '32px', fontSize: '12px', padding: '0 8px' }}
+                    >
+                      {['new', 'contacted', 'confirmed', 'converted', 'cancelled'].map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <div className="admin-booking-actions">
+                      <button
+                        type="button"
+                        className="admin-button admin-button--secondary admin-button--sm"
+                        onClick={() => setSelectedBooking(b)}
+                        aria-label={`View booking ${ref}`}
+                      >
+                        View
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-button admin-button--danger admin-button--sm"
+                        onClick={() => onDelete(ref)}
+                        aria-label={`Delete booking ${ref}`}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
               );
             })}
-            {bookings.length === 0 && <tr><td className="admin-table__empty" colSpan="8">No enquiries or bookings found.</td></tr>}
-          </tbody>
-        </table>
-      </div>
-
-      {activeDetail && (
-        <div className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="enquiry-detail-title">
-          <div className="admin-modal__card" style={{ maxWidth: 640 }}>
-            <div className="admin-modal__heading">
-              <div>
-                <span className="admin-eyebrow">ENQUIRY RECORD</span>
-                <h3 id="enquiry-detail-title">
-                  {bookingValue(activeDetail, ['reference', 'id'])} · {bookingValue(activeDetail, ['motorcycle.model', 'model'])}
-                </h3>
-              </div>
-              <button type="button" className="admin-modal__close" onClick={() => setActiveDetail(null)} aria-label="Close dialog">✕</button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', margin: '20px 0' }}>
-              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <strong style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>Customer Information</strong>
-                <p style={{ margin: '4px 0' }}><strong>Name:</strong> {bookingValue(activeDetail, ['customer.name', 'name'])}</p>
-                <p style={{ margin: '4px 0' }}>
-                  <strong>Phone:</strong> <a href={`tel:${bookingValue(activeDetail, ['customer.phone', 'phone'])}`}>{bookingValue(activeDetail, ['customer.phone', 'phone'])}</a>
-                </p>
-                <p style={{ margin: '4px 0' }}>
-                  <strong>Email:</strong> <a href={`mailto:${bookingValue(activeDetail, ['customer.email', 'email'])}`}>{bookingValue(activeDetail, ['customer.email', 'email'])}</a>
-                </p>
-                <p style={{ margin: '4px 0' }}><strong>City:</strong> {bookingValue(activeDetail, ['customer.city', 'city'])}</p>
-                <p style={{ margin: '4px 0' }}><strong>Preferred Contact:</strong> {bookingValue(activeDetail, ['customer.preferredContactMethod', 'preferredContactMethod'], 'Phone Call')}</p>
-              </div>
-
-              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <strong style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>Motorcycle & Dealership</strong>
-                <p style={{ margin: '4px 0' }}><strong>Model:</strong> {bookingValue(activeDetail, ['model', 'motorcycle.model'])}</p>
-                <p style={{ margin: '4px 0' }}><strong>Variant:</strong> {bookingValue(activeDetail, ['variant', 'selectedVariant'], 'Standard')}</p>
-                <p style={{ margin: '4px 0' }}><strong>Motorcycle ID:</strong> <code>{bookingValue(activeDetail, ['motorcycleId', 'id'])}</code></p>
-                <p style={{ margin: '4px 0' }}><strong>Price Snapshot:</strong> {bookingPrice(activeDetail)}</p>
-                <p style={{ margin: '4px 0' }}><strong>Dealership:</strong> {bookingValue(activeDetail, ['dealership', 'customer.dealership'])}</p>
-              </div>
-            </div>
-
-            {bookingValue(activeDetail, ['customer.message', 'message']) && (
-              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
-                <strong style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '6px' }}>Customer Message / Requirements</strong>
-                <p style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#1e293b' }}>{bookingValue(activeDetail, ['customer.message', 'message'])}</p>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 600 }}>Update Status:</span>
-                <select
-                  className="admin-booking-status"
-                  value={bookingStatuses.includes(activeDetail.status) ? activeDetail.status : 'new'}
-                  onChange={(e) => {
-                    onStatusChange(activeDetail, e.target.value);
-                    setActiveDetail((curr) => curr ? ({ ...curr, status: e.target.value }) : null);
-                  }}
-                >
-                  {bookingStatuses.map((s) => <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>)}
-                </select>
-                {activeDetail.status !== 'contacted' && (
-                  <button
-                    type="button"
-                    className="admin-button admin-button--primary"
-                    style={{ padding: '6px 14px' }}
-                    onClick={() => {
-                      onStatusChange(activeDetail, 'contacted');
-                      setActiveDetail((curr) => curr ? ({ ...curr, status: 'contacted' }) : null);
-                    }}
-                  >
-                    MARK AS CONTACTED
-                  </button>
-                )}
-              </div>
-              <button type="button" className="admin-button" onClick={() => setActiveDetail(null)}>CLOSE</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function MotorcycleManagement({ motorcycles, onCreate, onEdit, onDelete, error }) {
-  return (
-    <section className="admin-panel admin-table-panel">
-      <div className="admin-panel__heading">
-        <div><span className="admin-eyebrow">PUBLIC SOURCE RECORDS</span><h3>Motorcycle catalog</h3></div>
-        <button className="admin-button admin-button--primary" type="button" onClick={onCreate}>ADD MOTORCYCLE <span>＋</span></button>
-      </div>
-      <p className="admin-panel__footnote">Updates are stored in the server catalog. Catalogue metadata, verified specs, city pricing, and image paths are editable here.</p>
-      {error && <p className="admin-demo-form-error" role="alert">{error}</p>}
-      <div className="admin-table-scroll">
-        <table className="admin-table">
-          <thead><tr><th>Model</th><th>Category</th><th>Model ID</th><th>Features</th><th>Actions</th></tr></thead>
-          <tbody>
-            {motorcycles.map((motorcycle) => (
-              <tr key={motorcycle.id}>
-                <td><strong>{motorcycle.model}</strong></td>
-                <td>{motorcycle.category}</td>
-                <td><code>{motorcycle.id}</code></td>
-                <td>{motorcycle.features?.length ?? 0}</td>
-                <td>
-                  <div className="admin-demo-row-actions">
-                    <button className="admin-text-button" type="button" onClick={() => onEdit(motorcycle)}>EDIT</button>
-                    <button className="admin-text-button admin-text-button--danger" type="button" onClick={() => onDelete(motorcycle)}>DELETE</button>
-                  </div>
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan="9" className="admin-table__empty">
+                  No bookings found matching your filter criteria.
                 </td>
               </tr>
-            ))}
-            {motorcycles.length === 0 && <tr><td className="admin-table__empty" colSpan="5">No motorcycles match this search.</td></tr>}
+            )}
           </tbody>
         </table>
       </div>
-    </section>
-  );
-}
 
-function AdminDashboard({ overview, onNavigate }) {
-  const metrics = [
-    { label: 'MOTORCYCLES', value: overview.totalMotorcycles, note: 'Server catalog records' },
-    { label: 'PUBLIC PAGES', value: overview.websitePages.length, note: 'Routes in the current app' },
-    { label: 'SERVICE VIDEOS', value: overview.serviceVideoCount, note: 'Local public files' },
-  ];
-
-  return (
-    <>
-      <section className="admin-welcome">
-        <div>
-          <span className="admin-eyebrow">YAMAHA / CONTENT OPERATIONS</span>
-          <h2>Command <em>center.</em></h2>
-          <p>The motorcycle catalog and customer bookings are managed through the server. Enquiries and other publishing modules still need their data services.</p>
-        </div>
-        <span className="admin-readonly-badge"><i /> READ-ONLY SOURCE DATA</span>
-      </section>
-
-      <section className="admin-metrics" aria-label="Website content totals">
-        {metrics.map((metric) => (
-          <article className="admin-metric" key={metric.label}>
-            <span>{metric.label}</span>
-            <strong>{metric.value}</strong>
-            <small>{metric.note}</small>
-          </article>
-        ))}
-        <article className="admin-metric admin-metric--status">
-          <span>VISITOR ANALYTICS</span>
-          <strong>Not connected</strong>
-          <small>No traffic tracking configured</small>
-        </article>
-      </section>
-
-      <section className="admin-grid">
-        <article className="admin-panel admin-content-chart">
-          <div className="admin-panel__heading">
-            <div><span className="admin-eyebrow">INVENTORY</span><h3>Content overview</h3></div>
-            <span className="admin-panel__hint">Source records</span>
-          </div>
-          <div className="admin-bars" role="img" aria-label={`Current source inventory: ${overview.totalMotorcycles} motorcycles, ${overview.serviceVideoCount} service videos, ${overview.websitePages.length} website pages`}>
-            {[
-              { label: 'Motorcycles', value: overview.totalMotorcycles, color: 'blue' },
-              { label: 'Service videos', value: overview.serviceVideoCount, color: 'silver' },
-              { label: 'Pages', value: overview.websitePages.length, color: 'muted' },
-            ].map((item) => (
-              <div className="admin-bar-row" key={item.label}>
-                <span>{item.label}</span>
-                <div className="admin-bar-track"><i className={`is-${item.color}`} style={{ width: `${Math.max(8, (item.value / Math.max(overview.totalMotorcycles, 1)) * 100)}%` }} /></div>
-                <strong>{item.value}</strong>
+      {selectedBooking && (
+        <div
+          className="admin-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSelectedBooking(null);
+          }}
+        >
+          <section
+            className="admin-modal-card admin-booking-details-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booking-details-title"
+          >
+            <div className="admin-modal-heading">
+              <div>
+                <span className="admin-eyebrow">BOOKING DETAILS</span>
+                <h3 id="booking-details-title">
+                  {selectedBooking.customer?.name || selectedBooking.name || 'Customer details'}
+                </h3>
               </div>
-            ))}
-          </div>
-          <p className="admin-panel__footnote">Motorcycle counts reflect the server catalog; other counts reflect local source assets and are not visitor metrics.</p>
-        </article>
-
-        <article className="admin-panel admin-system-panel">
-          <div className="admin-panel__heading">
-            <div><span className="admin-eyebrow">CONNECTIONS</span><h3>System status</h3></div>
-          </div>
-          <ul className="admin-status-list">
-            <li><span>Auth0 identity</span><strong className={overview.authConfigured ? 'is-connected' : ''}><i /> {overview.authConfigured ? 'Connected' : 'Development access'}</strong></li>
-            <li><span>MongoDB database</span><strong><i /> Not connected</strong></li>
-            <li><span>Media object storage</span><strong><i /> Not connected</strong></li>
-            <li><span>Website analytics</span><strong><i /> Not connected</strong></li>
-          </ul>
-        </article>
-
-        <article className="admin-panel admin-activity-panel">
-          <div className="admin-panel__heading">
-            <div><span className="admin-eyebrow">AUDIT TRAIL</span><h3>Recent activity</h3></div>
-            <span className="admin-panel__hint">Database required</span>
-          </div>
-          <div className="admin-empty">
-            <span className="admin-empty__mark" aria-hidden="true">—</span>
-            <strong>No persistent activity records</strong>
-            <p>Activity history will be available after the database is provisioned.</p>
-          </div>
-        </article>
-
-        <article className="admin-panel admin-quick-panel">
-          <div className="admin-panel__heading">
-            <div><span className="admin-eyebrow">QUICK ACCESS</span><h3>Source inventory</h3></div>
-          </div>
-          <div className="admin-quick-links">
-            <a href="/admin/motorcycles" onClick={onNavigate}>Browse motorcycles <span>↗</span></a>
-            <a href="/admin/bookings" onClick={onNavigate}>Review customer bookings <span>↗</span></a>
-            <a href="/admin/service-videos" onClick={onNavigate}>Inspect service videos <span>↗</span></a>
-            <a href="/admin/social" onClick={onNavigate}>Open social media status <span>↗</span></a>
-          </div>
-          <p className="admin-panel__footnote">Only the motorcycle catalog currently supports edits. Other modules need their own approved storage and API integrations.</p>
-        </article>
-        <SocialPlatformSummary onNavigate={onNavigate} />
-      </section>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  type="button"
+                  disabled={Boolean(updates[selectedBooking.reference ?? selectedBooking.id]?.sendingWhatsApp)}
+                  onClick={async () => {
+                    if (onSendWhatsApp) {
+                      try {
+                        const res = await onSendWhatsApp(selectedBooking);
+                        if (res?.booking) setSelectedBooking(res.booking);
+                      } catch {}
+                    }
+                  }}
+                  className="admin-button admin-button--primary admin-button--sm"
+                  style={{
+                    background: '#25D366',
+                    borderColor: '#25D366',
+                    color: '#ffffff',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontWeight: '700',
+                    cursor: updates[selectedBooking.reference ?? selectedBooking.id]?.sendingWhatsApp ? 'not-allowed' : 'pointer',
+                  }}
+                  title="Dispatch official WhatsApp confirmation to customer via backend provider"
+                >
+                  <span>
+                    {updates[selectedBooking.reference ?? selectedBooking.id]?.sendingWhatsApp
+                      ? '⏳ Sending...'
+                      : '💬 Send via WhatsApp'}
+                  </span>
+                </button>
+                <a
+                  href={getAdminWhatsAppUrl(selectedBooking)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="admin-button admin-button--secondary admin-button--sm"
+                  title="Open direct WhatsApp chat with customer"
+                >
+                  <span>Open Chat</span>
+                </a>
+                <button
+                  type="button"
+                  className="admin-modal-close"
+                  onClick={() => setSelectedBooking(null)}
+                  aria-label="Close booking details"
+                  autoFocus
+                >
+                  <AdminIcon name="close" size={16} />
+                </button>
+              </div>
+            </div>
+            <iframe
+              className="admin-booking-details-frame"
+              title={`Booking details for ${selectedBooking.customer?.name || selectedBooking.name || 'customer'}`}
+              sandbox=""
+              srcDoc={createBookingDetailsDocument(selectedBooking)}
+            />
+          </section>
+        </div>
+      )}
     </>
   );
 }
 
-function YamahaAdminApi() {
-  const [pathname, setPathname] = useState(window.location.pathname.replace(/\/+$/, '') || '/admin');
+function AdminDashboard({ overview = {}, onNavigate }) {
+  const bCounts = overview.bookingStatusCounts || {};
+  const primaryMetrics = [
+    { label: 'Total motorcycles', value: overview.totalMotorcycles, icon: 'motorcycles', path: '/admin/motorcycles' },
+    { label: 'Total bookings', value: overview.totalBookings, icon: 'bookings', path: '/admin/bookings' },
+    { label: 'Pending bookings', value: overview.pendingBookings, icon: 'bookings', path: '/admin/bookings' },
+    { label: 'Total enquiries', value: overview.totalEnquiries, icon: 'enquiries', path: '/admin/enquiries' },
+  ];
+  const secondaryMetrics = [
+    { label: 'Confirmed bookings', value: overview.confirmedBookings, icon: 'bookings', path: '/admin/bookings' },
+    { label: 'Completed bookings', value: overview.completedBookings, icon: 'bookings', path: '/admin/bookings' },
+    { label: 'Unread enquiries', value: overview.unreadEnquiries, icon: 'enquiries', path: '/admin/enquiries' },
+    { label: 'Customer reviews', value: overview.totalReviews, icon: 'reviews', path: '/admin/reviews' },
+    { label: 'Published social posts', value: overview.publishedSocialPosts, icon: 'social', path: '/admin/social/posts' },
+    { label: 'Service videos', value: overview.totalServiceVideos, icon: 'videos', path: '/admin/service-videos' },
+  ];
+  const monthlyTrends = Array.isArray(overview.monthlyTrends) ? overview.monthlyTrends : null;
+  const maxMonthlyVal = Math.max(1, ...(monthlyTrends || []).flatMap((month) => [month.bookings, month.enquiries]));
+  const sourceStatus = overview.sourceStatus || {};
+  const metricValue = (value) => value == null ? 'Not reported' : value;
+  const trendPoints = (key) => (monthlyTrends || []).map((month, index) => {
+    const x = 20 + (index * 560 / Math.max(1, monthlyTrends.length - 1));
+    const y = 130 - (month[key] / maxMonthlyVal) * 110;
+    return `${x},${y}`;
+  }).join(' ');
+
+  return (
+    <>
+      <section className="admin-metrics-grid admin-metrics-grid--primary" aria-label="Primary dealership metrics">
+        {primaryMetrics.map((metric) => (
+          <a className="admin-metric-card" href={metric.path} onClick={(event) => onNavigate(event, metric.path)} key={metric.label}>
+            <div className="admin-metric-card__header">
+              <span className="admin-metric-card__label">{metric.label}</span>
+              <span className="admin-metric-card__icon"><AdminIcon name={metric.icon} size={16} /></span>
+            </div>
+            <div className="admin-metric-card__val">{metricValue(metric.value)}</div>
+          </a>
+        ))}
+      </section>
+      <section className="admin-metrics-grid admin-metrics-grid--secondary" aria-label="Additional dealership metrics">
+        {secondaryMetrics.map((metric) => (
+          <a className="admin-metric-card" href={metric.path} onClick={(event) => onNavigate(event, metric.path)} key={metric.label}>
+            <div className="admin-metric-card__header">
+              <span className="admin-metric-card__label">{metric.label}</span>
+              <span className="admin-metric-card__icon"><AdminIcon name={metric.icon} size={16} /></span>
+            </div>
+            <div className="admin-metric-card__val">{metricValue(metric.value)}</div>
+          </a>
+        ))}
+      </section>
+
+      {/* Visual Analytics Charts Grid */}
+      <div className="admin-dashboard-panels">
+        {/* Booking Status Analytics */}
+        <article className="admin-panel" style={{ margin: 0 }}>
+          <div className="admin-panel__heading">
+            <div>
+              <span className="admin-eyebrow">PIPELINE BREAKDOWN</span>
+              <h3>Booking & Enquiry Status</h3>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {[
+              { label: 'Pending bookings', count: bCounts.pending, color: '#f59e0b', max: Math.max(overview.totalBookings || 1, 1) },
+              { label: 'Contacted bookings', count: bCounts.contacted, color: '#0879D1', max: Math.max(overview.totalBookings || 1, 1) },
+              { label: 'Confirmed bookings', count: bCounts.confirmed, color: '#10b981', max: Math.max(overview.totalBookings || 1, 1) },
+              { label: 'Completed bookings', count: bCounts.completed, color: '#059669', max: Math.max(overview.totalBookings || 1, 1) },
+              { label: 'Cancelled bookings', count: bCounts.cancelled, color: '#64748b', max: Math.max(overview.totalBookings || 1, 1) },
+            ].map((item) => (
+              <div key={item.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '4px' }}>
+                  <span>{item.label}</span>
+                  <strong>{metricValue(item.count)}</strong>
+                </div>
+                <div style={{ height: '7px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ width: `${item.count == null ? 0 : Math.min(100, (item.count / item.max) * 100)}%`, height: '100%', background: item.color, borderRadius: '4px' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        {/* Monthly Enquiry & Booking Trends Chart */}
+        <article className="admin-panel" style={{ margin: 0 }}>
+          <div className="admin-panel__heading">
+            <div>
+              <span className="admin-eyebrow">MONTHLY PERFORMANCE</span>
+              <h3>Enquiry & Booking Distribution</h3>
+            </div>
+          </div>
+          {monthlyTrends ? (
+            <>
+              <svg className="admin-trend-chart" viewBox="0 0 600 155" preserveAspectRatio="none" role="img" aria-label={`Monthly bookings and enquiries: ${monthlyTrends.map((item) => `${item.month}: ${item.bookings} bookings, ${item.enquiries} enquiries`).join('; ')}`}>
+                <polyline points={trendPoints('bookings')} fill="none" stroke="#0879D1" strokeWidth="3" vectorEffect="non-scaling-stroke" />
+                <polyline points={trendPoints('enquiries')} fill="none" stroke="#6366f1" strokeWidth="3" vectorEffect="non-scaling-stroke" />
+              </svg>
+              <div className="admin-trend-chart__labels" aria-hidden="true">
+                {monthlyTrends.map((item) => <span key={item.key || item.month} title={item.month}>{item.month.split(' ')[0]}</span>)}
+              </div>
+              <table className="sr-only">
+                <caption>Monthly booking and enquiry trend data</caption>
+                <thead><tr><th>Month</th><th>Bookings</th><th>Enquiries</th></tr></thead>
+                <tbody>{monthlyTrends.map((item) => <tr key={item.key || item.month}><td>{item.month}</td><td>{item.bookings}</td><td>{item.enquiries}</td></tr>)}</tbody>
+              </table>
+            </>
+          ) : <p className="admin-panel__footnote">Trend data unavailable.</p>}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '16px', fontSize: '12px', color: '#64748b' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <i style={{ width: 10, height: 10, background: '#0879D1', borderRadius: 2, display: 'inline-block' }} /> Bookings
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <i style={{ width: 10, height: 10, background: '#6366f1', borderRadius: 2, display: 'inline-block' }} /> Enquiries
+            </span>
+          </div>
+        </article>
+      </div>
+
+      <article className="admin-panel admin-overview-system-status">
+        <div className="admin-panel__heading">
+          <div><span className="admin-eyebrow">SYSTEM STATUS</span><h3>API and storage</h3></div>
+        </div>
+        <ul className="admin-status-list">
+          <li><span>Admin API</span><strong>{overview.apiAvailable ? 'Available' : 'Status unavailable'}</strong></li>
+          <li><span>Storage mode</span><strong>{overview.database?.mode === 'mongodb' && overview.database.connected ? 'MongoDB' : overview.database?.mode === 'json-fallback' ? 'Local JSON fallback' : 'Status unavailable'}</strong></li>
+          <li><span>Media storage</span><strong>Status unavailable</strong></li>
+        </ul>
+      </article>
+
+      {/* Quick Action Shortcuts */}
+      <article className="admin-panel">
+        <div className="admin-panel__heading">
+          <div>
+            <span className="admin-eyebrow">NAVIGATION SHORTCUTS</span>
+            <h3>Quick Operations Hub</h3>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+          {[
+            { label: 'Motorcycles Inventory', path: '/admin/motorcycles', icon: 'motorcycles' },
+            { label: 'Customer Bookings', path: '/admin/bookings', icon: 'bookings' },
+            { label: 'Customer Enquiries', path: '/admin/enquiries', icon: 'enquiries' },
+            { label: 'Service Videos Guides', path: '/admin/service-videos', icon: 'videos' },
+            { label: 'Homepage Hero Slides', path: '/admin/home-page', icon: 'home' },
+            { label: 'Dealership Settings', path: '/admin/settings', icon: 'settings' },
+          ].map((item) => (
+            <a
+              key={item.path}
+              href={item.path}
+              onClick={(event) => onNavigate(event, item.path)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '14px 16px',
+                borderRadius: '6px',
+                background: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                color: '#172033',
+                textDecoration: 'none',
+                fontWeight: '650',
+                fontSize: '13px',
+                transition: 'all 140ms ease',
+              }}
+            >
+              <div style={{ width: 30, height: 30, borderRadius: '4px', background: '#EFF6FF', color: '#0879D1', display: 'grid', placeItems: 'center' }}>
+                <AdminIcon name={item.icon} size={15} />
+              </div>
+              <span>{item.label}</span>
+            </a>
+          ))}
+        </div>
+      </article>
+
+      {/* Tables Row: Recent Bookings & Recent Enquiries */}
+      <div className="admin-dashboard-panels">
+        {/* Recent Bookings */}
+        <article className="admin-panel" style={{ margin: 0 }}>
+          <div className="admin-panel__heading">
+            <div>
+              <span className="admin-eyebrow">LATEST</span>
+              <h3>Recent Customer Bookings</h3>
+            </div>
+            <a href="/admin/bookings" onClick={(event) => onNavigate(event, '/admin/bookings')} className="admin-panel__hint">View all bookings ↗</a>
+          </div>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Model</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(overview.recentBookings || []).slice(0, 5).map((b) => (
+                  <tr key={b.reference || b.id}>
+                    <td><strong>{b.customer?.name || b.name || 'Customer name unavailable'}</strong></td>
+                    <td>{b.model || b.motorcycleId || 'Not provided'}</td>
+                    <td>
+                      <span className={`admin-badge admin-badge--${b.status || 'pending'}`}>
+                        {b.status || 'Status unavailable'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {(!overview.recentBookings || overview.recentBookings.length === 0) && (
+                  <tr><td colSpan="3" className="admin-table__empty">{sourceStatus.bookings === 'unavailable' ? 'Bookings unavailable.' : 'No recent bookings yet.'}</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        {/* Recent Enquiries */}
+        <article className="admin-panel" style={{ margin: 0 }}>
+          <div className="admin-panel__heading">
+            <div>
+              <span className="admin-eyebrow">LATEST LEADS</span>
+              <h3>Customer Enquiries</h3>
+            </div>
+            <a href="/admin/enquiries" onClick={(event) => onNavigate(event, '/admin/enquiries')} className="admin-panel__hint">View enquiries ↗</a>
+          </div>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Motorcycle</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(overview.recentEnquiries || []).slice(0, 5).map((e) => (
+                  <tr key={e.reference || e.id}>
+                    <td><strong>{e.customer?.name || e.name || 'Customer name unavailable'}</strong></td>
+                    <td>{e.model || e.motorcycleId || 'Not provided'}</td>
+                    <td>
+                      <span className={`admin-badge ${e.status ? `admin-badge--${e.status}` : ''}`}>
+                        {e.status || 'Status unavailable'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {(!overview.recentEnquiries || overview.recentEnquiries.length === 0) && (
+                  <tr><td colSpan="3" className="admin-table__empty">{sourceStatus.enquiries === 'unavailable' ? 'Enquiries unavailable.' : 'No recent enquiries yet.'}</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      {/* Recent Admin Activities */}
+      <article className="admin-panel">
+        <div className="admin-panel__heading">
+          <div>
+            <span className="admin-eyebrow">AUDIT TRAIL</span>
+            <h3>Recent System Activities</h3>
+          </div>
+          <a href="/admin/activity" onClick={(event) => onNavigate(event, '/admin/activity')} className="admin-panel__hint">Full activity logs ↗</a>
+        </div>
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Target</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(overview.recentActivity || []).slice(0, 6).map((act) => (
+                <tr key={act.id}>
+                  <td><small>{act.timestamp ? new Date(act.timestamp).toLocaleTimeString() : 'Recent'}</small></td>
+                  <td><span className="admin-badge admin-badge--contacted">{act.action}</span></td>
+                  <td><code>{act.target}</code></td>
+                  <td><small style={{ color: '#748197' }}>{typeof act.details === 'object' ? JSON.stringify(act.details) : act.details}</small></td>
+                </tr>
+              ))}
+              {(!overview.recentActivity || overview.recentActivity.length === 0) && (
+                <tr><td colSpan="4" className="admin-table__empty">{sourceStatus.activity === 'unavailable' ? 'Activity unavailable.' : 'No recent admin activity yet.'}</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </>
+  );
+}
+
+function YamahaAdmin() {
+  const [pathname, setPathname] = useState(() => window.location.pathname.replace(/\/+$/, '') || '/admin');
   const [session, setSession] = useState(null);
   const [sessionError, setSessionError] = useState(null);
-  const [pageData, setPageData] = useState(null);
-  const [pageError, setPageError] = useState(null);
-  const [loadingPage, setLoadingPage] = useState(false);
-  const [query, setQuery] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState('all');
-  const [motorcycleEditor, setMotorcycleEditor] = useState(undefined);
-  const [motorcycleMutationError, setMotorcycleMutationError] = useState('');
-  const [savingMotorcycle, setSavingMotorcycle] = useState(false);
-  const [bookingUpdates, setBookingUpdates] = useState({});
   const [reloadKey, setReloadKey] = useState(0);
-  const pageTitle = pageTitles.get(pathname) ?? 'Website management';
+
+  // Layout & UI state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('vathilai_admin_sidebar_collapsed') === 'true';
+  });
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [query, setQuery] = useState('');
+
+  // Page data state
+  const [pageData, setPageData] = useState(null);
+  const [loadingPage, setLoadingPage] = useState(false);
+  const [pageError, setPageError] = useState(null);
+  const [overviewUpdatedAt, setOverviewUpdatedAt] = useState(null);
+
+  // Editor states
+  const [motorcycleEditor, setMotorcycleEditor] = useState(undefined);
+  const [savingMotorcycle, setSavingMotorcycle] = useState(false);
+  const [motorcycleMutationError, setMotorcycleMutationError] = useState('');
+  const [bookingUpdates, setBookingUpdates] = useState({});
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('vathilai_admin_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
+
+  const pageTitle = pageTitles.get(pathname) ?? 'Website Management';
   const activeNavigation = navigation.find((item) => item.path === pathname);
-  const loginReturnTo = encodeURIComponent(pathname);
+  const overviewAvailable = Boolean(pageData?.apiAvailable && pageData?.database);
+  const connectionLabel = overviewAvailable
+    ? pageData.database.mode === 'mongodb' && pageData.database.connected
+      ? 'API available · MongoDB'
+      : 'API available · JSON fallback'
+    : 'Status unavailable';
 
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = `Admin / ${pageTitle} | Yamaha`;
+    document.title = `Admin / ${pageTitle} | Vathilai Motors`;
     return () => { document.title = previousTitle; };
   }, [pageTitle]);
 
   useEffect(() => {
     let active = true;
-    setSession(null);
-    setSessionError(null);
     requestJson('/api/admin/session')
       .then((result) => { if (active) setSession(result); })
       .catch((error) => { if (active) setSessionError(error); });
@@ -669,42 +1167,43 @@ function YamahaAdminApi() {
   }, []);
 
   useEffect(() => {
-    const needsOverview = pathname === '/admin' || pathname === '/admin/analytics';
-    if (!session?.isAdmin || (!needsOverview && !['/admin/motorcycles', '/admin/service-videos', '/admin/bookings', '/admin/enquiries'].includes(pathname))) {
+    if (!session?.isAdmin) return;
+
+    let active = true;
+    let endpoint = null;
+    if (pathname === '/admin' || pathname === '/admin/analytics') endpoint = '/api/admin/overview';
+    else if (pathname === '/admin/bookings') endpoint = '/api/admin/bookings';
+    else if (pathname === '/admin/motorcycles') endpoint = '/api/admin/motorcycles';
+    else if (pathname === '/admin/service-videos') endpoint = '/api/admin/service-videos';
+
+    if (!endpoint) {
       setPageData(null);
       setPageError(null);
       setLoadingPage(false);
-      return undefined;
+      return;
     }
 
-    let active = true;
-    const endpoint = pathname === '/admin/motorcycles'
-      ? '/api/admin/motorcycles'
-      : pathname === '/admin/service-videos'
-        ? '/api/admin/service-videos'
-        : (pathname === '/admin/bookings' || pathname === '/admin/enquiries')
-          ? '/api/admin/bookings'
-        : '/api/admin/overview';
     setPageData(null);
     setPageError(null);
     setLoadingPage(true);
     requestJson(endpoint)
-      .then((result) => { if (active) setPageData(result); })
+      .then((result) => {
+        if (!active) return;
+        setPageData(result);
+        if (pathname === '/admin') setOverviewUpdatedAt(new Date());
+      })
       .catch((error) => { if (active) setPageError(error); })
       .finally(() => { if (active) setLoadingPage(false); });
+
     return () => { active = false; };
-  }, [pathname, session]);
+  }, [pathname, session, reloadKey]);
 
   const filteredMotorcycles = useMemo(() => {
     if (!pageData?.motorcycles) return [];
     const normalizedQuery = query.trim().toLowerCase();
-    return pageData.motorcycles.filter((motorcycle) =>
-      `${motorcycle.model} ${motorcycle.category} ${motorcycle.id}`.toLowerCase().includes(normalizedQuery));
-  }, [pageData, query]);
-  const filteredVideos = useMemo(() => {
-    if (!Array.isArray(pageData?.videos)) return [];
-    return pageData.videos.filter((video) =>
-      video.filename.toLowerCase().includes(query.trim().toLowerCase()));
+    return pageData.motorcycles.filter((bike) =>
+      `${bike.model} ${bike.category} ${bike.id}`.toLowerCase().includes(normalizedQuery)
+    );
   }, [pageData, query]);
 
   const navigate = (event, path) => {
@@ -713,8 +1212,16 @@ function YamahaAdminApi() {
     window.history.pushState({}, '', path);
     setPathname(path);
     setQuery('');
+    setSidebarOpen(false);
     window.scrollTo(0, 0);
   };
+
+  const handleLogout = () => {
+    if (window.confirm('Log out from Vathilai Motors Admin Panel?')) {
+      window.location.href = '/';
+    }
+  };
+
   const saveMotorcycle = async (motorcycle) => {
     setSavingMotorcycle(true);
     setMotorcycleMutationError('');
@@ -735,8 +1242,9 @@ function YamahaAdminApi() {
       setSavingMotorcycle(false);
     }
   };
+
   const deleteMotorcycle = async (motorcycle) => {
-    if (!window.confirm(`Delete ${motorcycle.model} from the public motorcycle catalog?`)) return;
+    if (!window.confirm(`Permanently delete ${motorcycle.model} from the motorcycle catalog?`)) return;
     setMotorcycleMutationError('');
     try {
       await requestJson(`/api/admin/motorcycles/${encodeURIComponent(motorcycle.id)}`, { method: 'DELETE' });
@@ -745,215 +1253,430 @@ function YamahaAdminApi() {
       setMotorcycleMutationError(error.message);
     }
   };
-  const createMotorcycle = () => {
-    setMotorcycleMutationError('');
-    setMotorcycleEditor(null);
-  };
-  const editMotorcycle = (motorcycle) => {
-    setMotorcycleMutationError('');
-    setMotorcycleEditor(motorcycle);
-  };
-  const updateBookingStatus = async (booking, status) => {
+
+  const updateBookingStatus = async (booking, status, notes) => {
     const reference = booking.reference ?? booking.bookingReference ?? booking.id;
     setBookingUpdates((current) => ({ ...current, [reference]: { saving: true, error: '', success: '' } }));
     try {
       const result = await requestJson(`/api/admin/bookings/${encodeURIComponent(reference)}/status`, {
         method: 'PUT',
-        body: { status },
+        body: { status, notes },
       });
       if (!result.booking) throw new Error('The booking service did not return the updated booking.');
       setPageData((current) => ({
         ...current,
         bookings: (current?.bookings ?? []).map((item) =>
-          (item.reference ?? item.bookingReference ?? item.id) === reference ? result.booking : item),
+          (item.reference ?? item.bookingReference ?? item.id) === reference ? result.booking : item
+        ),
       }));
-      setBookingUpdates((current) => ({ ...current, [reference]: { saving: false, error: '', success: 'Status saved.' } }));
+      setBookingUpdates((current) => ({ ...current, [reference]: { saving: false, error: '', success: 'Saved.' } }));
     } catch (error) {
       setBookingUpdates((current) => ({ ...current, [reference]: { saving: false, error: error.message, success: '' } }));
     }
   };
 
-  if (sessionError?.code === 'auth_not_configured') {
+  const sendBookingWhatsApp = async (booking, options = {}) => {
+    const reference = booking.reference ?? booking.bookingReference ?? booking.id;
+    setBookingUpdates((current) => ({
+      ...current,
+      [reference]: { ...(current[reference] || {}), sendingWhatsApp: true, waError: '', waSuccess: '' },
+    }));
+    try {
+      const result = await requestJson(`/api/admin/bookings/${encodeURIComponent(reference)}/whatsapp-send`, {
+        method: 'POST',
+        body: options,
+      });
+      if (result.booking) {
+        setPageData((current) => ({
+          ...current,
+          bookings: (current?.bookings ?? []).map((item) =>
+            (item.reference ?? item.bookingReference ?? item.id) === reference ? result.booking : item
+          ),
+        }));
+      }
+      setBookingUpdates((current) => ({
+        ...current,
+        [reference]: {
+          ...(current[reference] || {}),
+          sendingWhatsApp: false,
+          waError: '',
+          waSuccess: result.message || 'WhatsApp message accepted by provider.',
+        },
+      }));
+      return result;
+    } catch (error) {
+      setBookingUpdates((current) => ({
+        ...current,
+        [reference]: {
+          ...(current[reference] || {}),
+          sendingWhatsApp: false,
+          waError: error.message || 'Failed to dispatch WhatsApp message.',
+          waSuccess: '',
+        },
+      }));
+      throw error;
+    }
+  };
+
+  const deleteBooking = async (reference) => {
+    if (!window.confirm(`Delete booking ${reference} from the database?`)) return;
+    try {
+      await requestJson(`/api/admin/bookings/${encodeURIComponent(reference)}`, { method: 'DELETE' });
+      setReloadKey((key) => key + 1);
+    } catch (error) {
+      alert(`Failed to delete booking: ${error.message}`);
+    }
+  };
+
+  if (sessionError) {
     return (
-      <main className="yamaha-admin admin-auth-screen">
-        <section className="admin-auth-card">
-          <a className="admin-brand" href="/" aria-label="Return to Yamaha website"><YamahaMark /><span>YAMAHA <small>ADMINISTRATION</small></span></a>
-          <span className="admin-eyebrow">SECURE MANAGEMENT ACCESS</span>
-          <h1>Administrator <em>sign in.</em></h1>
-          <p>Auth0 is not configured on this server. Local development access is available only through the development server. Configure Auth0 in <code>server/data/.env</code> before production deployment.</p>
-          <span className="admin-readonly-badge"><i /> AUTHENTICATION NOT CONFIGURED</span>
-          <a className="admin-back-link" href="/">← Return to Yamaha website</a>
-        </section>
+      <main className="yamaha-admin">
+        <AdminError message={sessionError.message} onRetry={() => setReloadKey((k) => k + 1)} />
       </main>
     );
   }
 
-  if (sessionError) {
-    return <main className="yamaha-admin"><AdminError message="The admin API is unreachable through the configured development proxy. Check that the Express API is running and VITE_ADMIN_API_URL targets its origin." onRetry={() => setReloadKey((key) => key + 1)} /></main>;
-  }
   if (!session) return <main className="yamaha-admin"><AdminLoading /></main>;
-  if (!session.authenticated) {
-    return (
-      <main className="yamaha-admin admin-auth-screen">
-        <section className="admin-auth-card">
-          <a className="admin-brand" href="/" aria-label="Return to Yamaha website"><YamahaMark /><span>YAMAHA <small>ADMINISTRATION</small></span></a>
-          <span className="admin-eyebrow">SECURE MANAGEMENT ACCESS</span>
-          <h1>Welcome <em>back.</em></h1>
-          <p>Sign in with an authorized Yamaha administrator account to continue.</p>
-          <a className="admin-button admin-button--primary" href={`/login?returnTo=${loginReturnTo}`}>CONTINUE WITH AUTH0 <span>↗</span></a>
-          <small className="admin-auth-note">Protected by Auth0. Access is limited to explicitly approved administrator accounts.</small>
-        </section>
-      </main>
-    );
-  }
-  if (!session.isAdmin) {
-    return (
-      <main className="yamaha-admin admin-auth-screen">
-        <section className="admin-auth-card" role="alert">
-          <a className="admin-brand" href="/" aria-label="Return to Yamaha website"><YamahaMark /><span>YAMAHA <small>ADMINISTRATION</small></span></a>
-          <span className="admin-eyebrow">ACCESS RESTRICTED</span>
-          <h1>Not <em>authorized.</em></h1>
-          <p>Your identity is verified, but your Auth0 subject is not on the server-side administrator allowlist.</p>
-          <a className="admin-button" href="/logout">SIGN OUT</a>
-        </section>
-      </main>
-    );
-  }
 
   const currentGroup = activeNavigation?.group ?? 'Configuration';
   const groups = [...new Set(navigation.map((item) => item.group))];
 
   return (
     <main className="yamaha-admin">
-      <aside className="admin-sidebar">
+      {/* Mobile Drawer Overlay */}
+      {sidebarOpen && (
+        <div
+          className="admin-sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* 1. Fixed Sidebar with Collapse & Expand */}
+      <aside className={`admin-sidebar ${sidebarOpen ? 'is-open' : ''} ${sidebarCollapsed ? 'is-collapsed' : ''}`}>
         <a className="admin-brand" href="/" aria-label="Return to Yamaha website">
-          <YamahaMark />
-          <span>YAMAHA <small>ADMINISTRATION</small></span>
+          <div className="admin-brand__logo">
+            <img src="/imgs/favicon.png" alt="Vathilai Motors Logo" className="admin-brand__logo-img" />
+          </div>
+          <div className="admin-brand__text">
+            <span className="admin-brand__title">VATHILAI MOTORS</span>
+            <span className="admin-brand__badge">DEALERSHIP ADMIN</span>
+          </div>
         </a>
-        <div className="admin-side-rule" />
+
         <nav className="admin-nav" aria-label="Admin navigation">
           {groups.map((group) => (
             <div className="admin-nav-group" key={group}>
               <span className="admin-nav-group__label">{group}</span>
               {navigation.filter((item) => item.group === group).map((item) => (
                 <a
-                  className={`admin-nav-link${pathname === item.path ? ' is-active' : ''}`}
+                  className={`admin-nav-link ${pathname === item.path ? 'is-active' : ''}`}
                   href={item.path}
                   key={item.path}
+                  title={sidebarCollapsed ? item.label : undefined}
                   aria-current={pathname === item.path ? 'page' : undefined}
                   onClick={(event) => navigate(event, item.path)}
                 >
-                  <span className="admin-nav-link__icon" aria-hidden="true">{item.icon.slice(0, 1).toUpperCase()}</span>
+                  <span className="admin-nav-link__icon" aria-hidden="true">
+                    <AdminIcon name={item.icon} size={16} />
+                  </span>
                   <span>{item.label}</span>
-                  {(item.databaseRequired || item.badge) && (
-                    <span
-                      className="admin-nav-link__lock"
-                      title={item.databaseRequired ? 'Requires database connection' : 'Requires external service setup'}
-                    >
-                      {item.databaseRequired ? 'DB' : item.badge}
-                    </span>
-                  )}
                 </a>
               ))}
             </div>
           ))}
         </nav>
+
         <div className="admin-sidebar__bottom">
-          <a href="/" className="admin-back-link">← View public website</a>
-          <span>{session.developmentAccess ? 'LOCAL DEVELOPMENT SESSION' : 'ADMIN SESSION / AUTH0'}</span>
+          <div className={`admin-sidebar__db-pill ${overviewAvailable ? 'is-available' : 'is-unavailable'}`}>
+            <span className="admin-sidebar__db-dot" />
+            <span>{connectionLabel}</span>
+          </div>
+          <button
+            type="button"
+            className="admin-sidebar__collapse-btn"
+            onClick={toggleSidebarCollapse}
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <span>{sidebarCollapsed ? '→' : '← Collapse Sidebar'}</span>
+          </button>
+          <a href="/" className="admin-back-link">
+            ← Return to Showroom
+          </a>
         </div>
       </aside>
 
-      <section className="admin-main">
+      {/* 2. Main Content Area */}
+      <section className={`admin-main ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
+        {/* Consistent Top Navigation Bar */}
         <header className="admin-topbar">
-          <div className="admin-breadcrumb"><span>YAMAHA</span><i>/</i><strong>{pageTitle}</strong></div>
-          <div className="admin-account">
-            <span className="admin-account__status"><i /> {session.developmentAccess ? 'LOCAL DEVELOPMENT ACCESS' : 'SECURE SESSION'}</span>
-            <span className="admin-account__name">{session.user?.name ?? 'Administrator'}</span>
-            {!session.developmentAccess && <a href="/logout" className="admin-logout">LOG OUT</a>}
+          <div className="admin-topbar__left">
+            <button
+              type="button"
+              className="admin-menu-toggle"
+              aria-label="Toggle navigation menu"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <AdminIcon name="menu" size={20} />
+            </button>
+            <div className="admin-breadcrumb">
+              <a href="/admin" onClick={(e) => navigate(e, '/admin')}>Admin</a>
+              <i>/</i>
+              <span>{currentGroup}</span>
+              <i>/</i>
+              <strong>{pageTitle}</strong>
+            </div>
+          </div>
+
+          <div className="admin-topbar__search">
+            <AdminIcon name="search" size={15} />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search admin records, inventory, leads..."
+            />
+          </div>
+
+          <div className="admin-topbar__right">
+            <div className={`admin-status-pill ${overviewAvailable ? 'is-available' : 'is-unavailable'}`} title={connectionLabel}>
+              <span className="admin-status-dot" />
+              <span>{connectionLabel}</span>
+            </div>
+
+            <a href="/admin/activity" className="admin-button admin-button--secondary admin-button--sm" onClick={(event) => navigate(event, '/admin/activity')}>
+              <AdminIcon name="activity" size={15} />
+              <span>Activity</span>
+            </a>
+
+            {/* User Profile */}
+            <div className="admin-user-btn" onClick={(e) => navigate(e, '/admin/profile')} title="View profile settings">
+              <div className="admin-user-avatar">
+                {session.user?.name ? session.user.name.slice(0, 1).toUpperCase() : 'A'}
+              </div>
+              <div className="admin-user-meta">
+                <span className="admin-user-name">{session.user?.name ?? 'Admin'}</span>
+                <span className="admin-user-role">Super Administrator</span>
+              </div>
+            </div>
+
+            {/* Logout Button */}
+            <button
+              type="button"
+              className="admin-btn-logout"
+              onClick={handleLogout}
+              title="Sign out of admin"
+              aria-label="Log out"
+            >
+              <AdminIcon name="logout" size={14} />
+              <span>Logout</span>
+            </button>
           </div>
         </header>
 
+        {/* 3. Page Content Container */}
         <div className="admin-page">
-          <div className="admin-page-heading">
-            <div><span className="admin-eyebrow">{currentGroup.toUpperCase()} / ADMIN</span><h1>{pageTitle}</h1></div>
-            {['/admin/motorcycles', '/admin/service-videos'].includes(pathname) && (
-              <label className="admin-search">
-                <span className="sr-only">Search {pageTitle.toLowerCase()}</span>
-                <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4 4" /></svg>
-                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${pageTitle.toLowerCase()}`} />
-              </label>
-            )}
-          </div>
+          {loadingPage && <AdminLoading overview={pathname === '/admin'} />}
+          {pageError && <AdminError message="Could not load data from the admin API. Retry the request." onRetry={() => setReloadKey((k) => k + 1)} />}
 
-          {loadingPage && <AdminLoading />}
-          {pageError && <AdminError message="Could not load this source inventory. Retry the request." onRetry={() => setReloadKey((key) => key + 1)} />}
-          {!loadingPage && !pageError && pathname === '/admin' && Array.isArray(pageData?.websitePages) && <AdminDashboard overview={pageData} onNavigate={(event) => navigate(event, event.currentTarget.getAttribute('href'))} />}
-          {!loadingPage && !pageError && pathname === '/admin/analytics' && Array.isArray(pageData?.websitePages) && <AdminAnalytics overview={pageData} />}
-          {!loadingPage && pathname === '/admin/social' && <SocialMediaDashboard onNavigate={(event) => navigate(event, event.currentTarget.getAttribute('href'))} />}
-          {!loadingPage && pathname === '/admin/social/posts' && <SocialPosts selectedPlatform={selectedPlatform} onSelectPlatform={setSelectedPlatform} />}
-          {!loadingPage && !pageError && (pathname === '/admin/bookings' || pathname === '/admin/enquiries') && Array.isArray(pageData?.bookings) && (
-            <BookingsManagement bookings={pageData.bookings} onStatusChange={updateBookingStatus} updates={bookingUpdates} />
-          )}
-          {!loadingPage && pathname === '/admin/reviews' && <CustomerReviews />}
-          {!loadingPage && pathname === '/admin/gallery' && <GalleryManagement />}
-          {!loadingPage && pathname === '/admin/content' && <WebsiteContent />}
-          {!loadingPage && pathname === '/admin/profile' && <AdminProfileSettings user={session.user} developmentAccess={session.developmentAccess} />}
-          {!loadingPage && !pageError && pathname === '/admin/motorcycles' && Array.isArray(pageData?.motorcycles) && (
-            <MotorcycleManagement
-              motorcycles={filteredMotorcycles}
-              onCreate={createMotorcycle}
-              onEdit={editMotorcycle}
-              onDelete={deleteMotorcycle}
-              error={motorcycleMutationError}
-            />
-          )}
-          {motorcycleEditor !== undefined && pathname === '/admin/motorcycles' && (
-            <MotorcycleEditor
-              motorcycle={motorcycleEditor}
-              onClose={() => setMotorcycleEditor(undefined)}
-              onSave={saveMotorcycle}
-              saving={savingMotorcycle}
-              error={motorcycleMutationError}
-            />
-          )}
-          {!loadingPage && !pageError && pathname === '/admin/service-videos' && Array.isArray(pageData?.videos) && (
-            <section className="admin-video-grid" aria-label="Service video source files">
-              <p className="admin-video-note">Current public files are listed in playback order. Preview is available; replacement, upload, deletion, and reordering are disabled until database and object storage are connected.</p>
-              {filteredVideos.map((video) => (
-                <article className="admin-video-card" key={video.filename}>
-                  <div className="admin-video-card__preview">
-                    <video src={video.path} controls muted playsInline preload="none" aria-label={`Preview ${video.filename}`} />
-                    <span className="admin-video-order">{String(video.order).padStart(2, '0')}</span>
+          {/* Module 1: Dashboard Overview */}
+          {!loadingPage && !pageError && pathname === '/admin' && (
+            <>
+              <SectionIntro
+                eyebrow="OPERATIONS & PERFORMANCE"
+                title="Dealership Dashboard"
+                description="Live overview values confirmed by the protected admin API."
+                action={
+                  <div className="admin-overview-actions">
+                    <button
+                      type="button"
+                      className="admin-button admin-button--secondary admin-button--sm"
+                      onClick={() => setReloadKey((k) => k + 1)}
+                      disabled={loadingPage}
+                    >
+                      <AdminIcon name="refresh" size={13} />
+                      <span>{loadingPage ? 'Refreshing…' : 'Refresh overview'}</span>
+                    </button>
+                    {[
+                      ['Motorcycles', '/admin/motorcycles'],
+                      ['Bookings', '/admin/bookings'],
+                      ['Enquiries', '/admin/enquiries'],
+                    ].map(([label, path]) => (
+                      <a key={path} href={path} onClick={(event) => navigate(event, path)} className="admin-button admin-button--primary admin-button--sm">{label}</a>
+                    ))}
                   </div>
-                  <div className="admin-video-card__details">
-                    <div><strong>{video.filename}</strong><span>{formatBytes(video.sizeBytes)}</span></div>
-                    <code>{video.path}</code>
-                  </div>
-                </article>
-              ))}
-              {filteredVideos.length === 0 && (
-                <p className="admin-panel admin-video-empty">No videos match this search.</p>
+                }
+              />
+              {overviewUpdatedAt && <p className="admin-overview-updated" role="status">Last updated {overviewUpdatedAt.toLocaleTimeString()}</p>}
+              <AdminDashboard overview={pageData || {}} onNavigate={(event, path) => navigate(event, path)} />
+            </>
+          )}
+
+          {/* Module 2: Bookings Management */}
+          {!loadingPage && !pageError && pathname === '/admin/bookings' && (
+            <>
+              <SectionIntro
+                eyebrow="SALES & SERVICE OPERATIONS"
+                title="Customer Bookings"
+                description="Review and manage customer test ride bookings, quotation requests, and service schedules."
+                action={
+                  <button
+                    type="button"
+                    className="admin-button admin-button--primary admin-button--sm"
+                    onClick={() => downloadCsv(
+                      'vathilai-yamaha-bookings.csv',
+                      pageData?.bookings ?? [],
+                      [
+                        { label: 'Reference', key: 'reference' },
+                        { label: 'Customer', getter: (b) => b.customer?.name || b.name },
+                        { label: 'Phone', getter: (b) => b.customer?.phone || b.phone },
+                        { label: 'Motorcycle', getter: (b) => b.model || b.motorcycleId },
+                        { label: 'Type', key: 'type' },
+                        { label: 'WhatsApp Status', getter: (b) => String(b.whatsappStatus || (b.whatsappMessageId ? 'SENT' : 'NOT_SENT')).toUpperCase() },
+                        { label: 'Status', key: 'status' },
+                        { label: 'Date', key: 'createdAt' },
+                      ]
+                    )}
+                    disabled={!pageData?.bookings?.length}
+                  >
+                    <span>Export Bookings CSV</span>
+                  </button>
+                }
+              />
+              <BookingsManagement
+                bookings={pageData?.bookings ?? []}
+                onUpdateStatus={updateBookingStatus}
+                onDelete={deleteBooking}
+                onSendWhatsApp={sendBookingWhatsApp}
+                updates={bookingUpdates}
+              />
+            </>
+          )}
+
+          {/* Module 3: Motorcycles Inventory */}
+          {!loadingPage && !pageError && pathname === '/admin/motorcycles' && (
+            <>
+              <SectionIntro
+                eyebrow="INVENTORY & CATALOG"
+                title="Motorcycle Fleet Catalog"
+                description="Manage models, pricing, specifications, categories, and media for all showroom motorcycles."
+                action={
+                  <button type="button" className="admin-button admin-button--primary" onClick={() => setMotorcycleEditor({})}>
+                    <AdminIcon name="plus" size={15} />
+                    <span>Add New Motorcycle</span>
+                  </button>
+                }
+              />
+              {motorcycleMutationError && (
+                <div className="admin-toast admin-toast--error">
+                  <span>{motorcycleMutationError}</span>
+                </div>
               )}
-            </section>
+              <MotorcyclesManagement
+                motorcycles={filteredMotorcycles}
+                query={query}
+                onEdit={(bike) => setMotorcycleEditor(bike)}
+                onDelete={deleteMotorcycle}
+                onAddNew={() => setMotorcycleEditor({})}
+              />
+              {motorcycleEditor !== undefined && (
+                <MotorcycleEditor
+                  motorcycle={motorcycleEditor.id ? motorcycleEditor : null}
+                  onClose={() => setMotorcycleEditor(undefined)}
+                  onSave={saveMotorcycle}
+                  saving={savingMotorcycle}
+                  error={motorcycleMutationError}
+                />
+              )}
+            </>
           )}
-          {!loadingPage && !pageError && !['/admin', '/admin/motorcycles', '/admin/service-videos', '/admin/bookings', '/admin/analytics', '/admin/social', '/admin/social/posts', '/admin/enquiries', '/admin/reviews', '/admin/gallery', '/admin/content', '/admin/profile'].includes(pathname) && (
-            <section className="admin-panel admin-module-notice">
-              <span className="admin-module-notice__icon" aria-hidden="true">DB</span>
-              <span className="admin-eyebrow">PERSISTENCE NOT CONFIGURED</span>
-              <h2>This module needs a database.</h2>
-              <p>MongoDB Atlas is not connected. Editing, publishing, role administration, SEO changes, activity history, uploads, and media ordering are intentionally unavailable until the database and object storage are provisioned.</p>
-              <a href="/admin" onClick={(event) => navigate(event, '/admin')}>Return to dashboard <span>↗</span></a>
-            </section>
+
+          {/* Module 4: Service Videos Management */}
+          {!loadingPage && !pageError && pathname === '/admin/service-videos' && (
+            <ServiceVideosManagement
+              videos={pageData?.videos ?? []}
+              onReload={() => setReloadKey((k) => k + 1)}
+            />
+          )}
+
+          {/* Module 5: Social Media */}
+          {!loadingPage && pathname === '/admin/social' && (
+            <SocialMediaDashboard onNavigate={(e) => navigate(e, e.currentTarget.getAttribute('href'))} />
+          )}
+
+          {/* Module 6: Social Posts */}
+          {!loadingPage && pathname === '/admin/social/posts' && (
+            <SocialPosts />
+          )}
+
+          {/* Module 7: Contact & Enquiries */}
+          {!loadingPage && pathname === '/admin/enquiries' && (
+            <ContactEnquiries onNavigate={(e) => navigate(e, e.currentTarget.getAttribute('href'))} />
+          )}
+
+          {/* Module 8: Customer Reviews */}
+          {!loadingPage && pathname === '/admin/reviews' && (
+            <CustomerReviews />
+          )}
+
+          {/* Module 9: Gallery Management */}
+          {!loadingPage && pathname === '/admin/gallery' && (
+            <GalleryManagement />
+          )}
+
+          {/* Module 10: Website Content */}
+          {!loadingPage && pathname === '/admin/content' && (
+            <WebsiteContent />
+          )}
+
+          {/* Module 11: Home Page Editor */}
+          {!loadingPage && pathname === '/admin/home-page' && (
+            <HomePageEditor />
+          )}
+
+          {/* Module 12: Website Sections */}
+          {!loadingPage && pathname === '/admin/sections' && (
+            <WebsiteSections />
+          )}
+
+          {/* Module 13: Media Library */}
+          {!loadingPage && pathname === '/admin/media' && (
+            <MediaLibrary />
+          )}
+
+          {/* Module 14: Analytics */}
+          {!loadingPage && !pageError && pathname === '/admin/analytics' && (
+            <AdminAnalytics overview={pageData || {}} />
+          )}
+
+          {/* Module 15: Admin Profile & Settings */}
+          {!loadingPage && pathname === '/admin/profile' && (
+            <AdminProfileSettings user={session.user} developmentAccess={session.developmentAccess} />
+          )}
+
+          {/* Module 16: SEO Settings */}
+          {!loadingPage && pathname === '/admin/seo' && (
+            <SeoSettings />
+          )}
+
+          {/* Module 17: Users & Roles */}
+          {!loadingPage && pathname === '/admin/users' && (
+            <UsersManagement currentUser={session.user} />
+          )}
+
+          {/* Module 18: Activity Logs */}
+          {!loadingPage && pathname === '/admin/activity' && (
+            <ActivityLogs />
+          )}
+
+          {/* Module 19: Dealership Site Settings */}
+          {!loadingPage && pathname === '/admin/settings' && (
+            <SiteSettings />
           )}
         </div>
       </section>
     </main>
   );
-}
-
-function YamahaAdmin() {
-  return DEMO_MODE_ENABLED ? <AdminDemoMode /> : <YamahaAdminApi />;
 }
 
 export default YamahaAdmin;

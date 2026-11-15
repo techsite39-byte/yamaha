@@ -1,7 +1,6 @@
 const STORAGE_KEY = 'yamaha-admin-demo-data-v1';
 
-export const DEMO_MODE_ENABLED = import.meta.env.DEV
-  && import.meta.env.VITE_ADMIN_DEMO_MODE === 'true';
+export const DEMO_MODE_ENABLED = import.meta.env.DEV && import.meta.env.VITE_ADMIN_DEMO_MODE === 'true';
 
 export const demoCollections = {
   motorcycles: {
@@ -319,6 +318,10 @@ let memoryData;
 let storageMode = 'browser development storage';
 let storageWarning = '';
 
+function requireDemoMode() {
+  if (!DEMO_MODE_ENABLED) throw new Error('Admin demo mode is only available in Vite development.');
+}
+
 function seedDemoData() {
   return Object.fromEntries(Object.entries(demoCollections).map(([key, config]) => [key, clone(config.seed)]));
 }
@@ -328,6 +331,7 @@ function dispatchChange() {
 }
 
 export function readDemoData() {
+  requireDemoMode();
   if (memoryData) return memoryData;
   memoryData = seedDemoData();
   try {
@@ -350,6 +354,7 @@ export function readDemoCollection(key) {
 }
 
 export function readDemoStorageStatus() {
+  requireDemoMode();
   return { mode: storageMode, warning: storageWarning };
 }
 
@@ -367,7 +372,7 @@ function persistDemoData() {
 }
 
 export function mutateDemoCollection(key, action, payload) {
-  if (!DEMO_MODE_ENABLED) throw new Error('Admin demo mode is only available in Vite development.');
+  requireDemoMode();
   const config = demoCollections[key];
   if (!config || config.readOnly) throw new Error('This demo collection is read-only.');
 
@@ -411,7 +416,7 @@ export function mutateDemoCollection(key, action, payload) {
 }
 
 export function resetDemoData() {
-  if (!DEMO_MODE_ENABLED) throw new Error('Admin demo mode is only available in Vite development.');
+  requireDemoMode();
   memoryData = seedDemoData();
   try {
     window.localStorage.removeItem(STORAGE_KEY);
@@ -425,6 +430,7 @@ export function resetDemoData() {
 }
 
 export function subscribeToDemoChanges(callback) {
+  requireDemoMode();
   const handleStorage = (event) => {
     if (event.key === STORAGE_KEY) {
       memoryData = null;

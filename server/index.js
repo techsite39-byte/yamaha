@@ -9,6 +9,32 @@ import { auth } from 'express-openid-connect';
 import helmet from 'helmet';
 import { MongoClient } from 'mongodb';
 import { yamahaAllMotorcycles } from '../src/components/Yamaha/yamahaMotorcycles.js';
+import {
+  setMongoDatabaseReference,
+  serviceVideosStore,
+  socialProfilesStore,
+  socialPostsStore,
+  reviewsStore,
+  galleryStore,
+  websiteContentStore,
+  homePageStore,
+  websiteSectionsStore,
+  mediaLibraryStore,
+  seoSettingsStore,
+  usersStore,
+  siteSettingsStore,
+  activityStore,
+  logAdminActivity,
+} from './adminStores.js';
+import { projectAdminOverview } from './adminOverview.js';
+import {
+  normalizeWhatsAppNumber,
+  formatBookingWhatsAppText,
+  sendWhatsAppMessage,
+  verifyWhatsAppWebhookChallenge,
+  parseWhatsAppWebhookPayload,
+  shouldUpdateStatus,
+} from './whatsappService.js';
 
 const serverDirectory = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(serverDirectory, '..');
@@ -18,13 +44,15 @@ const motorcycleCatalogPath = join(serverDirectory, 'data', 'motorcycles.json');
 const bookingsPath = join(serverDirectory, 'data', 'bookings.json');
 let motorcycleMutationQueue = Promise.resolve();
 let bookingMutationQueue = Promise.resolve();
+dotenv.config({ path: join(serverDirectory, '.env') });
 dotenv.config({ path: join(serverDirectory, 'data', '.env') });
 const mongoUri = process.env.MONGODB_URI?.trim();
 const mongoDatabaseName = process.env.MONGODB_DATABASE?.trim() || 'yamaha';
 let mongoClient;
 let mongoDatabase;
 const production = process.env.NODE_ENV === 'production';
-const development = process.env.NODE_ENV === 'development';
+const development = process.env.NODE_ENV === 'development' || !production;
+const isStandaloneExecution = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
 
 function apiError(message, status, code) {
   const error = new Error(message);
@@ -38,7 +66,10 @@ async function readMotorcycleCatalogFile() {
   try {
     contents = await readFile(motorcycleCatalogPath, 'utf8');
   } catch (error) {
-    if (error.code === 'ENOENT') return yamahaAllMotorcycles;
+    if (error.code === 'ENOENT') {
+      await writeMotorcycleCatalog(yamahaAllMotorcycles);
+      return yamahaAllMotorcycles;
+    }
     throw error;
   }
 
@@ -181,6 +212,14 @@ async function createBooking(fields) {
         reference: createBookingReference(bookings),
         consentAt: createdAt,
         status: 'new',
+        whatsappStatus: 'NOT_SENT',
+        whatsappMessageId: null,
+        whatsappRecipient: fields.customer?.phone || fields.phone || null,
+        whatsappSentAt: null,
+        whatsappDeliveredAt: null,
+        whatsappReadAt: null,
+        whatsappFailedAt: null,
+        whatsappError: null,
         createdAt,
         updatedAt: createdAt,
       };
@@ -196,6 +235,14 @@ async function createBooking(fields) {
       reference: createBookingReference([]),
       consentAt: createdAt,
       status: 'new',
+      whatsappStatus: 'NOT_SENT',
+      whatsappMessageId: null,
+      whatsappRecipient: fields.customer?.phone || fields.phone || null,
+      whatsappSentAt: null,
+      whatsappDeliveredAt: null,
+      whatsappReadAt: null,
+      whatsappFailedAt: null,
+      whatsappError: null,
       createdAt,
       updatedAt: createdAt,
     };
@@ -220,15 +267,22 @@ async function createBooking(fields) {
   throw new Error('A unique booking reference could not be created.');
 }
 
-async function setBookingStatus(reference, status) {
+async function setBookingStatus(reference, status, notes) {
+  const validStatuses = ['new', 'contacted', 'confirmed', 'cancelled', 'follow-up', 'converted'];
+  if (!validStatuses.includes(status)) {
+    throw apiError('Choose a valid booking status.', 400, 'invalid_booking_status');
+  }
   const collection = getBookingCollection();
   if (collection) {
+    const updateDoc = { status, updatedAt: new Date().toISOString() };
+    if (notes !== undefined) updateDoc.notes = typeof notes === 'string' ? notes.trim() : '';
     await collection.updateOne(
       { reference },
-      { $set: { status, updatedAt: new Date().toISOString() } },
+      { $set: updateDoc },
     );
     const booking = await collection.findOne({ reference });
     if (!booking) throw apiError('Booking not found.', 404, 'booking_not_found');
+    await logAdminActivity('STATUS_CHANGE', `Booking: ${reference}`, `Status changed to ${status}`);
     return bookingFromDocument(booking);
   }
 
@@ -236,8 +290,146 @@ async function setBookingStatus(reference, status) {
     const current = bookings.find((item) => item.reference === reference);
     if (!current) throw apiError('Booking not found.', 404, 'booking_not_found');
     current.status = status;
+    if (notes !== undefined) current.notes = typeof notes === 'string' ? notes.trim() : '';
     current.updatedAt = new Date().toISOString();
+    logAdminActivity('STATUS_CHANGE', `Booking: ${reference}`, `Status changed to ${status}`);
     return current;
+  });
+}
+
+async function updateBookingDetails(reference, updates) {
+  const collection = getBookingCollection();
+  if (collection) {
+    const existing = await collection.findOne({ reference });
+    if (!existing) throw apiError('Booking not found.', 404, 'booking_not_found');
+    const updated = {
+      ...existing,
+      ...updates,
+      customer: { ...(existing.customer || {}), ...(updates.customer || {}) },
+      updatedAt: new Date().toISOString(),
+    };
+    await collection.replaceOne({ reference }, updated);
+    await logAdminActivity('UPDATE', `Booking: ${reference}`, `Updated details`);
+    return bookingFromDocument(updated);
+  }
+
+  return mutateBookings((bookings) => {
+    const index = bookings.findIndex((item) => item.reference === reference);
+    if (index < 0) throw apiError('Booking not found.', 404, 'booking_not_found');
+    const existing = bookings[index];
+    const updated = {
+      ...existing,
+      ...updates,
+      customer: { ...(existing.customer || {}), ...(updates.customer || {}) },
+      updatedAt: new Date().toISOString(),
+    };
+    bookings[index] = updated;
+    logAdminActivity('UPDATE', `Booking: ${reference}`, `Updated details`);
+    return updated;
+  });
+}
+
+async function deleteBookingRecord(reference) {
+  const collection = getBookingCollection();
+  if (collection) {
+    const res = await collection.deleteOne({ reference });
+    if (res.deletedCount === 0) throw apiError('Booking not found.', 404, 'booking_not_found');
+    await logAdminActivity('DELETE', `Booking: ${reference}`, 'Deleted booking record');
+    return true;
+  }
+
+  return mutateBookings((bookings) => {
+    const index = bookings.findIndex((item) => item.reference === reference);
+    if (index < 0) throw apiError('Booking not found.', 404, 'booking_not_found');
+    bookings.splice(index, 1);
+    logAdminActivity('DELETE', `Booking: ${reference}`, 'Deleted booking record');
+    return true;
+  });
+}
+
+async function updateBookingWhatsAppFields(reference, updates) {
+  const collection = getBookingCollection();
+  const updateDoc = {
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  };
+
+  if (collection) {
+    await collection.updateOne({ reference }, { $set: updateDoc });
+    const doc = await collection.findOne({ reference });
+    return doc ? bookingFromDocument(doc) : null;
+  }
+
+  return mutateBookings((bookings) => {
+    const booking = bookings.find((item) => item.reference === reference);
+    if (!booking) return null;
+    Object.assign(booking, updateDoc);
+    return booking;
+  });
+}
+
+async function updateBookingWhatsAppDelivery({ messageId, status, timestamp, error }) {
+  if (!messageId) return null;
+  const collection = getBookingCollection();
+  const now = new Date().toISOString();
+  const eventTime = timestamp || now;
+
+  if (collection) {
+    const existing = await collection.findOne({ whatsappMessageId: messageId });
+    if (!existing) {
+      console.warn(`[WhatsApp Webhook] No booking found for message ID: ${messageId}`);
+      return null;
+    }
+
+    if (!shouldUpdateStatus(existing.whatsappStatus, status)) {
+      console.log(`[WhatsApp Webhook] Ignored regressive status update ${status} for existing ${existing.whatsappStatus} (${existing.reference})`);
+      return bookingFromDocument(existing);
+    }
+
+    const setDoc = {
+      whatsappStatus: status,
+      updatedAt: now,
+    };
+
+    if (status === 'SENT') {
+      setDoc.whatsappSentAt = eventTime;
+    } else if (status === 'DELIVERED') {
+      setDoc.whatsappDeliveredAt = eventTime;
+    } else if (status === 'READ') {
+      setDoc.whatsappReadAt = eventTime;
+    } else if (status === 'FAILED') {
+      setDoc.whatsappFailedAt = eventTime;
+      if (error) setDoc.whatsappError = error;
+    }
+
+    await collection.updateOne({ whatsappMessageId: messageId }, { $set: setDoc });
+    const updated = await collection.findOne({ whatsappMessageId: messageId });
+    return updated ? bookingFromDocument(updated) : null;
+  }
+
+  return mutateBookings((bookings) => {
+    const booking = bookings.find((b) => b.whatsappMessageId === messageId);
+    if (!booking) return null;
+
+    if (!shouldUpdateStatus(booking.whatsappStatus, status)) {
+      return booking;
+    }
+
+    booking.whatsappStatus = status;
+    booking.updatedAt = now;
+
+    if (status === 'SENT') {
+      booking.whatsappSentAt = eventTime;
+    } else if (status === 'DELIVERED') {
+      booking.whatsappDeliveredAt = eventTime;
+    } else if (status === 'READ') {
+      booking.whatsappReadAt = eventTime;
+    } else if (status === 'FAILED') {
+      booking.whatsappFailedAt = eventTime;
+      if (error) booking.whatsappError = error;
+    }
+
+    return booking;
   });
 }
 
@@ -256,39 +448,47 @@ async function withMongoTransaction(operation) {
 
 async function initializeMongoDatabase() {
   if (!mongoUri) {
-    if (production) throw new Error('MONGODB_URI must be configured before starting in production.');
+    if (production && isStandaloneExecution) throw new Error('MONGODB_URI must be configured before starting in production.');
     console.warn('MongoDB is not configured; local development is using JSON-file storage.');
     return;
   }
 
   mongoClient = new MongoClient(mongoUri);
-  await mongoClient.connect();
-  mongoDatabase = mongoClient.db(mongoDatabaseName);
+  try {
+    await mongoClient.connect();
+    const database = mongoClient.db(mongoDatabaseName);
+    const motorcycles = database.collection('motorcycles');
+    const bookings = database.collection('bookings');
+    await Promise.all([
+      motorcycles.createIndex({ position: 1 }),
+      bookings.createIndex({ requestId: 1 }, { unique: true }),
+      bookings.createIndex({ reference: 1 }, { unique: true }),
+      bookings.createIndex({ createdAt: -1 }),
+    ]);
 
-  const motorcycles = getMotorcycleCollection();
-  const bookings = getBookingCollection();
-  await Promise.all([
-    motorcycles.createIndex({ position: 1 }),
-    bookings.createIndex({ requestId: 1 }, { unique: true }),
-    bookings.createIndex({ reference: 1 }, { unique: true }),
-    bookings.createIndex({ createdAt: -1 }),
-  ]);
+    await withMongoTransaction(async (session) => {
+      if (await motorcycles.countDocuments({}, { session }) > 0) return;
+      const seedMotorcycles = await readMotorcycleCatalogFile();
+      await motorcycles.insertMany(seedMotorcycles.map((motorcycle, position) => ({
+        ...motorcycle,
+        _id: motorcycle.id,
+        position,
+      })), { session });
+    });
 
-  await withMongoTransaction(async (session) => {
-    if (await motorcycles.countDocuments({}, { session }) > 0) return;
-    const seedMotorcycles = await readMotorcycleCatalogFile();
-    await motorcycles.insertMany(seedMotorcycles.map((motorcycle, position) => ({
-      ...motorcycle,
-      _id: motorcycle.id,
-      position,
-    })), { session });
-  });
+    await withMongoTransaction(async (session) => {
+      if (await bookings.countDocuments({}, { session }) > 0) return;
+      const seedBookings = await readBookingsFile();
+      if (seedBookings.length > 0) await bookings.insertMany(seedBookings, { session });
+    });
 
-  await withMongoTransaction(async (session) => {
-    if (await bookings.countDocuments({}, { session }) > 0) return;
-    const seedBookings = await readBookingsFile();
-    if (seedBookings.length > 0) await bookings.insertMany(seedBookings, { session });
-  });
+    mongoDatabase = database;
+    setMongoDatabaseReference(database);
+  } catch (error) {
+    await mongoClient.close();
+    mongoClient = undefined;
+    throw error;
+  }
 }
 
 function validateBookingInput(input, motorcycles) {
@@ -330,10 +530,24 @@ function validateBookingInput(input, motorcycles) {
       || item.model.toLowerCase() === targetId
     ));
   }
-  if (!motorcycle?.catalogue
-    || motorcycle.catalogue.market !== 'IN'
+  if (!motorcycle?.catalogue) {
+    if (input.enquiry && motorcycle) {
+      motorcycle.catalogue = {
+        market: 'IN',
+        category: motorcycle.category || 'Sport Bikes',
+        published: true,
+        available: true,
+        variants: ['Standard'],
+        colors: ['Racing Blue', 'Black'],
+      };
+    } else {
+      throw apiError('This motorcycle is not currently accepting booking enquiries.', 404, 'motorcycle_unavailable');
+    }
+  } else if (!input.enquiry && (
+    motorcycle.catalogue.market !== 'IN'
     || motorcycle.catalogue.published !== true
-    || motorcycle.catalogue.available !== true) {
+    || motorcycle.catalogue.available !== true
+  )) {
     throw apiError('This motorcycle is not currently accepting booking enquiries.', 404, 'motorcycle_unavailable');
   }
 
@@ -372,12 +586,12 @@ function validateBookingInput(input, motorcycles) {
   }
   const name = typeof customerInput.name === 'string' ? customerInput.name.trim() : '';
   const phone = typeof customerInput.phone === 'string' ? customerInput.phone.trim() : '';
-  const email = typeof customerInput.email === 'string' ? customerInput.email.trim().toLowerCase() : '';
-  const city = typeof customerInput.city === 'string' && customerInput.city.trim() ? customerInput.city.trim() : 'Chennai';
+  const rawEmail = typeof customerInput.email === 'string' ? customerInput.email.trim().toLowerCase() : '';
+  const city = typeof customerInput.city === 'string' && customerInput.city.trim() ? customerInput.city.trim() : 'Batlagundu';
   const state = typeof customerInput.state === 'string' && customerInput.state.trim() ? customerInput.state.trim() : 'Tamil Nadu';
   const dealership = typeof customerInput.dealership === 'string' && customerInput.dealership.trim()
     ? customerInput.dealership.trim()
-    : (typeof input.dealership === 'string' && input.dealership.trim() ? input.dealership.trim() : 'Vathilai Motors — Anna Salai, Chennai');
+    : (typeof input.dealership === 'string' && input.dealership.trim() ? input.dealership.trim() : 'Vathilai Motors — Authorised Yamaha Dealer, Batlagundu');
   const appointmentDate = typeof input.appointmentDate === 'string' && input.appointmentDate.trim()
     ? input.appointmentDate.trim()
     : (typeof customerInput.appointmentDate === 'string' && customerInput.appointmentDate.trim() ? customerInput.appointmentDate.trim() : new Date(Date.now() + 86400000).toISOString().split('T')[0]);
@@ -387,7 +601,7 @@ function validateBookingInput(input, motorcycles) {
   const message = typeof customerInput.message === 'string' ? customerInput.message.trim() : '';
   const preferredContactMethod = typeof customerInput.preferredContactMethod === 'string'
     ? customerInput.preferredContactMethod.trim()
-    : (typeof input.preferredContactMethod === 'string' ? input.preferredContactMethod.trim() : 'Phone Call');
+    : (typeof input.preferredContactMethod === 'string' ? input.preferredContactMethod.trim() : 'WhatsApp');
 
   if (name.length < 2 || name.length > 100 || /[\u0000-\u001f\u007f]/.test(name)) {
     throw apiError('Enter a valid name (2 to 100 characters).', 400, 'invalid_booking');
@@ -396,7 +610,8 @@ function validateBookingInput(input, motorcycles) {
   if (!/^(?:\+?91)?[6-9]\d{9}$/.test(normalizedPhone)) {
     throw apiError('Enter a valid Indian mobile number.', 400, 'invalid_booking');
   }
-  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const email = rawEmail || `${normalizedPhone}@vathilaimotors.in`;
+  if (rawEmail && (rawEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail))) {
     throw apiError('Enter a valid email address.', 400, 'invalid_booking');
   }
   if (city.length < 2 || city.length > 80 || /[\u0000-\u001f\u007f]/.test(city)) {
@@ -522,7 +737,7 @@ function validateCatalogueInput(input) {
   }
 
   const category = typeof input.category === 'string' ? input.category.trim() : '';
-  const market = typeof input.market === 'string' ? input.market.trim().toUpperCase() : '';
+  const market = typeof input.market === 'string' && input.market.trim() ? input.market.trim().toUpperCase() : 'IN';
   if (!['Sport Bikes', 'Street Bikes', 'Naked Bikes', 'Hybrid Bikes'].includes(category)) {
     throw apiError('Choose a valid India catalogue category.', 400, 'invalid_catalogue');
   }
@@ -534,10 +749,11 @@ function validateCatalogueInput(input) {
   }
 
   const validateStringList = (value, label, maximumItems, maximumLength) => {
-    if (!Array.isArray(value) || value.length > maximumItems) {
+    const list = Array.isArray(value) ? value : [];
+    if (list.length > maximumItems) {
       throw apiError(`${label} must contain no more than ${maximumItems} entries.`, 400, 'invalid_catalogue');
     }
-    return value.map((item) => {
+    return list.map((item) => {
       if (typeof item !== 'string' || !item.trim() || item.trim().length > maximumLength) {
         throw apiError(`${label} entries must be non-empty and at most ${maximumLength} characters.`, 400, 'invalid_catalogue');
       }
@@ -547,10 +763,11 @@ function validateCatalogueInput(input) {
 
   const variants = validateStringList(input.variants, 'Variants', 30, 100);
   const colors = validateStringList(input.colors, 'Colours', 50, 80);
-  if (!Array.isArray(input.specifications) || input.specifications.length > 100) {
+  const rawSpecifications = Array.isArray(input.specifications) ? input.specifications : [];
+  if (rawSpecifications.length > 100) {
     throw apiError('Specifications must contain no more than 100 entries.', 400, 'invalid_catalogue');
   }
-  const specifications = input.specifications.map((row) => {
+  const specifications = rawSpecifications.map((row) => {
     const section = typeof row?.section === 'string' ? row.section.trim() : '';
     const label = typeof row?.label === 'string' ? row.label.trim() : '';
     const value = typeof row?.value === 'string' ? row.value.trim() : '';
@@ -560,10 +777,11 @@ function validateCatalogueInput(input) {
     return { section, label, value };
   });
 
-  if (!Array.isArray(input.prices) || input.prices.length > 50) {
+  const rawPrices = Array.isArray(input.prices) ? input.prices : [];
+  if (rawPrices.length > 50) {
     throw apiError('Prices must contain no more than 50 entries.', 400, 'invalid_catalogue');
   }
-  const prices = input.prices.map((row) => {
+  const prices = rawPrices.map((row) => {
     const variant = typeof row?.variant === 'string' ? row.variant.trim() : '';
     const city = typeof row?.city === 'string' ? row.city.trim() : '';
     const source = typeof row?.source === 'string' ? row.source.trim() : '';
@@ -597,10 +815,11 @@ function validateCatalogueInput(input) {
     return { variant, city, exShowroom, onRoad, source, sourceUrl, checkedAt, estimated: row.estimated };
   });
 
-  if (!Array.isArray(input.gallery) || input.gallery.length > 30) {
+  const rawGallery = Array.isArray(input.gallery) ? input.gallery : [];
+  if (rawGallery.length > 30) {
     throw apiError('Gallery must contain no more than 30 images.', 400, 'invalid_catalogue');
   }
-  const gallery = input.gallery.map((image) => {
+  const gallery = rawGallery.map((image) => {
     if (typeof image !== 'string' || !image.trim()) {
       throw apiError('Gallery image paths must be non-empty public paths.', 400, 'invalid_catalogue');
     }
@@ -630,10 +849,8 @@ function validateCatalogueInput(input) {
     }
   }
 
-  const priceNote = input.priceNote === undefined
-    ? undefined
-    : typeof input.priceNote === 'string' ? input.priceNote.trim() : null;
-  if (priceNote === null || priceNote.length > 1000) {
+  const priceNote = typeof input.priceNote === 'string' ? input.priceNote.trim() : '';
+  if (priceNote.length > 1000) {
     throw apiError('Price notes must be at most 1000 characters.', 400, 'invalid_catalogue');
   }
 
@@ -692,11 +909,11 @@ if (authConfigured) {
   if (production && new URL(authConfiguration.baseURL).protocol !== 'https:') {
     throw new Error('AUTH0_BASE_URL must use HTTPS in production.');
   }
-} else if (production) {
+} else if (production && isStandaloneExecution) {
   throw new Error('Auth0 must be configured before starting the admin API in production.');
 }
 
-if (production && !existsSync(join(distributionDirectory, 'index.html'))) {
+if (production && isStandaloneExecution && !existsSync(join(distributionDirectory, 'index.html'))) {
   throw new Error('Production build is missing. Run the Vite build before starting the server.');
 }
 
@@ -721,7 +938,7 @@ app.use(helmet({
     },
   },
 }));
-app.use(express.json({ limit: '32kb' }));
+app.use(express.json({ limit: '10mb' }));
 
 if (authConfigured) {
   app.use(auth({
@@ -790,7 +1007,7 @@ app.get('/api/admin/session', (request, response) => {
         authenticated: true,
         isAdmin: true,
         developmentAccess: true,
-        user: { name: 'Local Developer' },
+        user: { name: 'Vathilai Motors Administrator', email: 'admin@vathilaimotors.com', role: 'Super Admin' },
       });
     }
     return response.status(503).json({
@@ -846,11 +1063,78 @@ app.get('/api/public/motorcycles', async (request, response, next) => {
   }
 });
 
+// WhatsApp Webhook challenge verification for Meta WhatsApp Cloud API
+app.get(['/api/public/whatsapp/webhook', '/api/whatsapp/webhook'], (request, response) => {
+  const result = verifyWhatsAppWebhookChallenge(request.query);
+  if (result.verified) {
+    console.log('[WhatsApp Webhook] Challenge verified successfully.');
+    return response.status(200).send(result.challenge);
+  }
+  console.warn('[WhatsApp Webhook] Verification failed:', result.error);
+  return response.status(403).json({ error: result.error || 'Verification challenge failed.' });
+});
+
+// WhatsApp Webhook status event receiver for Meta / external status callbacks
+app.post(['/api/public/whatsapp/webhook', '/api/whatsapp/webhook'], async (request, response, next) => {
+  try {
+    const events = parseWhatsAppWebhookPayload(request.body);
+    console.log(`[WhatsApp Webhook] Received ${events.length} status event(s).`);
+
+    const updated = [];
+    for (const evt of events) {
+      const res = await updateBookingWhatsAppDelivery(evt);
+      if (res) {
+        updated.push({
+          reference: res.reference,
+          status: res.whatsappStatus,
+          messageId: evt.messageId,
+        });
+        console.log(`[WhatsApp Webhook] Booking ${res.reference} updated to ${res.whatsappStatus} (MsgID: ${evt.messageId})`);
+      }
+    }
+
+    return response.status(200).json({
+      success: true,
+      processed: events.length,
+      updated,
+    });
+  } catch (error) {
+    console.error('[WhatsApp Webhook] Error processing webhook event:', error);
+    return next(error);
+  }
+});
+
+async function dispatchAutomaticWhatsAppNotification(booking) {
+  try {
+    const result = await sendWhatsAppMessage({ booking });
+    const updateFields = {
+      whatsappStatus: result.status,
+      whatsappRecipient: result.recipient,
+      whatsappMessageId: result.messageId || null,
+      whatsappSentAt: result.sentAt || null,
+      whatsappFailedAt: result.failedAt || null,
+      whatsappError: result.error || null,
+    };
+    await updateBookingWhatsAppFields(booking.reference, updateFields).catch((err) => {
+      console.warn(`[WhatsApp Backend] Could not persist status: ${err.message}`);
+    });
+    console.log(`[WhatsApp Backend] Notification result for ${booking.reference}: ${result.status} (Recipient: ${result.recipient})`);
+    return result;
+  } catch (err) {
+    console.error(`[WhatsApp Backend] Error in dispatchAutomaticWhatsAppNotification: ${err.message}`);
+    return { success: false, error: err.message };
+  }
+}
+
 app.post(['/api/public/bookings', '/api/public/enquiries'], async (request, response, next) => {
   try {
     const motorcycles = await readMotorcycleCatalog();
     const fields = validateBookingInput(request.body, motorcycles);
     const booking = await createBooking(fields);
+
+    // Automatically dispatch notification from the backend without client browser redirection
+    dispatchAutomaticWhatsAppNotification(booking).catch(() => {});
+
     return response.status(201).json({
       reference: booking.reference,
       message: 'Your booking enquiry has been received.',
@@ -863,17 +1147,115 @@ app.post(['/api/public/bookings', '/api/public/enquiries'], async (request, resp
 
 app.get('/api/admin/overview', async (request, response, next) => {
   try {
-    const [motorcycles, bookings] = await Promise.all([readMotorcycleCatalog(), readBookings()]);
+    const readSource = async (name, read) => {
+      try {
+        const value = await read();
+        if (!Array.isArray(value)) throw new Error('Expected an array result.');
+        return { ok: true, value };
+      } catch {
+        console.warn(`Admin overview source unavailable (${name}).`);
+        return { ok: false };
+      }
+    };
+    const sourceEntries = await Promise.all([
+      ['motorcycles', () => readMotorcycleCatalog()],
+      ['bookings', () => readBookings()],
+      ['serviceVideos', () => serviceVideosStore.read()],
+      ['socialPosts', () => socialPostsStore.read()],
+      ['reviews', () => reviewsStore.read()],
+      ['gallery', () => galleryStore.read()],
+      ['media', () => mediaLibraryStore.read()],
+      ['activity', () => activityStore.read()],
+    ].map(async ([name, read]) => [name, await readSource(name, read)]));
+    const sources = Object.fromEntries(sourceEntries);
+
+    const overview = projectAdminOverview(sources);
+    const bookingRecords = overview.sourceStatus.bookings === 'available' ? sources.bookings.value : null;
+    const contacts = bookingRecords
+      ? new Set(bookingRecords.map((record) => record.customer?.phone || record.customer?.email || record.phone || record.email).filter(Boolean))
+      : null;
     return response.json({
-      source: mongoDatabase ? 'mongodb' : 'project-files',
+      apiAvailable: true,
+      source: mongoDatabase ? 'mongodb' : 'json',
       databaseConnected: Boolean(mongoDatabase),
-      mediaStorageConnected: false,
-      analyticsConnected: false,
+      database: {
+        connected: Boolean(mongoDatabase),
+        provider: mongoDatabase ? 'MongoDB' : 'Local JSON files',
+        mode: mongoDatabase ? 'mongodb' : 'json-fallback',
+      },
+      databaseType: mongoDatabase ? 'MongoDB' : 'Local JSON files',
+      mediaStorageConnected: null,
+      analyticsConnected: null,
       authConfigured,
-      totalMotorcycles: motorcycles.length,
-      totalBookings: bookings.length,
-      websitePages: ['/', '/services', '/motorcycle-details', '/bikes', '/bike-details', '/book-now'],
-      serviceVideoCount: 6,
+      totalCustomers: contacts?.size ?? null,
+      totalServices: overview.totalServiceVideos,
+      totalRevenue: null,
+      totalGallery: overview.sourceStatus.gallery === 'available' ? sources.gallery.value.length : null,
+      totalMedia: overview.sourceStatus.media === 'available' ? sources.media.value.length : null,
+      websitePages: ['/', '/services', '/motorcycle-details', '/bikes', '/bike-details', '/book-us'],
+      ...overview,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get('/api/admin/analytics', async (request, response, next) => {
+  try {
+    const readSource = async (name, read) => {
+      try {
+        const value = await read();
+        if (!Array.isArray(value)) throw new Error('Expected an array result.');
+        return { ok: true, value };
+      } catch {
+        console.warn(`Admin analytics source unavailable (${name}).`);
+        return { ok: false };
+      }
+    };
+    const sourceEntries = await Promise.all([
+      ['motorcycles', () => readMotorcycleCatalog()],
+      ['bookings', () => readBookings()],
+      ['serviceVideos', () => serviceVideosStore.read()],
+      ['socialPosts', () => socialPostsStore.read()],
+      ['reviews', () => reviewsStore.read()],
+      ['gallery', () => galleryStore.read()],
+      ['media', () => mediaLibraryStore.read()],
+      ['activity', () => activityStore.read()],
+    ].map(async ([name, read]) => [name, await readSource(name, read)]));
+    const sources = Object.fromEntries(sourceEntries);
+    const overview = projectAdminOverview(sources);
+    const allBookings = overview.sourceStatus.bookings === 'available' ? sources.bookings.value : null;
+    const modelInterest = {};
+    for (const item of allBookings ?? []) {
+      const name = item.model || item.motorcycleId;
+      if (name) modelInterest[name] = (modelInterest[name] || 0) + 1;
+    }
+
+    const popularModels = Object.entries(modelInterest).map(([model, count]) => ({ model, count })).sort((a, b) => b.count - a.count);
+
+    return response.json({
+      ...overview,
+      apiAvailable: true,
+      source: mongoDatabase ? 'mongodb' : 'json',
+      databaseConnected: Boolean(mongoDatabase),
+      database: {
+        connected: Boolean(mongoDatabase),
+        provider: mongoDatabase ? 'MongoDB' : 'Local JSON files',
+        mode: mongoDatabase ? 'mongodb' : 'json-fallback',
+      },
+      totalInteractions: allBookings?.length ?? null,
+      modelInterest: allBookings ? popularModels : null,
+      popularModels: allBookings ? popularModels : null,
+      metrics: {
+        totalMotorcycles: overview.totalMotorcycles,
+        motorcyclesInCatalog: overview.totalMotorcycles,
+        totalBookings: overview.totalBookings,
+        totalEnquiries: overview.totalEnquiries,
+        totalInteractions: allBookings?.length ?? null,
+        conversionRate: null,
+      },
+      recentActivityCount: overview.recentActivity?.length ?? null,
+      lastUpdated: new Date().toISOString(),
     });
   } catch (error) {
     return next(error);
@@ -884,9 +1266,7 @@ app.get('/api/admin/motorcycles', async (request, response, next) => {
   try {
     const motorcycles = await readMotorcycleCatalog();
     return response.json({
-      source: mongoDatabase
-        ? 'mongodb'
-        : existsSync(motorcycleCatalogPath) ? 'server-data-file' : 'static-project-files',
+      source: mongoDatabase ? 'mongodb' : 'server-database-engine',
       editable: true,
       motorcycles,
     });
@@ -915,11 +1295,12 @@ app.post('/api/admin/motorcycles', async (request, response, next) => {
         heading: [words.slice(0, splitAt).join(' '), words.slice(splitAt).join(' ')],
         signature: fields.category.split('/').map((item) => item.trim()).filter(Boolean).slice(0, 3),
         features: [{ title: fields.model, description: fields.description }],
-        specifications: [],
+        specifications: fields.catalogue?.specifications || [],
       };
       motorcycles.push(record);
       return record;
     });
+    await logAdminActivity('CREATE', `Motorcycle: ${motorcycle.model}`, 'Added to catalogue');
     return response.status(201).json({ motorcycle });
   } catch (error) {
     return next(error);
@@ -950,6 +1331,7 @@ app.put('/api/admin/motorcycles/:id', async (request, response, next) => {
       motorcycles[index] = updated;
       return updated;
     });
+    await logAdminActivity('UPDATE', `Motorcycle: ${motorcycle.model}`, 'Updated catalogue specifications and pricing');
     return response.json({ motorcycle });
   } catch (error) {
     return next(error);
@@ -967,6 +1349,7 @@ app.delete('/api/admin/motorcycles/:id', async (request, response, next) => {
       motorcycles.splice(index, 1);
       return undefined;
     });
+    await logAdminActivity('DELETE', `Motorcycle: ${request.params.id}`, 'Removed from catalogue');
     return response.status(204).end();
   } catch (error) {
     return next(error);
@@ -975,7 +1358,7 @@ app.delete('/api/admin/motorcycles/:id', async (request, response, next) => {
 
 app.post(
   '/api/admin/motorcycles/:id/images',
-  express.raw({ type: ['image/webp', 'image/jpeg', 'image/png'], limit: '5mb' }),
+  express.raw({ type: ['image/webp', 'image/jpeg', 'image/png'], limit: '10mb' }),
   async (request, response, next) => {
     try {
       if (!Buffer.isBuffer(request.body) || request.body.length === 0) {
@@ -1008,61 +1391,1118 @@ app.post(
       await mkdir(uploadDirectory, { recursive: true });
       const filename = `${motorcycleSlug(motorcycle.model)}-${Date.now()}-${randomBytes(6).toString('hex')}.${imageType.extension}`;
       await writeFile(join(uploadDirectory, filename), buffer, { flag: 'wx', mode: 0o644 });
-      return response.status(201).json({ imagePath: `/imgs/catalog/uploads/${filename}` });
+      const publicPath = `/imgs/catalog/uploads/${filename}`;
+      await logAdminActivity('UPLOAD', `Motorcycle Image: ${filename}`, `Uploaded image for ${motorcycle.model}`);
+      return response.status(201).json({ imagePath: publicPath, url: publicPath });
     } catch (error) {
       return next(error);
     }
   },
 );
 
-app.get(['/api/admin/bookings', '/api/admin/enquiries'], async (request, response, next) => {
+// --- Bookings ---
+app.get('/api/admin/bookings', async (request, response, next) => {
   try {
-    const bookings = await readBookings();
+    const rawBookings = await readBookings();
+    const validStatuses = ['NOT_SENT', 'QUEUED', 'SENT', 'DELIVERED', 'READ', 'FAILED'];
+    const bookings = rawBookings.map((b) => {
+      let rawWa = String(b.whatsappStatus || '').toUpperCase();
+      if (!validStatuses.includes(rawWa)) {
+        rawWa = b.whatsappMessageId ? 'SENT' : 'NOT_SENT';
+      }
+      return {
+        ...b,
+        whatsappStatus: rawWa,
+      };
+    });
     return response.json({
-      source: mongoDatabase ? 'mongodb' : existsSync(bookingsPath) ? 'server-data-file' : 'empty',
+      source: mongoDatabase ? 'mongodb' : 'server-database-engine',
       editable: true,
-      bookings,
-      enquiries: bookings,
+      bookings: bookings.filter((b) => b.type !== 'enquiry'),
+      all: bookings,
     });
   } catch (error) {
     return next(error);
   }
 });
 
-async function updateBookingStatus(request, response, next) {
+app.post('/api/admin/bookings', async (request, response, next) => {
   try {
-    const status = typeof request.body?.status === 'string' ? request.body.status.trim() : '';
-    if (!['new', 'contacted', 'confirmed', 'cancelled'].includes(status)) {
-      throw apiError('Choose a valid booking status.', 400, 'invalid_booking_status');
-    }
+    const motorcycles = await readMotorcycleCatalog();
+    const fields = validateBookingInput(request.body, motorcycles);
+    const booking = await createBooking(fields);
+    await logAdminActivity('CREATE', `Booking: ${booking.reference}`, `Created booking for ${booking.customer?.name}`);
+    return response.status(201).json({ booking });
+  } catch (error) {
+    return next(error);
+  }
+});
 
-    const booking = await setBookingStatus(request.params.reference, status);
+app.get('/api/admin/bookings/:reference', async (request, response, next) => {
+  try {
+    const bookings = await readBookings();
+    const booking = bookings.find((b) => b.reference === request.params.reference);
+    if (!booking) throw apiError('Booking not found.', 404, 'booking_not_found');
     return response.json({ booking });
   } catch (error) {
     return next(error);
   }
-}
+});
 
-app.put(['/api/admin/bookings/:reference/status', '/api/admin/enquiries/:reference/status'], updateBookingStatus);
-app.patch(['/api/admin/bookings/:reference/status', '/api/admin/enquiries/:reference/status'], updateBookingStatus);
+app.put('/api/admin/bookings/:reference', async (request, response, next) => {
+  try {
+    const booking = await updateBookingDetails(request.params.reference, request.body);
+    return response.json({ booking });
+  } catch (error) {
+    return next(error);
+  }
+});
 
+app.delete('/api/admin/bookings/:reference', async (request, response, next) => {
+  try {
+    await deleteBookingRecord(request.params.reference);
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post(['/api/admin/bookings/:reference/whatsapp-send', '/api/admin/enquiries/:reference/whatsapp-send'], async (request, response, next) => {
+  try {
+    const reference = request.params.reference;
+    const bookings = await readBookings();
+    const booking = bookings.find((b) => b.reference === reference);
+    if (!booking) throw apiError('Booking not found.', 404, 'booking_not_found');
+
+    const result = await sendWhatsAppMessage({
+      booking,
+      customPhone: request.body?.phone,
+      customMessage: request.body?.message,
+    });
+
+    const updateFields = {
+      whatsappStatus: result.status,
+      whatsappRecipient: result.recipient,
+      whatsappMessageId: result.messageId || booking.whatsappMessageId || null,
+      whatsappSentAt: result.sentAt || booking.whatsappSentAt || null,
+      whatsappFailedAt: result.failedAt || null,
+      whatsappError: result.error || null,
+    };
+
+    const updatedBooking = await updateBookingWhatsAppFields(reference, updateFields);
+
+    if (result.success) {
+      await logAdminActivity('WHATSAPP_SEND', `Booking: ${reference}`, `Dispatched WhatsApp message to ${result.recipient} (MsgID: ${result.messageId})`);
+      return response.json({
+        success: true,
+        message: 'WhatsApp message accepted by provider.',
+        booking: updatedBooking,
+        delivery: result,
+      });
+    }
+
+    await logAdminActivity('WHATSAPP_FAILED', `Booking: ${reference}`, `WhatsApp dispatch failed: ${result.error}`);
+    return response.status(400).json({
+      success: false,
+      message: result.error || 'WhatsApp message dispatch failed.',
+      booking: updatedBooking,
+      delivery: result,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put(['/api/admin/bookings/:reference/status', '/api/admin/enquiries/:reference/status'], async (request, response, next) => {
+  try {
+    const status = typeof request.body?.status === 'string' ? request.body.status.trim() : '';
+    const notes = typeof request.body?.notes === 'string' ? request.body.notes.trim() : undefined;
+    const booking = await setBookingStatus(request.params.reference, status, notes);
+    return response.json({ booking });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.patch(['/api/admin/bookings/:reference/status', '/api/admin/enquiries/:reference/status'], async (request, response, next) => {
+  try {
+    const status = typeof request.body?.status === 'string' ? request.body.status.trim() : '';
+    const notes = typeof request.body?.notes === 'string' ? request.body.notes.trim() : undefined;
+    const booking = await setBookingStatus(request.params.reference, status, notes);
+    return response.json({ booking });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Enquiries ---
+app.get('/api/admin/enquiries', async (request, response, next) => {
+  try {
+    const allBookings = await readBookings();
+    const enquiries = allBookings.filter((b) => b.type === 'enquiry');
+    return response.json({
+      source: mongoDatabase ? 'mongodb' : 'server-database-engine',
+      editable: true,
+      enquiries,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/admin/enquiries', async (request, response, next) => {
+  try {
+    const motorcycles = await readMotorcycleCatalog();
+    const fields = validateBookingInput({ ...request.body, enquiry: true }, motorcycles);
+    const enquiry = await createBooking(fields);
+    await logAdminActivity('CREATE', `Enquiry: ${enquiry.reference}`, `New enquiry from ${enquiry.customer?.name}`);
+    return response.status(201).json({ enquiry });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get('/api/admin/enquiries/:reference', async (request, response, next) => {
+  try {
+    const allBookings = await readBookings();
+    const enquiry = allBookings.find((b) => b.reference === request.params.reference);
+    if (!enquiry) throw apiError('Enquiry not found.', 404, 'enquiry_not_found');
+    return response.json({ enquiry });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/enquiries/:reference', async (request, response, next) => {
+  try {
+    const enquiry = await updateBookingDetails(request.params.reference, request.body);
+    return response.json({ enquiry });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/enquiries/:reference', async (request, response, next) => {
+  try {
+    await deleteBookingRecord(request.params.reference);
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Service Videos ---
 app.get('/api/admin/service-videos', async (request, response, next) => {
   try {
-    const videos = await Promise.all(
-      Array.from({ length: 6 }, async (_, index) => {
-        const filename = `s${index + 1}.mp4`;
-        const filePath = join(publicDirectory, filename);
-        const metadata = await stat(filePath);
-        return {
-          filename,
-          path: `/${filename}`,
-          order: index + 1,
-          sizeBytes: metadata.size,
-          editable: false,
-        };
-      }),
-    );
-    return response.json({ source: 'public-files', editable: false, videos });
+    const rawVideos = await serviceVideosStore.read();
+    const videos = rawVideos.map((v) => ({
+      ...v,
+      path: v.mediaUrl || v.path,
+      mediaUrl: v.mediaUrl || v.path,
+      filename: v.fileName || v.filename,
+      fileName: v.fileName || v.filename,
+    }));
+    return response.json({
+      source: mongoDatabase ? 'mongodb' : 'server-database-engine',
+      editable: true,
+      videos,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/admin/service-videos', async (request, response, next) => {
+  try {
+    const { title, fileName, filename, mediaUrl, path, thumbnailUrl, order, description, status } = request.body || {};
+    const effectiveMediaUrl = (mediaUrl || path || '').trim();
+    if (!title || !effectiveMediaUrl) throw apiError('Title and media URL are required.', 400, 'invalid_video');
+    const effectiveFileName = (fileName || filename || title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '.mp4').trim();
+    const newVideo = {
+      id: `video-${Date.now()}-${randomBytes(3).toString('hex')}`,
+      title: title.trim(),
+      fileName: effectiveFileName,
+      filename: effectiveFileName,
+      mediaUrl: effectiveMediaUrl,
+      path: effectiveMediaUrl,
+      thumbnailUrl: thumbnailUrl?.trim() || '/imgs/f1.png',
+      order: Number(order) || 1,
+      status: status || 'published',
+      description: description?.trim() || '',
+      sizeBytes: Number(request.body.sizeBytes) || 3000000,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await serviceVideosStore.mutate((videos) => {
+      videos.push(newVideo);
+      videos.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+    });
+    await logAdminActivity('CREATE', `Service Video: ${newVideo.title}`, 'Added workshop service video');
+    return response.status(201).json({ video: newVideo });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/service-videos/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await serviceVideosStore.mutate((videos) => {
+      const index = videos.findIndex((v) => v.id === request.params.id);
+      if (index < 0) throw apiError('Service video not found.', 404, 'video_not_found');
+      updated = {
+        ...videos[index],
+        ...request.body,
+        id: videos[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      videos[index] = updated;
+      videos.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+    });
+    await logAdminActivity('UPDATE', `Service Video: ${updated.title}`, 'Updated video details');
+    return response.json({ video: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/service-videos/:id', async (request, response, next) => {
+  try {
+    await serviceVideosStore.mutate((videos) => {
+      const index = videos.findIndex((v) => v.id === request.params.id);
+      if (index < 0) throw apiError('Service video not found.', 404, 'video_not_found');
+      videos.splice(index, 1);
+    });
+    await logAdminActivity('DELETE', `Service Video: ${request.params.id}`, 'Removed video');
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Social Profiles & Posts ---
+app.get('/api/admin/social/profiles', async (request, response, next) => {
+  try {
+    const profiles = await socialProfilesStore.read();
+    return response.json({ profiles });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/social/profiles/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await socialProfilesStore.mutate((profiles) => {
+      const index = profiles.findIndex((p) => p.id === request.params.id);
+      if (index < 0) throw apiError('Profile not found.', 404, 'profile_not_found');
+      updated = {
+        ...profiles[index],
+        ...request.body,
+        id: profiles[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      profiles[index] = updated;
+    });
+    await logAdminActivity('UPDATE', `Social Profile: ${updated.platform}`, 'Updated URL and connection status');
+    return response.json({ profile: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get('/api/admin/social/posts', async (request, response, next) => {
+  try {
+    const posts = await socialPostsStore.read();
+    return response.json({ posts });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/admin/social/posts', async (request, response, next) => {
+  try {
+    const { platform, caption, description, mediaUrl, postUrl, scheduledAt, status, displayOrder } = request.body || {};
+    if (!platform || !caption) throw apiError('Platform and caption are required.', 400, 'invalid_post');
+    const newPost = {
+      id: `post-${Date.now()}-${randomBytes(3).toString('hex')}`,
+      platform,
+      caption: caption.trim(),
+      description: description?.trim() || '',
+      mediaUrl: mediaUrl?.trim() || '',
+      postUrl: postUrl?.trim() || '',
+      scheduledAt: scheduledAt || '',
+      status: status || 'published',
+      displayOrder: Number(displayOrder) || 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await socialPostsStore.mutate((posts) => {
+      posts.unshift(newPost);
+    });
+    await logAdminActivity('CREATE', `Social Post: ${newPost.platform}`, 'Created social media post');
+    return response.status(201).json({ post: newPost });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/social/posts/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await socialPostsStore.mutate((posts) => {
+      const index = posts.findIndex((p) => p.id === request.params.id);
+      if (index < 0) throw apiError('Post not found.', 404, 'post_not_found');
+      updated = {
+        ...posts[index],
+        ...request.body,
+        id: posts[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      posts[index] = updated;
+    });
+    await logAdminActivity('UPDATE', `Social Post: ${updated.platform}`, 'Updated post details');
+    return response.json({ post: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/social/posts/:id', async (request, response, next) => {
+  try {
+    await socialPostsStore.mutate((posts) => {
+      const index = posts.findIndex((p) => p.id === request.params.id);
+      if (index < 0) throw apiError('Post not found.', 404, 'post_not_found');
+      posts.splice(index, 1);
+    });
+    await logAdminActivity('DELETE', `Social Post: ${request.params.id}`, 'Deleted post');
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Customer Reviews ---
+app.get('/api/admin/reviews', async (request, response, next) => {
+  try {
+    const rawReviews = await reviewsStore.read();
+    const reviews = rawReviews.map((r) => ({
+      ...r,
+      name: r.customerName || r.name,
+      customerName: r.customerName || r.name,
+      comment: r.review || r.comment,
+      review: r.review || r.comment,
+      bikeModel: r.model || r.bikeModel,
+      model: r.model || r.bikeModel,
+      photo: r.imageUrl || r.photo,
+      imageUrl: r.imageUrl || r.photo,
+      published: r.published !== undefined ? r.published : (r.status === 'published'),
+    }));
+    return response.json({ reviews });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/admin/reviews', async (request, response, next) => {
+  try {
+    const { customerName, name, model, bikeModel, rating, review, comment, imageUrl, photo, status, published, city, displayOrder } = request.body || {};
+    const effectiveName = (customerName || name || '').trim();
+    const effectiveReview = (review || comment || '').trim();
+    if (!effectiveName || !effectiveReview) throw apiError('Customer name and review text are required.', 400, 'invalid_review');
+    const effectiveModel = (model || bikeModel || 'Yamaha Motorcycle').trim();
+    const effectivePhoto = (imageUrl || photo || '/bikevid/ezgif-frame-076.webp').trim();
+    const effectiveStatus = status || (published === false ? 'draft' : 'published');
+    const effectivePublished = published !== undefined ? published : (effectiveStatus === 'published');
+
+    const newReview = {
+      id: `rev-${Date.now()}-${randomBytes(3).toString('hex')}`,
+      customerName: effectiveName,
+      name: effectiveName,
+      model: effectiveModel,
+      bikeModel: effectiveModel,
+      rating: Math.min(5, Math.max(1, Number(rating) || 5)),
+      review: effectiveReview,
+      comment: effectiveReview,
+      imageUrl: effectivePhoto,
+      photo: effectivePhoto,
+      city: city || 'Salem',
+      status: effectiveStatus,
+      published: effectivePublished,
+      displayOrder: Number(displayOrder) || 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await reviewsStore.mutate((reviews) => {
+      reviews.unshift(newReview);
+    });
+    await logAdminActivity('CREATE', `Customer Review: ${newReview.customerName}`, `Added review for ${newReview.model}`);
+    return response.status(201).json({ review: newReview });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/reviews/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await reviewsStore.mutate((reviews) => {
+      const index = reviews.findIndex((r) => r.id === request.params.id);
+      if (index < 0) throw apiError('Review not found.', 404, 'review_not_found');
+      updated = {
+        ...reviews[index],
+        ...request.body,
+        id: reviews[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      reviews[index] = updated;
+    });
+    await logAdminActivity('UPDATE', `Customer Review: ${updated.customerName}`, 'Updated review details');
+    return response.json({ review: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/reviews/:id', async (request, response, next) => {
+  try {
+    await reviewsStore.mutate((reviews) => {
+      const index = reviews.findIndex((r) => r.id === request.params.id);
+      if (index < 0) throw apiError('Review not found.', 404, 'review_not_found');
+      reviews.splice(index, 1);
+    });
+    await logAdminActivity('DELETE', `Review: ${request.params.id}`, 'Removed customer review');
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Gallery Management ---
+app.get('/api/admin/gallery', async (request, response, next) => {
+  try {
+    const rawGallery = await galleryStore.read();
+    const gallery = rawGallery.map((g) => ({
+      ...g,
+      imageUrl: g.mediaUrl || g.imageUrl || g.url,
+      mediaUrl: g.mediaUrl || g.imageUrl || g.url,
+    }));
+    return response.json({ gallery, items: gallery });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/admin/gallery', async (request, response, next) => {
+  try {
+    const { title, category, mediaType, mediaUrl, imageUrl, url, altText, description, caption, status, displayOrder, featured } = request.body || {};
+    const effectiveUrl = (mediaUrl || imageUrl || url || '').trim();
+    if (!title || !effectiveUrl) throw apiError('Title and media URL are required.', 400, 'invalid_gallery_item');
+    const newItem = {
+      id: `gal-${Date.now()}-${randomBytes(3).toString('hex')}`,
+      title: title.trim(),
+      category: category || 'Showroom',
+      mediaType: mediaType || 'image',
+      mediaUrl: effectiveUrl,
+      imageUrl: effectiveUrl,
+      altText: altText?.trim() || title.trim(),
+      description: (description || caption || '').trim(),
+      caption: (description || caption || '').trim(),
+      featured: Boolean(featured),
+      status: status || 'published',
+      displayOrder: Number(displayOrder) || 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await galleryStore.mutate((items) => {
+      items.unshift(newItem);
+    });
+    await logAdminActivity('CREATE', `Gallery: ${newItem.title}`, 'Added gallery media');
+    return response.status(201).json({ item: newItem });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/gallery/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await galleryStore.mutate((items) => {
+      const index = items.findIndex((g) => g.id === request.params.id);
+      if (index < 0) throw apiError('Gallery item not found.', 404, 'gallery_not_found');
+      updated = {
+        ...items[index],
+        ...request.body,
+        id: items[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      items[index] = updated;
+    });
+    await logAdminActivity('UPDATE', `Gallery: ${updated.title}`, 'Updated gallery item');
+    return response.json({ item: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/gallery/:id', async (request, response, next) => {
+  try {
+    await galleryStore.mutate((items) => {
+      const index = items.findIndex((g) => g.id === request.params.id);
+      if (index < 0) throw apiError('Gallery item not found.', 404, 'gallery_not_found');
+      items.splice(index, 1);
+    });
+    await logAdminActivity('DELETE', `Gallery: ${request.params.id}`, 'Removed gallery item');
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Website Content ---
+app.get('/api/admin/content', async (request, response, next) => {
+  try {
+    const content = await websiteContentStore.read();
+    return response.json({ content });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/admin/content', async (request, response, next) => {
+  try {
+    const { key, title, section, body, imageUrl, ctaText, ctaLink, status } = request.body || {};
+    if (!title || !body) throw apiError('Title and body text are required.', 400, 'invalid_content');
+    const newContent = {
+      id: `cnt-${Date.now()}-${randomBytes(3).toString('hex')}`,
+      key: key?.trim() || `content-${Date.now()}`,
+      title: title.trim(),
+      section: section || 'General',
+      body: body.trim(),
+      imageUrl: imageUrl?.trim() || '',
+      ctaText: ctaText?.trim() || '',
+      ctaLink: ctaLink?.trim() || '',
+      status: status || 'published',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await websiteContentStore.mutate((items) => {
+      items.unshift(newContent);
+    });
+    await logAdminActivity('CREATE', `Content: ${newContent.title}`, 'Added content block');
+    return response.status(201).json({ content: newContent });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/content/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await websiteContentStore.mutate((items) => {
+      const index = items.findIndex((c) => c.id === request.params.id);
+      if (index < 0) throw apiError('Content block not found.', 404, 'content_not_found');
+      updated = {
+        ...items[index],
+        ...request.body,
+        id: items[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      items[index] = updated;
+    });
+    await logAdminActivity('UPDATE', `Content: ${updated.title}`, 'Updated content text and links');
+    return response.json({ content: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/content/:id', async (request, response, next) => {
+  try {
+    await websiteContentStore.mutate((items) => {
+      const index = items.findIndex((c) => c.id === request.params.id);
+      if (index < 0) throw apiError('Content not found.', 404, 'content_not_found');
+      items.splice(index, 1);
+    });
+    await logAdminActivity('DELETE', `Content: ${request.params.id}`, 'Removed content block');
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Home Page Settings ---
+app.get('/api/admin/home-page', async (request, response, next) => {
+  try {
+    const homePage = await homePageStore.read();
+    return response.json({ homePage });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/home-page', async (request, response, next) => {
+  try {
+    let updated;
+    await homePageStore.mutate((current) => {
+      updated = {
+        ...current,
+        ...request.body,
+        updatedAt: new Date().toISOString(),
+      };
+      return updated;
+    });
+    await logAdminActivity('UPDATE', 'Home Page Settings', 'Saved hero slider slides and settings');
+    return response.json({ homePage: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Website Sections ---
+app.get('/api/admin/sections', async (request, response, next) => {
+  try {
+    const sections = await websiteSectionsStore.read();
+    return response.json({ sections });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/admin/sections', async (request, response, next) => {
+  try {
+    const { title, subtitle, placement, content, imageUrl, status, displayOrder } = request.body || {};
+    if (!title) throw apiError('Section title is required.', 400, 'invalid_section');
+    const newSection = {
+      id: `sec-${Date.now()}-${randomBytes(3).toString('hex')}`,
+      sectionKey: title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+      title: title.trim(),
+      subtitle: subtitle?.trim() || '',
+      placement: placement || 'Homepage',
+      content: content?.trim() || '',
+      imageUrl: imageUrl?.trim() || '',
+      status: status || 'active',
+      displayOrder: Number(displayOrder) || 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await websiteSectionsStore.mutate((sections) => {
+      sections.push(newSection);
+      sections.sort((a, b) => (Number(a.displayOrder) || 0) - (Number(b.displayOrder) || 0));
+    });
+    await logAdminActivity('CREATE', `Website Section: ${newSection.title}`, 'Created section');
+    return response.status(201).json({ section: newSection });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/sections/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await websiteSectionsStore.mutate((sections) => {
+      const index = sections.findIndex((s) => s.id === request.params.id);
+      if (index < 0) throw apiError('Section not found.', 404, 'section_not_found');
+      updated = {
+        ...sections[index],
+        ...request.body,
+        id: sections[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      sections[index] = updated;
+      sections.sort((a, b) => (Number(a.displayOrder) || 0) - (Number(b.displayOrder) || 0));
+    });
+    await logAdminActivity('UPDATE', `Website Section: ${updated.title}`, 'Updated section content');
+    return response.json({ section: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/sections/:id', async (request, response, next) => {
+  try {
+    await websiteSectionsStore.mutate((sections) => {
+      const index = sections.findIndex((s) => s.id === request.params.id);
+      if (index < 0) throw apiError('Section not found.', 404, 'section_not_found');
+      sections.splice(index, 1);
+    });
+    await logAdminActivity('DELETE', `Website Section: ${request.params.id}`, 'Removed section');
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Media Library & Uploads ---
+app.get('/api/admin/media', async (request, response, next) => {
+  try {
+    const media = await mediaLibraryStore.read();
+    return response.json({ media });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post(
+  '/api/admin/media/upload',
+  express.raw({ limit: '50mb', type: '*/*' }),
+  async (request, response, next) => {
+    try {
+      if (!Buffer.isBuffer(request.body) || request.body.length === 0) {
+        throw apiError('Upload a non-empty media file.', 400, 'invalid_upload');
+      }
+
+      const buffer = request.body;
+      let mimeType = request.get('content-type')?.split(';')[0].trim().toLowerCase() || '';
+      let extension = 'bin';
+      let mediaType = 'image';
+
+      if (buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from('89504e470d0a1a0a', 'hex'))) {
+        mimeType = 'image/png';
+        extension = 'png';
+        mediaType = 'image';
+      } else if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+        mimeType = 'image/jpeg';
+        extension = 'jpg';
+        mediaType = 'image';
+      } else if (buffer.length >= 12 && buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP') {
+        mimeType = 'image/webp';
+        extension = 'webp';
+        mediaType = 'image';
+      } else if (buffer.length >= 6 && (buffer.toString('ascii', 0, 6) === 'GIF87a' || buffer.toString('ascii', 0, 6) === 'GIF89a')) {
+        mimeType = 'image/gif';
+        extension = 'gif';
+        mediaType = 'image';
+      } else if (buffer.length >= 8 && buffer.toString('ascii', 4, 8) === 'ftyp') {
+        mimeType = 'video/mp4';
+        extension = 'mp4';
+        mediaType = 'video';
+      } else if (buffer.length >= 4 && buffer.subarray(0, 4).equals(Buffer.from('1a45dfa3', 'hex'))) {
+        mimeType = 'video/webm';
+        extension = 'webm';
+        mediaType = 'video';
+      } else if (mimeType.includes('svg')) {
+        mimeType = 'image/svg+xml';
+        extension = 'svg';
+        mediaType = 'image';
+      } else {
+        throw apiError('Unsupported media format. Upload PNG, JPEG, WebP, GIF, SVG or MP4/WebM.', 400, 'unsupported_media');
+      }
+
+      const rawName = request.get('x-file-name') ? decodeURIComponent(request.get('x-file-name')) : `upload-${Date.now()}.${extension}`;
+      const originalName = rawName.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const subDir = mediaType === 'video' ? 'videos' : 'imgs';
+      const uploadDir = join(publicDirectory, subDir, 'uploads');
+      await mkdir(uploadDir, { recursive: true });
+
+      const safeBase = originalName.slice(0, 24).replace(/\.[^.]+$/, '');
+      const filename = `${safeBase}-${Date.now()}-${randomBytes(3).toString('hex')}.${extension}`;
+      const destination = join(uploadDir, filename);
+
+      await writeFile(destination, buffer, { flag: 'wx', mode: 0o644 });
+      const publicPath = `/${subDir}/uploads/${filename}`;
+
+      const mediaRecord = {
+        id: `med-${Date.now()}-${randomBytes(3).toString('hex')}`,
+        fileName: filename,
+        originalName,
+        filePath: publicPath,
+        mediaType,
+        mimeType,
+        sizeBytes: buffer.length,
+        category: mediaType === 'video' ? 'Workshop' : 'General',
+        altText: originalName,
+        createdAt: new Date().toISOString(),
+      };
+
+      await mediaLibraryStore.mutate((items) => {
+        items.unshift(mediaRecord);
+      });
+
+      await logAdminActivity('UPLOAD', `Media: ${filename}`, `Uploaded ${mediaType} (${(buffer.length / 1024).toFixed(0)} KB)`);
+
+      return response.status(201).json({
+        id: mediaRecord.id,
+        fileName: filename,
+        filePath: publicPath,
+        url: publicPath,
+        mediaType,
+        mimeType,
+        sizeBytes: buffer.length,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+);
+
+app.delete('/api/admin/media/:id', async (request, response, next) => {
+  try {
+    await mediaLibraryStore.mutate((items) => {
+      const index = items.findIndex((m) => m.id === request.params.id);
+      if (index < 0) throw apiError('Media not found.', 404, 'media_not_found');
+      items.splice(index, 1);
+    });
+    await logAdminActivity('DELETE', `Media: ${request.params.id}`, 'Removed media item');
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- SEO Settings ---
+app.get('/api/admin/seo', async (request, response, next) => {
+  try {
+    const seo = await seoSettingsStore.read();
+    return response.json({ seo });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/seo/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await seoSettingsStore.mutate((items) => {
+      const index = items.findIndex((s) => s.id === request.params.id);
+      if (index < 0) throw apiError('SEO record not found.', 404, 'seo_not_found');
+      updated = {
+        ...items[index],
+        ...request.body,
+        id: items[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      items[index] = updated;
+    });
+    await logAdminActivity('UPDATE', `SEO: ${updated.page}`, 'Updated meta tags and canonical URLs');
+    return response.json({ seo: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Users & Roles ---
+app.get('/api/admin/users', async (request, response, next) => {
+  try {
+    const users = await usersStore.read();
+    return response.json({ users });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post('/api/admin/users', async (request, response, next) => {
+  try {
+    const { name, email, role, status } = request.body || {};
+    if (!name || !email) throw apiError('Name and email are required.', 400, 'invalid_user');
+    const newUser = {
+      id: `usr-${Date.now()}-${randomBytes(3).toString('hex')}`,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      role: role || 'Admin',
+      status: status || 'active',
+      lastLogin: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await usersStore.mutate((users) => {
+      users.push(newUser);
+    });
+    await logAdminActivity('CREATE', `User: ${newUser.name}`, `Added user (${newUser.role})`);
+    return response.status(201).json({ user: newUser });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/users/:id', async (request, response, next) => {
+  try {
+    let updated;
+    await usersStore.mutate((users) => {
+      const index = users.findIndex((u) => u.id === request.params.id);
+      if (index < 0) throw apiError('User not found.', 404, 'user_not_found');
+      updated = {
+        ...users[index],
+        ...request.body,
+        id: users[index].id,
+        updatedAt: new Date().toISOString(),
+      };
+      users[index] = updated;
+    });
+    await logAdminActivity('UPDATE', `User: ${updated.name}`, 'Updated role/status');
+    return response.json({ user: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/users/:id', async (request, response, next) => {
+  try {
+    await usersStore.mutate((users) => {
+      if (users.length <= 1) throw apiError('Cannot delete the last admin user.', 400, 'last_user');
+      const index = users.findIndex((u) => u.id === request.params.id);
+      if (index < 0) throw apiError('User not found.', 404, 'user_not_found');
+      users.splice(index, 1);
+    });
+    await logAdminActivity('DELETE', `User: ${request.params.id}`, 'Removed admin user');
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Activity Logs ---
+app.get('/api/admin/activity', async (request, response, next) => {
+  try {
+    const activity = await activityStore.read();
+    return response.json({ activity, activities: activity });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/admin/activity', async (request, response, next) => {
+  try {
+    await activityStore.mutate(() => []);
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Site Settings ---
+app.get('/api/admin/settings', async (request, response, next) => {
+  try {
+    const settings = await siteSettingsStore.read();
+    return response.json({ settings });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put('/api/admin/settings', async (request, response, next) => {
+  try {
+    let updated;
+    await siteSettingsStore.mutate((current) => {
+      updated = {
+        ...current,
+        ...request.body,
+        updatedAt: new Date().toISOString(),
+      };
+      return updated;
+    });
+    await logAdminActivity('UPDATE', 'Site Settings', 'Saved dealership contact info and operating hours');
+    return response.json({ settings: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Admin Profile ---
+app.get('/api/admin/profile', (request, response) => {
+  return response.json({
+    user: {
+      name: 'Vathilai Motors Administrator',
+      email: 'admin@vathilaimotors.com',
+      role: 'Super Admin',
+      dealership: 'Vathilai Motors — Anna Salai, Chennai',
+      accessType: authConfigured ? 'Auth0 Production' : 'Local Development Admin',
+    },
+  });
+});
+
+app.put('/api/admin/profile', async (request, response, next) => {
+  try {
+    const { name, email } = request.body || {};
+    await logAdminActivity('UPDATE', 'Admin Profile', `Updated profile for ${name || 'Administrator'}`);
+    return response.json({
+      user: {
+        name: name || 'Vathilai Motors Administrator',
+        email: email || 'admin@vathilaimotors.com',
+        role: 'Super Admin',
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// --- Public Synchronized Endpoints ---
+app.get('/api/public/reviews', async (request, response, next) => {
+  try {
+    const rawReviews = await reviewsStore.read();
+    const reviews = rawReviews
+      .filter((r) => r.status === 'published' || r.published === true)
+      .map((r) => ({
+        ...r,
+        name: r.customerName || r.name,
+        customerName: r.customerName || r.name,
+        comment: r.review || r.comment,
+        review: r.review || r.comment,
+        bikeModel: r.model || r.bikeModel,
+        model: r.model || r.bikeModel,
+        photo: r.imageUrl || r.photo,
+        imageUrl: r.imageUrl || r.photo,
+        published: true,
+      }));
+    return response.json({ reviews });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get('/api/public/service-videos', async (request, response, next) => {
+  try {
+    const videos = await serviceVideosStore.read();
+    return response.json({ videos: videos.filter((v) => v.status === 'published') });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get('/api/public/home-page', async (request, response, next) => {
+  try {
+    const homePage = await homePageStore.read();
+    return response.json({ homePage });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get('/api/public/settings', async (request, response, next) => {
+  try {
+    const settings = await siteSettingsStore.read();
+    return response.json({
+      settings: {
+        dealershipName: settings.dealershipName || settings.showroomName,
+        tagline: settings.tagline,
+        brandDescription: settings.brandDescription,
+        phone: settings.phone,
+        email: settings.email,
+        whatsapp: settings.whatsapp,
+        whatsappVerified: settings.whatsappVerified,
+        address: settings.address,
+        instagramUrl: settings.instagramUrl,
+        businessCategory: settings.businessCategory,
+        locality: settings.locality,
+        postalCode: settings.postalCode,
+        operatingHours: settings.operatingHours || settings.hours,
+        googleRating: settings.googleRating,
+        googleReviewCount: settings.googleReviewCount,
+        googleRatingVerified: settings.googleRatingVerified,
+        googleRatingSource: settings.googleRatingSource,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get('/api/public/gallery', async (request, response, next) => {
+  try {
+    const gallery = await galleryStore.read();
+    return response.json({ gallery: gallery.filter((g) => g.status === 'published') });
   } catch (error) {
     return next(error);
   }
@@ -1072,7 +2512,7 @@ app.use('/api', (request, response) => {
   response.status(404).json({ code: 'api_route_not_found' });
 });
 
-if (!production) {
+if (!production && process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   app.get('/', (request, response) => response.status(200).send('Yamaha admin API is running.'));
 }
 
@@ -1102,7 +2542,7 @@ app.use((error, request, response, next) => {
 
 const port = Number(process.env.PORT ?? 3001);
 const host = process.env.HOST ?? '127.0.0.1';
-export { app };
+export { app, initializeMongoDatabase };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   initializeMongoDatabase()

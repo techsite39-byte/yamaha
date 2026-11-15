@@ -3,20 +3,6 @@ import './YamahaHeroSlider.css';
 
 const SLIDES = [
   {
-    src: '/imgs/f0.png',
-    alt: 'Yamaha YZF-R1 flagship supersport motorcycle',
-    eyebrow: 'YAMAHA SUPERSPORT',
-    title: (
-      <>
-        Yamaha YZF-R1
-        <br />
-        Pure Supersport
-      </>
-    ),
-    subtitle: 'MotoGP-Inspired Performance & Crossplane Power',
-    placement: 'r1',
-  },
-  {
     src: '/imgs/f1.png',
     alt: 'Yamaha sport motorcycle and rider carving through snow',
     eyebrow: 'YAMAHA MOTORCYCLES',
@@ -75,23 +61,49 @@ const SLIDES = [
 ];
 
 function YamahaHeroSlider({ onExplore }) {
+  const [slides, setSlides] = useState(SLIDES);
+  const [rotationInterval, setRotationInterval] = useState(3000);
   const [activeSlide, setActiveSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    if (isPaused) return undefined;
+    let active = true;
+    fetch('/api/public/home-page')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!active || !data?.homePage?.slides?.length) return;
+        const placements = ['first', 'second', 'third', 'fourth'];
+        const remoteSlides = data.homePage.slides.map((s, idx) => ({
+          src: s.image || s.src || '/imgs/f1.png',
+          alt: s.alt || s.title || 'Yamaha motorcycle',
+          eyebrow: s.eyebrow || 'YAMAHA MOTORCYCLES',
+          title: s.title || 'Premium Yamaha Motorcycles',
+          subtitle: s.subtitle || 'Discover Your Next Ride',
+          placement: placements[idx % placements.length],
+        }));
+        setSlides(remoteSlides);
+        if (data.homePage.autoplayInterval || data.homePage.rotationIntervalMs) {
+          setRotationInterval(data.homePage.autoplayInterval || data.homePage.rotationIntervalMs);
+        }
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (isPaused || !slides.length) return undefined;
     const intervalId = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % SLIDES.length);
-    }, 3000);
+      setActiveSlide((current) => (current + 1) % slides.length);
+    }, rotationInterval);
     return () => window.clearInterval(intervalId);
-  }, [isPaused]);
+  }, [isPaused, slides.length, rotationInterval]);
 
   const showPrevious = () => {
-    setActiveSlide((current) => (current - 1 + SLIDES.length) % SLIDES.length);
+    setActiveSlide((current) => (current - 1 + slides.length) % slides.length);
   };
 
   const showNext = () => {
-    setActiveSlide((current) => (current + 1) % SLIDES.length);
+    setActiveSlide((current) => (current + 1) % slides.length);
   };
 
   const handleKeyDown = (event) => {
@@ -117,7 +129,7 @@ function YamahaHeroSlider({ onExplore }) {
       tabIndex={0}
     >
       <div className="yamaha-image-hero__slides" aria-live="off">
-        {SLIDES.map((slide, index) => {
+        {slides.map((slide, index) => {
           const isActive = index === activeSlide;
           return (
             <div

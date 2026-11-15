@@ -6,7 +6,7 @@ Deliver the admin-only dashboard as a sequence of vertical MVP capabilities, reu
 
 ## Phases
 
-- [ ] **Phase 1: Live Overview & Trust Gaps** - Reuse the secure admin foundation and close the remaining live-data, request-state, and production-demo gaps.
+- [ ] **Phase 1: Live Overview & Trust Gaps** - Reuse the secure admin foundation and close the remaining live-data, request-state, and production-demo gaps. (Implementation plans complete; human verification pending.)
 - [ ] **Phase 2: Motorcycles & Bookings** - Complete backend-confirmed motorcycle catalogue and booking workflows with validated writes and scalable lists.
 - [ ] **Phase 3: Enquiries & Dealership Settings** - Let staff process enquiries and maintain shared dealership contact/settings safely.
 - [ ] **Phase 4: Content & Media Management** - Enable backend-persisted management of dealership content, reviews, and media.
@@ -25,8 +25,8 @@ Deliver the admin-only dashboard as a sequence of vertical MVP capabilities, reu
   4. The overview's statistics, recent bookings and enquiries, shortcuts, and analytics reflect API-backed records rather than hardcoded counts or sample activity.
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Build the truthful API-backed overview contract and complete KPI/trend/recent-activity display
-- [ ] 01-02-PLAN.md — Complete request states, runtime status, analytics trust, and production demo isolation
+- [x] 01-01-PLAN.md — Build the truthful API-backed overview contract and complete KPI/trend/recent-activity display
+- [x] 01-02-PLAN.md — Complete request states, runtime status, analytics trust, and production demo isolation
 **Vertical MVP mode**: Yes — retain the working auth/shell/read-only surfaces and complete the missing overview data path through protected APIs.
 **UI hint**: yes
 
@@ -87,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Live Overview & Trust Gaps | 0/TBD | Not started | - |
+| 1. Live Overview & Trust Gaps | 2/2 | Human verification required | - |
 | 2. Motorcycles & Bookings | 0/TBD | Not started | - |
 | 3. Enquiries & Dealership Settings | 0/TBD | Not started | - |
 | 4. Content & Media Management | 0/TBD | Not started | - |

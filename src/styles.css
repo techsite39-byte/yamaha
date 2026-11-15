@@ -1,7 +1,7 @@
-:root{font-family:Manrope,Arial,sans-serif;color:#f4f5f6;background:#080a0d;font-synthesis:none;text-rendering:optimizeLegibility;--blue:#1684e8;--muted:#9299a2;--nav-h:76px}*{box-sizing:border-box}html{scroll-behavior:auto;scrollbar-color:#3d4751 #080a0d}body{margin:0;min-width:320px;background:#080a0d;overflow-x:hidden}button,a{font:inherit;color:inherit}button{cursor:pointer}a{text-decoration:none}::selection{background:#177fd2;color:#fff}.site-nav{height:var(--nav-h);position:absolute;z-index:20;top:0;left:0;width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(24px,5vw,88px);border-bottom:1px solid #ffffff16;background:linear-gradient(#06080c75,transparent)}.wordmark{font:600 22px 'Barlow Condensed',sans-serif;letter-spacing:.14em}.wordmark span{font:9px Manrope;vertical-align:top;margin-left:3px}.site-nav nav{display:flex;gap:clamp(25px,4vw,68px);font-size:9px;letter-spacing:.16em;color:#d5d8dc}.site-nav nav a,.nav-menu{transition:color .2s}.site-nav nav a:hover,.nav-menu:hover{color:#4aaaff}.nav-menu{background:none;border:0;font-size:9px;letter-spacing:.15em}.nav-menu span{color:var(--blue);font-size:15px;margin-left:12px}.cinematic-stage{height:100svh;min-height:640px;max-height:1200px;position:relative;overflow:hidden;background:#080a0d}.showroom-image,.fallback-showroom,.hero-vignette,.blue-atmosphere,.transition-shade{position:absolute;inset:0}.showroom-image{z-index:0;background-position:center 58%;background-size:cover;background-repeat:no-repeat;opacity:0;transform:scale(1.035);will-change:transform,opacity,filter}.showroom-image.is-ready{opacity:.85}.fallback-showroom{z-index:0;overflow:hidden;background:radial-gradient(ellipse at 50% 65%,#343c47 0,#171c23 30%,#0b0e13 69%,#07090c 100%);transition:opacity .7s}.showroom-image.is-ready~.fallback-showroom{opacity:0}.fallback-beam{position:absolute;top:-15%;left:28%;width:48%;height:85%;transform:rotate(12deg);background:linear-gradient(90deg,transparent,#9ab7d314,transparent);filter:blur(24px)}.fallback-floor{position:absolute;left:0;right:0;bottom:8%;height:28%;background:radial-gradient(ellipse,#62718436,transparent 70%);transform:perspective(220px) rotateX(48deg);border-top:1px solid #d5e4f20b}.fallback-model{position:absolute;left:58%;top:38%;font:300 clamp(280px,42vw,640px)/.7 'Barlow Condensed',sans-serif;color:#c6d1e00b;transform:skew(-10deg);text-shadow:0 0 80px #177bd22a}.hero-vignette{z-index:1;background:linear-gradient(90deg,#05070bcf 0%,#080a0d54 46%,transparent 85%),linear-gradient(0deg,#07090c 0%,transparent 35%,#07090c5e 100%);opacity:.8}.blue-atmosphere{z-index:2;opacity:.38;background:radial-gradient(ellipse at 68% 54%,#0966ba42,transparent 43%);mix-blend-mode:screen;will-change:opacity,transform}.transition-shade{z-index:4;pointer-events:none;background:radial-gradient(ellipse at 50% 54%,transparent 10%,#080a0d 95%);opacity:.2}.hero-copy{position:absolute;z-index:6;top:50%;left:clamp(36px,12.5vw,240px);transform:translateY(-44%);will-change:transform,opacity}.eyebrow{display:flex;align-items:center;gap:12px;color:#b4bbc3;font-size:9px;letter-spacing:.21em;font-weight:600}.eyebrow i{width:23px;height:1px;background:var(--blue);box-shadow:0 0 13px #1684e8}.hero-copy h1,.config-copy h2,.spec-heading h2,.cta-content h2{font:300 clamp(54px,7.1vw,112px)/.92 'Barlow Condensed',sans-serif;letter-spacing:.035em;margin:29px 0 38px}.hero-copy h1 em,.config-copy h2 em,.spec-heading h2 em,.cta-content h2 em{font-style:normal;color:#d6dce3}.text-cta{display:inline-flex;align-items:center;gap:23px;background:none;border:0;padding:0;color:#f3f4f5;font-size:9px;letter-spacing:.17em}.text-cta span{color:#4baaff;font-size:17px;transition:transform .2s}.text-cta:hover span{transform:translateY(4px)}.vertical-brand{position:absolute;z-index:6;right:clamp(18px,3vw,52px);top:45%;writing-mode:vertical-rl;color:#bec4ca8a;font-size:8px;letter-spacing:.17em}.vertical-brand span{color:var(--blue);padding:12px 0}.cinematic-caption,.stage-bottom{position:absolute;z-index:7;display:flex;align-items:center;justify-content:space-between;left:clamp(24px,5vw,88px);right:clamp(24px,5vw,88px);font-size:8px;letter-spacing:.16em;color:#c1c6cd8a}.cinematic-caption{top:calc(var(--nav-h) + 24px)}.stage-bottom{bottom:35px}.scroll-line{width:120px;height:1px;background:#ffffff38;position:relative}.scroll-line i{position:absolute;inset:0 auto 0 0;width:100%;height:1px;background:var(--blue);transform:scaleX(.04);transform-origin:left}.stage-scene{position:absolute;z-index:3;inset:0;opacity:0;transform:scale(.94) translateY(22px);will-change:transform,opacity}.bike-canvas,.scene-fallback{position:absolute;inset:0;width:100%;height:100%}.scene-fallback{background:radial-gradient(ellipse,#162232,#080a0d 67%)}.scene-loader{display:block;width:26px;height:26px;border:1px solid #ffffff30;border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.story-intro{height:58vh;min-height:380px;max-height:700px;padding:9vh clamp(28px,12.5vw,240px);display:flex;flex-direction:column;justify-content:space-between;background:#0b0e12}.section-kicker{display:flex;justify-content:space-between;color:#777f89;font-size:8px;letter-spacing:.18em}.story-intro>p{font:300 clamp(35px,5vw,72px)/1.05 'Barlow Condensed',sans-serif;letter-spacing:.035em;margin:0}.story-intro>p span{color:#7e8791}.story-sequence{position:relative;background:#080a0d}.story-scene{height:100svh;min-height:620px;position:sticky;top:0;overflow:hidden;background:radial-gradient(ellipse at 54% 52%,#1a2735 0,#0c1118 49%,#080a0d 80%)}.story-scene>.bike-canvas{z-index:1}.scene-blue-glow{position:absolute;z-index:2;inset:20% 0 0;pointer-events:none;background:radial-gradient(ellipse at 50% 75%,#126bb41a,transparent 45%)}.story-progress{position:absolute;z-index:4;right:clamp(25px,5vw,90px);top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:13px;font-size:8px;color:#aab2bb;letter-spacing:.1em}.story-progress i{height:108px;width:1px;background:#ffffff31;position:relative}.story-progress b{position:absolute;inset:0;background:var(--blue);transform-origin:top;transition:transform .35s}.scene-status{position:absolute;z-index:4;bottom:35px;left:clamp(28px,5vw,90px);font-size:8px;letter-spacing:.17em;color:#838e9a}.story-panels{position:absolute;z-index:5;top:0;left:0;width:100%;pointer-events:none}.story-panel{height:100svh;min-height:620px;display:flex;flex-direction:column;justify-content:center;width:min(42%,570px);padding:80px 0 60px clamp(32px,12.5vw,240px);position:relative;pointer-events:none}.story-panel:nth-child(even){margin-left:auto;margin-right:5%;padding-left:0;padding-right:clamp(24px,5vw,90px);align-items:flex-start}.panel-index{font:300 12px 'Barlow Condensed',sans-serif;letter-spacing:.15em;color:#d1d6dc}.panel-index span{color:#69727c;font:8px Manrope}.story-panel .eyebrow{margin:24px 0 0}.story-panel h2{font:300 clamp(48px,5.9vw,88px)/.88 'Barlow Condensed',sans-serif;letter-spacing:.03em;margin:18px 0 17px}.panel-copy{max-width:310px;color:#a1a8b0;font-size:11px;line-height:1.9;margin:0}.technical-label{display:flex;align-items:center;gap:10px;margin-top:28px;color:#7b8792;font-size:8px;letter-spacing:.17em}.technical-label i{width:40px;height:1px;background:#1684e8}.story-sequence:after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 130px #080a0d}.configurator{min-height:690px;height:92svh;max-height:1000px;display:grid;grid-template-columns:.8fr 1.2fr;align-items:center;padding:80px clamp(28px,10vw,190px);gap:5vw;background:linear-gradient(115deg,#0e1217,#090b0e 58%);overflow:hidden}.config-copy{position:relative;z-index:2}.config-copy h2,.spec-heading h2,.cta-content h2{font-size:clamp(58px,7vw,100px);margin:27px 0 22px}.swatches{display:flex;gap:15px;margin-top:34px}.swatch{width:39px;height:39px;border-radius:50%;padding:4px;background:transparent;border:1px solid transparent}.swatch span{display:block;width:100%;height:100%;border-radius:50%;background:var(--swatch);border:1px solid #ffffff38}.swatch.selected{border-color:#50aafa;box-shadow:0 0 14px #1684e84a}.color-name{font-size:8px;letter-spacing:.16em;color:#dce0e5;margin:17px 0 0}.model-note{font-size:8px;line-height:1.6;letter-spacing:.08em;color:#75808a;max-width:300px;margin-top:22px}.config-visual{position:relative;height:100%;min-height:420px}.config-visual .bike-canvas{inset:0 -15% 0 -8%}.config-number{position:absolute;right:0;bottom:28px;color:#747f8a;font:300 13px 'Barlow Condensed';letter-spacing:.16em}.specifications{min-height:680px;padding:130px clamp(28px,12.5vw,240px);display:grid;grid-template-columns:1fr 1fr;gap:10vw;align-items:center;background:#e8eaeb;color:#101317}.spec-heading .eyebrow{color:#535c65}.spec-heading h2{color:#13171c}.spec-heading h2 em{color:#66717a}.spec-heading .panel-copy{color:#737b83}.spec-note{font-size:10px;color:#707982;line-height:1.8;max-width:270px}.spec-list{border-top:1px solid #bfc4c7}.spec-row{height:81px;border-bottom:1px solid #bfc4c7;display:flex;align-items:center;justify-content:space-between}.spec-row span{font-size:9px;letter-spacing:.15em;color:#59616a}.spec-row strong{font:300 24px 'Barlow Condensed';color:#303942}.final-cta{height:92svh;min-height:650px;max-height:1000px;position:relative;overflow:hidden;display:flex;align-items:center;padding:0 clamp(30px,13vw,250px);background:radial-gradient(ellipse at 72% 58%,#111d2a,#080a0d 60%)}.cta-glow{position:absolute;right:4%;top:20%;width:47vw;height:55vw;max-height:700px;border-radius:50%;background:radial-gradient(ellipse,#07539526,transparent 68%);filter:blur(18px)}.cta-outline{position:absolute;right:9%;top:46%;transform:translateY(-50%) skew(-11deg);font:300 min(75vw,900px)/.75 'Barlow Condensed',sans-serif;color:#dce9f20a;text-shadow:0 0 80px #177bd22c}.cta-content{z-index:2}.cta-content h2{font-size:clamp(70px,9vw,138px)}.cta-foot{position:absolute;right:clamp(25px,5vw,90px);bottom:42px;color:#87919b;font-size:8px;letter-spacing:.18em}footer{min-height:90px;padding:24px clamp(24px,5vw,88px);display:flex;justify-content:space-between;align-items:center;color:#8a929b;font-size:8px;letter-spacing:.14em;border-top:1px solid #ffffff14}footer .wordmark{color:#f5f6f7}
+:root{font-family:Manrope,Arial,sans-serif;color:#f4f5f6;background:#080a0d;font-synthesis:none;text-rendering:optimizeLegibility;--blue:#1684e8;--muted:#9299a2;--nav-h:76px;--header-height:76px}*{box-sizing:border-box}html{scroll-behavior:auto;scrollbar-color:#3d4751 #080a0d}body{margin:0;min-width:320px;background:#080a0d;overflow-x:hidden}button,a{font:inherit;color:inherit}button{cursor:pointer}a{text-decoration:none}::selection{background:#177fd2;color:#fff}.site-nav{height:var(--nav-h);position:absolute;z-index:20;top:0;left:0;width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(24px,5vw,88px);border-bottom:1px solid #ffffff16;background:linear-gradient(#06080c75,transparent)}.wordmark{font:600 22px 'Barlow Condensed',sans-serif;letter-spacing:.14em}.wordmark span{font:9px Manrope;vertical-align:top;margin-left:3px}.site-nav nav{display:flex;gap:clamp(25px,4vw,68px);font-size:9px;letter-spacing:.16em;color:#d5d8dc}.site-nav nav a,.nav-menu{transition:color .2s}.site-nav nav a:hover,.nav-menu:hover{color:#4aaaff}.nav-menu{background:none;border:0;font-size:9px;letter-spacing:.15em}.nav-menu span{color:var(--blue);font-size:15px;margin-left:12px}.cinematic-stage{height:100svh;min-height:640px;max-height:1200px;position:relative;overflow:hidden;background:#080a0d}.showroom-image,.fallback-showroom,.hero-vignette,.blue-atmosphere,.transition-shade{position:absolute;inset:0}.showroom-image{z-index:0;background-position:center 58%;background-size:cover;background-repeat:no-repeat;opacity:0;transform:scale(1.035);will-change:transform,opacity,filter}.showroom-image.is-ready{opacity:.85}.fallback-showroom{z-index:0;overflow:hidden;background:radial-gradient(ellipse at 50% 65%,#343c47 0,#171c23 30%,#0b0e13 69%,#07090c 100%);transition:opacity .7s}.showroom-image.is-ready~.fallback-showroom{opacity:0}.fallback-beam{position:absolute;top:-15%;left:28%;width:48%;height:85%;transform:rotate(12deg);background:linear-gradient(90deg,transparent,#9ab7d314,transparent);filter:blur(24px)}.fallback-floor{position:absolute;left:0;right:0;bottom:8%;height:28%;background:radial-gradient(ellipse,#62718436,transparent 70%);transform:perspective(220px) rotateX(48deg);border-top:1px solid #d5e4f20b}.fallback-model{position:absolute;left:58%;top:38%;font:300 clamp(280px,42vw,640px)/.7 'Barlow Condensed',sans-serif;color:#c6d1e00b;transform:skew(-10deg);text-shadow:0 0 80px #177bd22a}.hero-vignette{z-index:1;background:linear-gradient(90deg,#05070bcf 0%,#080a0d54 46%,transparent 85%),linear-gradient(0deg,#07090c 0%,transparent 35%,#07090c5e 100%);opacity:.8}.blue-atmosphere{z-index:2;opacity:.38;background:radial-gradient(ellipse at 68% 54%,#0966ba42,transparent 43%);mix-blend-mode:screen;will-change:opacity,transform}.transition-shade{z-index:4;pointer-events:none;background:radial-gradient(ellipse at 50% 54%,transparent 10%,#080a0d 95%);opacity:.2}.hero-copy{position:absolute;z-index:6;top:50%;left:clamp(36px,12.5vw,240px);transform:translateY(-44%);will-change:transform,opacity}.eyebrow{display:flex;align-items:center;gap:12px;color:#b4bbc3;font-size:9px;letter-spacing:.21em;font-weight:600}.eyebrow i{width:23px;height:1px;background:var(--blue);box-shadow:0 0 13px #1684e8}.hero-copy h1,.config-copy h2,.spec-heading h2,.cta-content h2{font:300 clamp(54px,7.1vw,112px)/.92 'Barlow Condensed',sans-serif;letter-spacing:.035em;margin:29px 0 38px}.hero-copy h1 em,.config-copy h2 em,.spec-heading h2 em,.cta-content h2 em{font-style:normal;color:#d6dce3}.text-cta{display:inline-flex;align-items:center;gap:23px;background:none;border:0;padding:0;color:#f3f4f5;font-size:9px;letter-spacing:.17em}.text-cta span{color:#4baaff;font-size:17px;transition:transform .2s}.text-cta:hover span{transform:translateY(4px)}.vertical-brand{position:absolute;z-index:6;right:clamp(18px,3vw,52px);top:45%;writing-mode:vertical-rl;color:#bec4ca8a;font-size:8px;letter-spacing:.17em}.vertical-brand span{color:var(--blue);padding:12px 0}.cinematic-caption,.stage-bottom{position:absolute;z-index:7;display:flex;align-items:center;justify-content:space-between;left:clamp(24px,5vw,88px);right:clamp(24px,5vw,88px);font-size:8px;letter-spacing:.16em;color:#c1c6cd8a}.cinematic-caption{top:calc(var(--nav-h) + 24px)}.stage-bottom{bottom:35px}.scroll-line{width:120px;height:1px;background:#ffffff38;position:relative}.scroll-line i{position:absolute;inset:0 auto 0 0;width:100%;height:1px;background:var(--blue);transform:scaleX(.04);transform-origin:left}.stage-scene{position:absolute;z-index:3;inset:0;opacity:0;transform:scale(.94) translateY(22px);will-change:transform,opacity}.bike-canvas,.scene-fallback{position:absolute;inset:0;width:100%;height:100%}.scene-fallback{background:radial-gradient(ellipse,#162232,#080a0d 67%)}.scene-loader{display:block;width:26px;height:26px;border:1px solid #ffffff30;border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.story-intro{height:58vh;min-height:380px;max-height:700px;padding:9vh clamp(28px,12.5vw,240px);display:flex;flex-direction:column;justify-content:space-between;background:#0b0e12}.section-kicker{display:flex;justify-content:space-between;color:#777f89;font-size:8px;letter-spacing:.18em}.story-intro>p{font:300 clamp(35px,5vw,72px)/1.05 'Barlow Condensed',sans-serif;letter-spacing:.035em;margin:0}.story-intro>p span{color:#7e8791}.story-sequence{position:relative;background:#080a0d}.story-scene{height:100svh;min-height:620px;position:sticky;top:0;overflow:hidden;background:radial-gradient(ellipse at 54% 52%,#1a2735 0,#0c1118 49%,#080a0d 80%)}.story-scene>.bike-canvas{z-index:1}.scene-blue-glow{position:absolute;z-index:2;inset:20% 0 0;pointer-events:none;background:radial-gradient(ellipse at 50% 75%,#126bb41a,transparent 45%)}.story-progress{position:absolute;z-index:4;right:clamp(25px,5vw,90px);top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:13px;font-size:8px;color:#aab2bb;letter-spacing:.1em}.story-progress i{height:108px;width:1px;background:#ffffff31;position:relative}.story-progress b{position:absolute;inset:0;background:var(--blue);transform-origin:top;transition:transform .35s}.scene-status{position:absolute;z-index:4;bottom:35px;left:clamp(28px,5vw,90px);font-size:8px;letter-spacing:.17em;color:#838e9a}.story-panels{position:absolute;z-index:5;top:0;left:0;width:100%;pointer-events:none}.story-panel{height:100svh;min-height:620px;display:flex;flex-direction:column;justify-content:center;width:min(42%,570px);padding:80px 0 60px clamp(32px,12.5vw,240px);position:relative;pointer-events:none}.story-panel:nth-child(even){margin-left:auto;margin-right:5%;padding-left:0;padding-right:clamp(24px,5vw,90px);align-items:flex-start}.panel-index{font:300 12px 'Barlow Condensed',sans-serif;letter-spacing:.15em;color:#d1d6dc}.panel-index span{color:#69727c;font:8px Manrope}.story-panel .eyebrow{margin:24px 0 0}.story-panel h2{font:300 clamp(48px,5.9vw,88px)/.88 'Barlow Condensed',sans-serif;letter-spacing:.03em;margin:18px 0 17px}.panel-copy{max-width:310px;color:#a1a8b0;font-size:11px;line-height:1.9;margin:0}.technical-label{display:flex;align-items:center;gap:10px;margin-top:28px;color:#7b8792;font-size:8px;letter-spacing:.17em}.technical-label i{width:40px;height:1px;background:#1684e8}.story-sequence:after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 130px #080a0d}.configurator{min-height:690px;height:92svh;max-height:1000px;display:grid;grid-template-columns:.8fr 1.2fr;align-items:center;padding:80px clamp(28px,10vw,190px);gap:5vw;background:linear-gradient(115deg,#0e1217,#090b0e 58%);overflow:hidden}.config-copy{position:relative;z-index:2}.config-copy h2,.spec-heading h2,.cta-content h2{font-size:clamp(58px,7vw,100px);margin:27px 0 22px}.swatches{display:flex;gap:15px;margin-top:34px}.swatch{width:39px;height:39px;border-radius:50%;padding:4px;background:transparent;border:1px solid transparent}.swatch span{display:block;width:100%;height:100%;border-radius:50%;background:var(--swatch);border:1px solid #ffffff38}.swatch.selected{border-color:#50aafa;box-shadow:0 0 14px #1684e84a}.color-name{font-size:8px;letter-spacing:.16em;color:#dce0e5;margin:17px 0 0}.model-note{font-size:8px;line-height:1.6;letter-spacing:.08em;color:#75808a;max-width:300px;margin-top:22px}.config-visual{position:relative;height:100%;min-height:420px}.config-visual .bike-canvas{inset:0 -15% 0 -8%}.config-number{position:absolute;right:0;bottom:28px;color:#747f8a;font:300 13px 'Barlow Condensed';letter-spacing:.16em}.specifications{min-height:680px;padding:130px clamp(28px,12.5vw,240px);display:grid;grid-template-columns:1fr 1fr;gap:10vw;align-items:center;background:#e8eaeb;color:#101317}.spec-heading .eyebrow{color:#535c65}.spec-heading h2{color:#13171c}.spec-heading h2 em{color:#66717a}.spec-heading .panel-copy{color:#737b83}.spec-note{font-size:10px;color:#707982;line-height:1.8;max-width:270px}.spec-list{border-top:1px solid #bfc4c7}.spec-row{height:81px;border-bottom:1px solid #bfc4c7;display:flex;align-items:center;justify-content:space-between}.spec-row span{font-size:9px;letter-spacing:.15em;color:#59616a}.spec-row strong{font:300 24px 'Barlow Condensed';color:#303942}.final-cta{height:92svh;min-height:650px;max-height:1000px;position:relative;overflow:hidden;display:flex;align-items:center;padding:0 clamp(30px,13vw,250px);background:radial-gradient(ellipse at 72% 58%,#111d2a,#080a0d 60%)}.cta-glow{position:absolute;right:4%;top:20%;width:47vw;height:55vw;max-height:700px;border-radius:50%;background:radial-gradient(ellipse,#07539526,transparent 68%);filter:blur(18px)}.cta-outline{position:absolute;right:9%;top:46%;transform:translateY(-50%) skew(-11deg);font:300 min(75vw,900px)/.75 'Barlow Condensed',sans-serif;color:#dce9f20a;text-shadow:0 0 80px #177bd22c}.cta-content{z-index:2}.cta-content h2{font-size:clamp(70px,9vw,138px)}.cta-foot{position:absolute;right:clamp(25px,5vw,90px);bottom:42px;color:#87919b;font-size:8px;letter-spacing:.18em}footer:not(.yamaha-footer){min-height:90px;padding:24px clamp(24px,5vw,88px);display:flex;justify-content:space-between;align-items:center;color:#8a929b;font-size:8px;letter-spacing:.14em;border-top:1px solid #ffffff14}footer:not(.yamaha-footer) .wordmark{color:#f5f6f7}
 
 @media(max-width:900px){.site-nav nav{gap:20px}.hero-copy{left:8vw}.story-panel{width:48%;padding-left:8vw}.story-panel:nth-child(even){margin-right:3%;padding-right:4vw}.configurator{padding-left:7vw;padding-right:7vw;gap:2vw}.specifications{padding:100px 8vw;gap:6vw}}
-@media(max-width:650px){:root{--nav-h:64px}.site-nav{padding:0 20px}.site-nav nav{display:none}.wordmark{font-size:20px}.cinematic-stage{min-height:600px}.showroom-image{background-position:59% center}.hero-vignette{background:linear-gradient(90deg,#05070bbf,#080a0d40 75%),linear-gradient(0deg,#07090c,transparent 40%,#07090c60)}.hero-copy{left:25px;right:25px;top:50%;transform:translateY(-42%)}.hero-copy h1{font-size:clamp(54px,14vw,82px);margin:24px 0 30px}.vertical-brand{display:none}.cinematic-caption,.stage-bottom{left:24px;right:24px}.scroll-line{width:70px}.stage-scene{inset:7% -26% 0 -24%}.story-intro{height:45svh;min-height:330px;padding:8vh 26px}.story-intro>p{font-size:clamp(38px,10vw,60px)}.story-scene{height:100svh;min-height:580px}.story-scene>.bike-canvas{inset:4% -28% 0 -28%}.story-panel{min-height:580px;height:100svh;width:69%;padding:80px 0 60px 27px;justify-content:flex-end;padding-bottom:14vh}.story-panel:nth-child(even){margin:0;width:68%;padding:80px 22px 14vh 0;align-items:flex-start}.story-panel h2{font-size:clamp(47px,13vw,68px)}.panel-copy{font-size:10px;max-width:230px}.story-progress{right:20px;top:43%}.story-progress i{height:80px}.scene-status{left:25px;bottom:24px;font-size:7px}.configurator{height:auto;max-height:none;min-height:790px;grid-template-columns:1fr;grid-template-rows:auto 360px;padding:88px 27px 44px;gap:8px}.config-copy h2{font-size:72px}.config-visual{min-height:360px;margin:0 -25px}.config-visual .bike-canvas{inset:0 -20%}.model-note{max-width:260px}.specifications{min-height:720px;padding:90px 27px;grid-template-columns:1fr;gap:42px}.spec-heading h2{font-size:75px}.spec-row{height:70px}.final-cta{height:84svh;min-height:590px;padding:0 28px}.cta-content h2{font-size:clamp(75px,17vw,105px)}.cta-outline{right:-7%;font-size:125vw}.cta-glow{right:-20%;width:90vw;height:100vw}footer{padding:23px 20px;gap:16px}footer>span{display:none}}
+@media(max-width:650px){:root{--nav-h:64px;--header-height:64px}.site-nav{padding:0 20px}.site-nav nav{display:none}.wordmark{font-size:20px}.cinematic-stage{min-height:600px}.showroom-image{background-position:59% center}.hero-vignette{background:linear-gradient(90deg,#05070bbf,#080a0d40 75%),linear-gradient(0deg,#07090c,transparent 40%,#07090c60)}.hero-copy{left:25px;right:25px;top:50%;transform:translateY(-42%)}.hero-copy h1{font-size:clamp(54px,14vw,82px);margin:24px 0 30px}.vertical-brand{display:none}.cinematic-caption,.stage-bottom{left:24px;right:24px}.scroll-line{width:70px}.stage-scene{inset:7% -26% 0 -24%}.story-intro{height:45svh;min-height:330px;padding:8vh 26px}.story-intro>p{font-size:clamp(38px,10vw,60px)}.story-scene{height:100svh;min-height:580px}.story-scene>.bike-canvas{inset:4% -28% 0 -28%}.story-panel{min-height:580px;height:100svh;width:69%;padding:80px 0 60px 27px;justify-content:flex-end;padding-bottom:14vh}.story-panel:nth-child(even){margin:0;width:68%;padding:80px 22px 14vh 0;align-items:flex-start}.story-panel h2{font-size:clamp(47px,13vw,68px)}.panel-copy{font-size:10px;max-width:230px}.story-progress{right:20px;top:43%}.story-progress i{height:80px}.scene-status{left:25px;bottom:24px;font-size:7px}.configurator{height:auto;max-height:none;min-height:790px;grid-template-columns:1fr;grid-template-rows:auto 360px;padding:88px 27px 44px;gap:8px}.config-copy h2{font-size:72px}.config-visual{min-height:360px;margin:0 -25px}.config-visual .bike-canvas{inset:0 -20%}.model-note{max-width:260px}.specifications{min-height:720px;padding:90px 27px;grid-template-columns:1fr;gap:42px}.spec-heading h2{font-size:75px}.spec-row{height:70px}.final-cta{height:84svh;min-height:590px;padding:0 28px}.cta-content h2{font-size:clamp(75px,17vw,105px)}.cta-outline{right:-7%;font-size:125vw}.cta-glow{right:-20%;width:90vw;height:100vw}footer:not(.yamaha-footer){padding:23px 20px;gap:16px}footer:not(.yamaha-footer)>span{display:none}}
 @media(max-width:380px){.hero-copy h1{font-size:53px}.story-panel{width:74%}.story-panel:nth-child(even){width:74%}.eyebrow{font-size:8px}.config-copy h2,.spec-heading h2{font-size:66px}}
 .config-machine{position:absolute;inset:0;display:grid;place-items:center;color:#dbe8f20b;font:300 clamp(260px,38vw,570px)/.7 'Barlow Condensed',sans-serif;transform:skew(-10deg);text-shadow:0 0 70px #1684e829}.config-machine:before,.config-machine:after{content:'';position:absolute;top:54%;width:clamp(110px,15vw,210px);aspect-ratio:1;border:2px solid #b8c8d326;border-radius:50%;box-shadow:inset 0 0 30px #1684e80a,0 0 35px #1684e80b}.config-machine:before{left:12%}.config-machine:after{right:12%}.config-visual .bike-canvas{display:none}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.showroom-image{transform:none!important}.stage-scene{opacity:1;transform:none}.cinematic-stage{min-height:100svh}}
@@ -93,7 +93,7 @@
 .yamaha02-accessories:hover{color:#65b5ff}
 .yamaha02-signature{margin:18px 0 0;padding-top:16px;border-top:1px solid #dcecff38;color:#c0cad7;font-size:7px;letter-spacing:.15em}
 .yamaha02-signature i{padding:0 5px}
-.yamaha02-display-area{position:absolute;z-index:3;top:10%;right:19%;bottom:14%;left:19%;pointer-events:none;contain:layout}
+.yamaha02-display-area{position:absolute;z-index:3;top:5%;right:18%;bottom:20%;left:18%;pointer-events:none;contain:layout}
 .yamaha02-bike-traveller{display:block;object-fit:contain;pointer-events:none;z-index:2}
 .yamaha02-controls{position:absolute;z-index:4;top:30px;right:clamp(24px,4vw,72px);display:flex;align-items:center;gap:clamp(15px,2.1vw,32px)}
 .yamaha02-controls button,.yamaha02-product-nav button{position:relative;padding:9px 0;border:0;background:none;color:#c0c8d1;font-size:7px;letter-spacing:.16em;white-space:nowrap;cursor:pointer;transition:color .18s}
@@ -143,7 +143,7 @@
  .yamaha02-feature-copy small{font-size:8px}
  .yamaha02-feature-arrow{font-size:14px}
  .yamaha02-controls{right:3vw;gap:13px}
- .yamaha02-display-area{top:13%;right:19%;bottom:15%;left:19%}
+ .yamaha02-display-area{top:5%;right:18%;bottom:20%;left:18%}
  .yamaha02-spec-strip{bottom:5%;left:22%;width:56vw;min-height:48px}
  .yamaha02-spec-item{gap:6px;padding:8px 7px}
  .yamaha02-spec-icon{width:18px;height:18px;flex-basis:18px}
@@ -217,8 +217,8 @@
 }
 @media(max-width:380px){.yamaha-hero__copy{left:20px;right:40px}.yamaha-hero__copy h1{font-size:clamp(44px,13.5vw,53px)}}
 
-.yamaha-section03{position:relative;min-height:100svh;overflow:hidden;background:#f7f7f4;color:#101318}
-.yamaha03-shell{position:relative;display:flex;flex-direction:column;min-height:100svh;max-width:1440px;margin:0 auto;padding:32px clamp(18px,2vw,32px) 40px}
+.yamaha-section03{position:relative;z-index:5;min-height:auto;overflow-x:clip;overflow-y:visible;background:#f7f7f4;color:#101318}
+.yamaha03-shell{position:relative;display:flex;flex-direction:column;min-height:auto;max-width:1440px;margin:0 auto;padding:12px clamp(18px,2vw,32px) 36px}
 .yamaha03-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:4px;color:#1a1d22}
 .yamaha03-brand{display:flex;align-items:center;gap:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.12em}
 .yamaha03-brand-mark{position:relative;display:inline-block;width:16px;height:26px}
@@ -231,23 +231,24 @@
 .yamaha03-nav span{opacity:.88}
 .yamaha03-menu{display:inline-flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;width:34px;height:34px;border:1px solid rgba(15,28,38,.12);border-radius:50%;background:rgba(255,255,255,.3)}
 .yamaha03-menu span{display:block;width:12px;height:1px;background:#101318;border-radius:999px}
-.yamaha03-showcase{display:flex;flex:1;align-items:center;justify-content:space-between;gap:clamp(18px,2vw,32px);padding-top:28px}
-.yamaha03-bike-line{display:flex;align-items:center;justify-content:center;gap:clamp(8px,1vw,16px);flex:1;min-width:0;height:clamp(360px,58vh,580px);padding:24px 0}
+.yamaha03-showcase{display:flex;align-items:center;justify-content:space-between;gap:clamp(18px,2vw,32px);padding-top:0}
+.yamaha03-bike-line{display:flex;align-items:center;justify-content:center;gap:clamp(8px,1vw,16px);flex:1;min-width:0;height:clamp(320px,46vh,480px);padding:0}
 .yamaha03-bike-slot{display:flex;align-items:center;justify-content:center;min-width:0;height:100%;opacity:0}
 .yamaha03-bike-slot--left,.yamaha03-bike-slot--right{width:30%;z-index:0}
 .yamaha03-bike-slot--center{position:relative;width:40%;z-index:1;align-self:stretch;height:auto}
 .yamaha03-bike-slot img{display:block;width:100%;height:100%;object-fit:contain}
 .yamaha03-bike-slot--left img,.yamaha03-bike-slot--right img{opacity:.42;transform:scale(.86)}
-.yamaha03-bike-slot--center img{transform:scale(1.12)}
-.yamaha03-card{flex:0 0 min(28vw,340px);background:linear-gradient(155deg,#0877c7 0%,#0065ad 48%,#00447f 100%);border-radius:28px;padding:clamp(22px,2vw,28px);color:#fff;box-shadow:0 30px 80px rgba(0,57,113,.18);position:relative;overflow:hidden}
+.yamaha03-bike-slot--center img:not(.yamaha03-travel-bike){transform:scale(1.12)}
+.yamaha03-bike-slot--center .yamaha03-travel-bike{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;transform-origin:center center;will-change:transform,opacity;z-index:10}
+.yamaha03-card{flex:0 0 min(28vw,340px);background:linear-gradient(155deg,#0877c7 0%,#0065ad 48%,#00447f 100%);border-radius:28px;padding:clamp(22px,2vw,28px);color:#fff;box-shadow:0 30px 80px rgba(0,57,113,.18);position:relative;overflow:visible;z-index:2}
 .yamaha-section03.is-bike-travelling .yamaha03-card{z-index:3}
-.yamaha03-card::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.10),transparent 30%,rgba(0,0,0,.08) 100%);pointer-events:none}
+.yamaha03-card::before{content:'';position:absolute;inset:0;border-radius:28px;background:linear-gradient(120deg,rgba(255,255,255,.10),transparent 30%,rgba(0,0,0,.08) 100%);pointer-events:none}
 .yamaha03-card-heading{position:relative;z-index:1;display:flex;align-items:center;gap:10px}
 .yamaha03-card-new{padding:5px 8px;border-radius:3px;background:#f27632;color:#fff;font-size:8px;font-weight:700;letter-spacing:.13em}
 .yamaha03-card-kicker{margin:0;color:#d6eaff;font-size:8px;letter-spacing:.16em}
 .yamaha03-card h3{position:relative;z-index:1;margin:18px 0 8px;font:600 clamp(32px,2.7vw,42px)/.95 'Barlow Condensed',sans-serif;letter-spacing:.02em}
-.yamaha03-card-image{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;height:clamp(132px,18vh,180px);margin:8px -8px 16px;overflow:hidden}
-.yamaha03-card-image img{display:block;width:100%;height:100%;object-fit:contain}
+.yamaha03-card-image{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;height:clamp(132px,18vh,180px);margin:8px -8px 16px;overflow:visible}
+.yamaha03-card-image img,.yamaha03-card-bike-img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .yamaha03-card-specs{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:10px 0 15px;border-bottom:1px solid rgba(214,232,255,.3)}
 .yamaha03-card-specs div{display:flex;flex-direction:column;gap:6px;min-width:0}
 .yamaha03-card-specs span,.yamaha03-card-bottom p span{font-size:7px;letter-spacing:.12em;color:#c8ddf4}
@@ -259,34 +260,336 @@
 .yamaha03-card-action:hover{transform:translateX(3px);background:#ff8845}
 .yamaha03-card-action span{font-size:20px;line-height:1}
 @media (max-width: 1024px){.yamaha03-shell{min-height:0}.yamaha03-showcase{flex-direction:column;align-items:stretch;gap:12px}.yamaha03-bike-line{width:100%;height:clamp(340px,52vh,520px)}.yamaha03-card{flex:0 0 auto;width:min(100%,480px);align-self:center}}
-@media (max-width: 720px){.yamaha03-shell{padding:20px 18px 32px}.yamaha03-header{flex-wrap:wrap}.yamaha03-brand-sub{flex-basis:100%;padding-left:30px}.yamaha03-nav{width:100%;justify-content:flex-end}.yamaha03-showcase{padding-top:18px}.yamaha03-bike-line{height:clamp(220px,65vw,360px);gap:4px;padding:10px 0}.yamaha03-bike-slot--left,.yamaha03-bike-slot--right{width:29%}.yamaha03-bike-slot--center{width:42%}.yamaha03-bike-slot--left img,.yamaha03-bike-slot--right img{transform:scale(.94)}.yamaha03-bike-slot--center img{transform:scale(1.08)}.yamaha03-card{width:100%;border-radius:22px;padding:22px}.yamaha03-card-image{height:150px}.yamaha03-card-specs{gap:7px}}
+@media (max-width: 720px){.yamaha03-shell{padding:20px 18px 32px}.yamaha03-header{flex-wrap:wrap}.yamaha03-brand-sub{flex-basis:100%;padding-left:30px}.yamaha03-nav{width:100%;justify-content:flex-end}.yamaha03-showcase{padding-top:18px}.yamaha03-bike-line{height:clamp(220px,65vw,360px);gap:4px;padding:10px 0}.yamaha03-bike-slot--left,.yamaha03-bike-slot--right{width:29%}.yamaha03-bike-slot--center{width:42%}.yamaha03-bike-slot--left img,.yamaha03-bike-slot--right img{transform:scale(.94)}.yamaha03-bike-slot--center img{transform:scale(1.08)}.yamaha03-card{width:100%;border-radius:22px;padding:22px}.yamaha03-card::before{border-radius:22px}.yamaha03-card-image{height:150px}.yamaha03-card-specs{gap:7px}}
 @media (prefers-reduced-motion: reduce){.yamaha03-bike-slot{opacity:1;transform:none}.yamaha03-card-action{transition:none}}
 .yamaha-intro{position:fixed;z-index:10000;inset:0;display:grid;place-items:center;overflow:hidden;background:#03172f;opacity:1;animation:yamaha-intro-enter 700ms cubic-bezier(.22,.61,.36,1) both}
 .yamaha-intro__canvas{display:block;width:100%;height:100%;pointer-events:none}
 .yamaha-intro--leaving{animation:yamaha-intro-exit 700ms cubic-bezier(.4,0,.2,1) forwards;pointer-events:none}
 @keyframes yamaha-intro-enter{from{opacity:0}to{opacity:1}}
 @keyframes yamaha-intro-exit{to{opacity:0}}
-main#top{padding-top:var(--nav-h)}
-.yamaha-header{position:fixed;z-index:30;top:0;left:0;display:flex;width:100%;height:var(--nav-h);align-items:center;justify-content:space-between;padding:0 clamp(20px,4vw,64px);color:#f5f6f7;background:#05080fe8;border-bottom:1px solid #ffffff14;box-shadow:0 4px 20px rgba(0,0,0,0.4);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.yamaha-header--static,.yamaha-header--transparent,.yamaha-header--light{color:#f5f6f7;background:#05080fe8}
-.yamaha-header__wordmark{display:inline-flex;align-items:center;color:inherit;font:600 24px 'Barlow Condensed',sans-serif;letter-spacing:.14em;white-space:nowrap}
-.yamaha-header__wordmark span{margin-left:3px;font:11px Manrope,sans-serif}
-.yamaha-header__sections{display:flex;height:100%;align-items:center;gap:clamp(14px,2.2vw,36px)}
-.yamaha-header__sections button{position:relative;display:inline-flex;min-height:44px;align-items:center;padding:0 4px;border:0;background:none;color:#b2bac4;font:600 11px Manrope,Arial,sans-serif;letter-spacing:.14em;white-space:nowrap;cursor:pointer;transition:color 200ms ease}
-.yamaha-header__sections button:hover,.yamaha-header__sections button.is-active{color:#fff}
-.yamaha-header__sections button::after{position:absolute;bottom:0;left:50%;width:100%;height:2px;background:#1684e8;content:'';transform:translateX(-50%) scaleX(0);transform-origin:center;transition:transform 200ms ease}
-.yamaha-header__sections button.is-active::after{transform:translateX(-50%) scaleX(1)}
-.yamaha-header__sections .yamaha-header__book-button{min-height:36px;padding:0 16px;border:1px solid #1684e8;border-radius:4px;background:#0876c9;color:#fff;font-size:11px;font-weight:700;letter-spacing:.12em}
-.yamaha-header__sections .yamaha-header__book-button:hover{background:#005da2;color:#fff}
-.yamaha-header__sections .yamaha-header__book-button::after{display:none}
-.yamaha-header__menu-button{display:none}
-.yamaha-header__menu{position:absolute;top:calc(100% - 1px);right:clamp(20px,4vw,64px);display:flex;width:min(260px,calc(100vw - 36px));flex-direction:column;padding:10px;border:1px solid #ffffff1a;background:#080d15f8;box-shadow:0 18px 44px #000a;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-radius:0 0 8px 8px}
-.yamaha-header__menu button{min-height:44px;padding:0 16px;border:0;background:transparent;color:#c0cad7;font:600 12px Manrope,Arial,sans-serif;letter-spacing:.14em;text-align:left;cursor:pointer;transition:background-color 200ms ease,color 200ms ease}
-.yamaha-header__menu button:hover{background:#ffffff12;color:#fff}
-.yamaha03-header-spacer{height:30px;flex:0 0 30px}
-@media(max-width:860px){.yamaha-header__sections>button:not(.yamaha-header__menu-button):not(.yamaha-header__book-button){display:none}.yamaha-header__menu-button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;border:1px solid #ffffff30;border-radius:4px;background:rgba(255,255,255,0.06);color:#fff;font-size:10px;font-weight:700;letter-spacing:.12em;cursor:pointer}}
-@media(max-width:650px){.yamaha-header{height:var(--nav-h);padding:0 16px}.yamaha-header__wordmark{font-size:20px}.yamaha-header__sections{gap:10px}.yamaha-header__sections .yamaha-header__book-button{padding:0 10px;font-size:9px}.yamaha-header__menu{right:14px}.yamaha03-header-spacer{height:74px;flex-basis:74px}}
-@media(prefers-reduced-motion:reduce){.yamaha-header__sections button,.yamaha-header__sections button::after,.yamaha-header__menu button{transition:none}}
+main#top{position:relative;width:100%;margin-top:0;padding-top:0}
+.yamaha-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  width: 100%;
+  height: 74px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(20px, 3.5vw, 64px);
+  color: #f5f6f7;
+  background: rgba(6, 10, 18, 0.94);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-sizing: border-box;
+}
+
+.yamaha-header--static,
+.yamaha-header--transparent,
+.yamaha-header--light {
+  color: #f5f6f7;
+  background: rgba(6, 10, 18, 0.94);
+}
+
+/* Redesigned Brand presentation: Logo + VATHILAI MOTORS */
+.yamaha-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.yamaha-header__logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  max-width: 90px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.yamaha-header__brand:hover .yamaha-header__logo-container {
+  transform: scale(1.05);
+}
+
+.yamaha-header__logo-img {
+  display: block;
+  height: 100%;
+  max-height: 44px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(22, 132, 232, 0.65));
+}
+
+.yamaha-header__logo {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.yamaha-header__titles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.1;
+}
+
+.yamaha-header__primary-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.yamaha-header__yamaha-mark {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.yamaha-header__sep {
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.yamaha-header__dealership-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #168de2;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.yamaha-header__tagline {
+  font-family: 'Manrope', Arial, sans-serif;
+  font-size: 8.5px;
+  font-weight: 750;
+  letter-spacing: 0.18em;
+  color: #8ca0b6;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* Fallback wordmark */
+.yamaha-header__wordmark {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  font: 600 24px 'Barlow Condensed', sans-serif;
+  letter-spacing: .14em;
+  white-space: nowrap;
+}
+
+.yamaha-header__wordmark span {
+  margin-left: 3px;
+  font: 11px Manrope, sans-serif;
+}
+
+/* Centered Navigation */
+.yamaha-header__sections {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: clamp(14px, 2.2vw, 36px);
+}
+
+.yamaha-header__sections button:not(.yamaha-header__book-button):not(.yamaha-header__menu-button) {
+  position: relative;
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: #b2bac4;
+  font: 600 11px 'Manrope', Arial, sans-serif;
+  letter-spacing: .14em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.yamaha-header__sections button:not(.yamaha-header__book-button):not(.yamaha-header__menu-button):hover,
+.yamaha-header__sections button:not(.yamaha-header__book-button):not(.yamaha-header__menu-button).is-active {
+  color: #fff;
+}
+
+.yamaha-header__sections button:not(.yamaha-header__book-button):not(.yamaha-header__menu-button)::after {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: #1684e8;
+  content: '';
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  transition: transform 200ms ease;
+}
+
+.yamaha-header__sections button.is-active::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.yamaha-header__sections .yamaha-header__book-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 18px;
+  border: 1px solid #1684e8;
+  border-radius: 4px;
+  background: #0876c9;
+  color: #fff !important;
+  font-family: 'Manrope', Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .12em;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(8, 118, 201, 0.35);
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.yamaha-header__sections .yamaha-header__book-button:hover {
+  background: #005da2;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.yamaha-header__sections .yamaha-header__book-button::after {
+  display: none;
+}
+
+.yamaha-header__menu-button {
+  display: none;
+}
+
+.yamaha-header__menu {
+  position: absolute;
+  top: calc(100% - 1px);
+  right: clamp(20px, 4vw, 64px);
+  display: flex;
+  width: min(260px, calc(100vw - 36px));
+  flex-direction: column;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #080d15f8;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-radius: 0 0 8px 8px;
+}
+
+.yamaha-header__menu button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  color: #c0cad7;
+  font: 600 12px 'Manrope', Arial, sans-serif;
+  letter-spacing: .14em;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.yamaha-header__menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.yamaha03-header-spacer {
+  display: none;
+  height: 0;
+  flex: 0 0 0;
+}
+
+@media (max-width: 960px) {
+  .yamaha-header__sections > button:not(.yamaha-header__menu-button):not(.yamaha-header__book-button) {
+    display: none;
+  }
+  .yamaha-header__menu-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-family: 'Manrope', Arial, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    cursor: pointer;
+    transition: background 160ms ease;
+  }
+  .yamaha-header__menu-button:hover,
+  .yamaha-header__menu-button.is-active {
+    background: rgba(22, 132, 232, 0.2);
+    border-color: #1684e8;
+  }
+}
+
+@media (max-width: 650px) {
+  .yamaha-header {
+    height: 64px;
+    padding: 0 16px;
+  }
+  .yamaha-header__logo-container {
+    width: 32px;
+    height: 32px;
+  }
+  .yamaha-header__yamaha-mark {
+    font-size: 16px;
+  }
+  .yamaha-header__dealership-name {
+    font-size: 15px;
+  }
+  .yamaha-header__tagline {
+    font-size: 7.5px;
+    letter-spacing: 0.12em;
+  }
+  .yamaha-header__sections {
+    gap: 8px;
+  }
+  .yamaha-header__sections .yamaha-header__book-button {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 9.5px;
+  }
+  .yamaha-header__menu {
+    right: 14px;
+  }
+  .yamaha03-header-spacer {
+    display: none;
+    height: 0;
+    flex-basis: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yamaha-header__sections button,
+  .yamaha-header__sections button::after,
+  .yamaha-header__menu button {
+    transition: none;
+  }
+}
 
 :where(a,button):focus-visible{outline:2px solid #1684e8;outline-offset:4px}
 body{min-width:0}
@@ -298,3 +601,4 @@ body{min-width:0}
   .yamaha06-action{width:44px;height:44px;flex-basis:44px}
   .yamaha03-card-action{width:44px;height:44px;flex-basis:44px}
 }
+.yamaha-admin-loading{min-height:100vh;min-height:100svh;background:#080a0d}

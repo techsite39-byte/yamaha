@@ -5,27 +5,111 @@ import {
   getCataloguePrice,
   getMotorcycleSlug,
 } from './yamahaCatalogueUtils.js';
+import { getDirectionsUrl, getPhoneHref, getWhatsAppHref } from './businessConfig.js';
+import { useBusinessSettings } from './useBusinessSettings.js';
 import './YamahaBikeDetailsPage.css';
 
-const DEALERSHIP_INFO = {
-  name: 'Vathilai Motors — Authorised Yamaha Dealer',
-  phone: '+91 98401 23456',
-  phoneClean: '+919840123456',
-  whatsapp: '+91 98401 23456',
-  whatsappUrl: 'https://wa.me/919840123456',
-  email: 'enquiries@vathilaimotors.com',
-  address: '142 Anna Salai, Thousand Lights, Chennai, Tamil Nadu 600006',
-  hours: 'Mon–Sat: 9:00 AM – 8:00 PM | Sun: 10:00 AM – 5:00 PM',
-  directionsUrl: 'https://maps.google.com/?q=Vathilai+Motors+142+Anna+Salai+Thousand+Lights+Chennai',
-};
-
 const CONTACT_METHODS = [
-  { id: 'call', label: 'Call', icon: '📞' },
-  { id: 'whatsapp', label: 'WhatsApp', icon: '💬' },
-  { id: 'email', label: 'Email', icon: '✉' },
+  { id: 'call', label: 'Call', icon: 'phone' },
+  { id: 'whatsapp', label: 'WhatsApp', icon: 'whatsapp' },
+  { id: 'email', label: 'Email', icon: 'mail' },
 ];
 
-function SpecificationsSection({ motorcycle }) {
+function ContactIcon({ name }) {
+  if (name === 'phone') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+      </svg>
+    );
+  }
+  if (name === 'whatsapp') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+      </svg>
+    );
+  }
+  if (name === 'mail') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect width="20" height="16" x="2" y="4" rx="2" />
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+      </svg>
+    );
+  }
+  if (name === 'map-pin') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+    );
+  }
+  if (name === 'instagram') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" />
+      </svg>
+    );
+  }
+  return null;
+}
+
+function KeySpecIcon({ type }) {
+  if (type === 'engine') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+      </svg>
+    );
+  }
+  if (type === 'power') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+    );
+  }
+  if (type === 'torque') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+      </svg>
+    );
+  }
+  if (type === 'gear') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+      </svg>
+    );
+  }
+  if (type === 'weight') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+        <line x1="7" y1="7" x2="7.01" y2="7" />
+      </svg>
+    );
+  }
+  if (type === 'tank') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M3 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18" />
+        <path d="M15 10h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L20.5 6.5" />
+        <path d="M3 11h12" />
+      </svg>
+    );
+  }
+  return null;
+}
+
+function SpecificationsSection({ motorcycle, activeCategory, onCategoryChange }) {
   const specs = motorcycle.catalogue?.specifications ?? [];
   const sections = ['Engine', 'Dimensions', 'Brakes and tyres', 'Features'];
   const populated = sections.filter((s) => specs.some((row) => row.section === s));
@@ -33,28 +117,45 @@ function SpecificationsSection({ motorcycle }) {
   if (!populated.length) {
     return (
       <div className="yamaha-details__spec-card yamaha-details__spec-card--empty">
-        <p>Manufacturer technical specifications are available directly at the dealership.</p>
+        <p>Manufacturer technical specifications are verified directly at the dealership.</p>
       </div>
     );
   }
 
+  const selectedCategory = activeCategory && populated.includes(activeCategory)
+    ? activeCategory
+    : populated[0];
+
   return (
-    <div className="yamaha-details__specs-grid">
-      {populated.map((section) => (
-        <article key={section} className="yamaha-details__spec-card">
-          <h4>{section}</h4>
-          <dl>
-            {specs
-              .filter((row) => row.section === section)
-              .map(({ label, value }) => (
-                <div key={`${section}-${label}`}>
-                  <dt>{label}</dt>
-                  <dd>{value}</dd>
-                </div>
-              ))}
-          </dl>
-        </article>
-      ))}
+    <div className="yamaha-details__specs-container">
+      <div className="yamaha-details__specs-tabs" role="tablist" aria-label="Specification categories">
+        {populated.map((section) => (
+          <button
+            key={section}
+            type="button"
+            role="tab"
+            aria-selected={selectedCategory === section}
+            className={`yamaha-details__spec-tab-btn ${selectedCategory === section ? 'is-active' : ''}`}
+            onClick={() => onCategoryChange?.(section)}
+          >
+            {section}
+          </button>
+        ))}
+      </div>
+
+      <article className="yamaha-details__spec-card">
+        <h4>{selectedCategory}</h4>
+        <dl>
+          {specs
+            .filter((row) => row.section === selectedCategory)
+            .map(({ label, value }) => (
+              <div key={`${selectedCategory}-${label}`}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+        </dl>
+      </article>
     </div>
   );
 }
@@ -67,18 +168,21 @@ function YamahaBikeDetailsPage({
   onSelectBike,
   onContact,
 }) {
+  const { business: dealership, error: settingsError } = useBusinessSettings();
+  const whatsappHref = dealership.whatsappVerified ? getWhatsAppHref(dealership.whatsapp) : '';
   const variants = motorcycle.catalogue?.variants ?? [];
   const colors = motorcycle.catalogue?.colors ?? [];
   const [selectedVariant, setSelectedVariant] = useState(variants[0] ?? '');
   const [activeImage, setActiveImage] = useState(0);
   const [presentationTab, setPresentationTab] = useState('overview');
+  const [specCategory, setSpecCategory] = useState('Engine');
 
   // Enquiry form state
   const [form, setForm] = useState({
     name: '',
     phone: '',
     email: '',
-    city: 'Chennai',
+    city: '',
     contactMethod: 'Call',
     message: '',
   });
@@ -86,12 +190,13 @@ function YamahaBikeDetailsPage({
   const [formError, setFormError] = useState('');
   const [reference, setReference] = useState('');
   const submissionId = useRef('');
+  const submissionInFlight = useRef(false);
   const enquirySectionRef = useRef(null);
 
-  const gallery = useMemo(
-    () => [...new Set([motorcycle.image, ...(motorcycle.catalogue?.gallery ?? [])].filter(Boolean))],
-    [motorcycle],
-  );
+  const gallery = useMemo(() => {
+    const list = [motorcycle.image, ...(motorcycle.catalogue?.gallery ?? [])].filter(Boolean);
+    return [...new Set(list)];
+  }, [motorcycle]);
 
   const price = useMemo(
     () => getCataloguePrice(motorcycle, 'Chennai', selectedVariant),
@@ -105,10 +210,10 @@ function YamahaBikeDetailsPage({
     const handleArrowKeys = (event) => {
       if (event.altKey || event.ctrlKey || event.metaKey || event.defaultPrevented) return;
       if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea')) return;
-      if (event.key === 'ArrowLeft' && currentIndex >= 0) {
+      if (event.key === 'ArrowLeft' && currentIndex >= 0 && motorcycles.length > 1) {
         event.preventDefault();
         onSelectBike(motorcycles[(currentIndex - 1 + motorcycles.length) % motorcycles.length].id);
-      } else if (event.key === 'ArrowRight' && currentIndex >= 0) {
+      } else if (event.key === 'ArrowRight' && currentIndex >= 0 && motorcycles.length > 1) {
         event.preventDefault();
         onSelectBike(motorcycles[(currentIndex + 1) % motorcycles.length].id);
       }
@@ -123,14 +228,6 @@ function YamahaBikeDetailsPage({
     onSelectBike(motorcycles[nextIndex].id);
   };
 
-  const scrollToEnquiry = () => {
-    enquirySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => {
-      const nameInput = document.querySelector('input[name="name"]');
-      nameInput?.focus();
-    }, 450);
-  };
-
   const handleFormChange = (event) => {
     const { name, value } = event.target;
     submissionId.current = '';
@@ -139,6 +236,7 @@ function YamahaBikeDetailsPage({
 
   const handleEnquirySubmit = async (event) => {
     event.preventDefault();
+    if (submissionInFlight.current || reference) return;
 
     if (!form.name.trim() || form.name.trim().length < 2) {
       setFormError('Please enter your full name (minimum 2 characters).');
@@ -147,7 +245,7 @@ function YamahaBikeDetailsPage({
 
     const cleanPhone = form.phone.replace(/[\s-]/g, '');
     if (!/^(?:\+?91)?[6-9]\d{9}$/.test(cleanPhone)) {
-      setFormError('Please enter a valid 10-digit Indian mobile number (e.g. 9840123456).');
+      setFormError('Please enter a valid 10-digit Indian mobile number (e.g. 9841234567).');
       return;
     }
 
@@ -161,11 +259,12 @@ function YamahaBikeDetailsPage({
       return;
     }
 
-    if (!form.contactMethod) {
+    if (!CONTACT_METHODS.some((method) => method.label === form.contactMethod)) {
       setFormError('Please select a preferred contact method (Call, WhatsApp, or Email).');
       return;
     }
 
+    submissionInFlight.current = true;
     setSubmitting(true);
     setFormError('');
 
@@ -189,14 +288,14 @@ function YamahaBikeDetailsPage({
           exShowroom: price?.exShowroom ?? null,
           onRoad: price?.onRoad ?? null,
           enquiry: true,
-          dealership: DEALERSHIP_INFO.name,
+          dealership: dealership.dealershipName,
           customer: {
             name: form.name.trim(),
             phone: cleanPhone,
             email: form.email.trim(),
             city: form.city.trim(),
             preferredContactMethod: form.contactMethod,
-            dealership: DEALERSHIP_INFO.name,
+            dealership: dealership.dealershipName,
             message: form.message.trim() || `Customer enquiry for ${motorcycle.model} (${selectedVariant || 'Standard'}).`,
           },
           consent: true,
@@ -216,6 +315,7 @@ function YamahaBikeDetailsPage({
     } catch (error) {
       setFormError(error.message || 'Could not submit your enquiry. Please try again.');
     } finally {
+      submissionInFlight.current = false;
       setSubmitting(false);
     }
   };
@@ -228,7 +328,7 @@ function YamahaBikeDetailsPage({
       name: '',
       phone: '',
       email: '',
-      city: 'Chennai',
+      city: '',
       contactMethod: 'Call',
       message: '',
     });
@@ -238,17 +338,76 @@ function YamahaBikeDetailsPage({
   const specificationList = motorcycle.catalogue?.specifications ?? [];
   const features = motorcycle.features ?? [];
 
+  // Key technical specifications with automotive SVG icons for Left Panel
+  const keySpecs = useMemo(() => {
+    const specs = motorcycle.catalogue?.specifications ?? [];
+    const findSpec = (keyword) =>
+      specs.find((s) => s.label.toLowerCase().includes(keyword.toLowerCase()))?.value;
+
+    return [
+      {
+        id: 'engine',
+        label: 'Displacement',
+        value: motorcycle.displacementCc
+          ? `${motorcycle.displacementCc} cc`
+          : findSpec('displacement') || findSpec('engine') || '—',
+        iconType: 'engine',
+      },
+      {
+        id: 'power',
+        label: 'Max Power',
+        value: findSpec('power') || motorcycle.specs?.power || '—',
+        iconType: 'power',
+      },
+      {
+        id: 'torque',
+        label: 'Max Torque',
+        value: findSpec('torque') || motorcycle.specs?.torque || '—',
+        iconType: 'torque',
+      },
+      {
+        id: 'gear',
+        label: 'Transmission',
+        value: findSpec('transmission') || findSpec('gear') || 'Constant Mesh 6-speed',
+        iconType: 'gear',
+      },
+      {
+        id: 'weight',
+        label: 'Kerb Weight',
+        value: findSpec('weight') || motorcycle.specs?.weight || '—',
+        iconType: 'weight',
+      },
+      {
+        id: 'tank',
+        label: 'Fuel Tank',
+        value: findSpec('fuel') || findSpec('tank') || '—',
+        iconType: 'tank',
+      },
+    ].filter((item) => item.value !== '—');
+  }, [motorcycle]);
+
   return (
     <main className="yamaha-bike-detail">
       {/* ==================================================
-          LEFT PANEL (53% width, Premium Yamaha Blue Gradient)
+          LEFT PANEL — MOTORCYCLE SHOWCASE (48% width)
+          Contains ONLY:
+          1. Yamaha motorcycle brand label
+          2. Selected motorcycle name
+          3. Short motorcycle tagline
+          4. Large motorcycle image (object-fit: contain)
+          5. Gallery thumbnail selector
+          6. Overview and Specifications tabs
+          7. Short motorcycle description & Key specifications
+          8. Vathilai Motors brand introduction
+          * ZERO PRICING OR DEALERSHIP CONTACT ON LEFT *
       ================================================== */}
-      <section className="yamaha-details__presentation" aria-label={`${motorcycle.model} presentation`}>
-        <div className="yamaha-details__presentation-top">
-          <div className="yamaha-details__brand">
+      <section className="yamaha-details__presentation" aria-label={`${motorcycle.model} showcase`}>
+        {/* 1. Yamaha Motorcycle Brand Label */}
+        <div className="yamaha-details__brand-header">
+          <div className="yamaha-details__brand-label">
             <span>VATHILAI MOTORS</span>
-            <span className="yamaha-details__brand-sep">/</span>
-            <span>YAMAHA INDIA RANGE</span>
+            <span className="yamaha-details__brand-dot">·</span>
+            <span>YAMAHA MOTORCYCLES</span>
           </div>
           {motorcycles.length > 1 && (
             <div className="yamaha-details__bike-nav" aria-label="Browse motorcycles">
@@ -263,7 +422,15 @@ function YamahaBikeDetailsPage({
           )}
         </div>
 
-        {/* Large Motorcycle Photograph Stage */}
+        {/* 2. Selected Motorcycle Name */}
+        <h1 className="yamaha-details__model-title">{motorcycle.model}</h1>
+
+        {/* 3. Short Motorcycle Tagline */}
+        <p className="yamaha-details__tagline">
+          {motorcycle.tagline || `${motorcycle.category || 'Sport'} · Performance Engineered for Pure Riding Dynamics`}
+        </p>
+
+        {/* 4. Large, High-Quality Motorcycle Image Stage */}
         <div className="yamaha-details__image-stage">
           <YamahaBikeImage
             src={activeMotorcycleImage}
@@ -271,7 +438,7 @@ function YamahaBikeDetailsPage({
             className="yamaha-details__motorcycle-image"
             loading="eager"
           />
-          <span className="yamaha-details__image-caption">OFFICIAL YAMAHA GENUINE MOTORCYCLE</span>
+          <span className="yamaha-details__image-caption">OFFICIAL YAMAHA MOTORCYCLE PHOTOGRAPH</span>
 
           {gallery.length > 1 && (
             <div className="yamaha-details__thumbnails" role="group" aria-label="Motorcycle gallery">
@@ -290,149 +457,174 @@ function YamahaBikeDetailsPage({
           )}
         </div>
 
-        {/* Presentation Copy & Tabs */}
-        <div className="yamaha-details__presentation-copy">
-          <p className="yamaha-details__eyebrow">
-            {motorcycle.category} · {motorcycle.catalogue?.category || 'SPORT'}
-          </p>
-          <h1>{motorcycle.model}</h1>
-          <p className="yamaha-details__variant-line">
-            {selectedVariant || 'Standard Variant'}
-            <span className="yamaha-details__dot">·</span> Chennai Showroom
-          </p>
-
-          <div className="yamaha-details__tabs" role="tablist" aria-label="Motorcycle information">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={presentationTab === 'overview'}
-              className={presentationTab === 'overview' ? 'is-active' : ''}
-              onClick={() => setPresentationTab('overview')}
-            >
-              OVERVIEW
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={presentationTab === 'specifications'}
-              className={presentationTab === 'specifications' ? 'is-active' : ''}
-              onClick={() => setPresentationTab('specifications')}
-            >
-              SPECIFICATIONS
-            </button>
-          </div>
-
-          <div className="yamaha-details__tab-panel" role="tabpanel">
-            {presentationTab === 'overview' ? (
-              <>
-                <p className="yamaha-details__description">{motorcycle.description}</p>
-                {features.length > 0 && (
-                  <ul className="yamaha-details__highlights">
-                    {features.slice(0, 3).map((feature) => (
-                      <li key={feature.title}>
-                        <strong>{feature.title}</strong>
-                        {feature.description && <span>{feature.description}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
-            ) : (
-              <div className="yamaha-details__quick-specs">
-                {specificationList.length ? (
-                  specificationList.slice(0, 6).map(({ label, value }) => (
-                    <div key={label}>
-                      <span>{label}</span>
-                      <strong>{value}</strong>
-                    </div>
-                  ))
-                ) : (
-                  <p>Manufacturer technical specifications are verified with the showroom.</p>
-                )}
-              </div>
-            )}
-          </div>
+        {/* 5. Overview and Specifications Tabs */}
+        <div className="yamaha-details__tabs" role="tablist" aria-label="Motorcycle details tabs">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={presentationTab === 'overview'}
+            className={presentationTab === 'overview' ? 'is-active' : ''}
+            onClick={() => setPresentationTab('overview')}
+          >
+            OVERVIEW
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={presentationTab === 'specifications'}
+            className={presentationTab === 'specifications' ? 'is-active' : ''}
+            onClick={() => setPresentationTab('specifications')}
+          >
+            SPECIFICATIONS
+          </button>
         </div>
 
-        {/* Price Presentation Card */}
-        <section className="yamaha-details__price-card" aria-label="Motorcycle pricing">
-          <div className="yamaha-details__price-header">
-            <span>EX-SHOWROOM · CHENNAI</span>
-            <strong>{formatINR(price?.exShowroom)}</strong>
-          </div>
-          <div className="yamaha-details__price-lines">
-            <div>
-              <span>Selected Variant</span>
-              <strong>{selectedVariant || 'Standard'}</strong>
+        {/* Tab Content */}
+        <div className="yamaha-details__tab-panel" role="tabpanel">
+          {presentationTab === 'overview' ? (
+            <>
+              {/* Short Motorcycle Description */}
+              <p className="yamaha-details__description">{motorcycle.description}</p>
+
+              {/* Key Technical Specifications with Automotive Icons */}
+              {keySpecs.length > 0 && (
+                <div className="yamaha-details__key-specs-grid" aria-label="Key technical highlights">
+                  {keySpecs.map((spec) => (
+                    <div className="yamaha-details__key-spec-item" key={spec.id}>
+                      <div className="yamaha-details__key-spec-icon">
+                        <KeySpecIcon type={spec.iconType} />
+                      </div>
+                      <div className="yamaha-details__key-spec-text">
+                        <span>{spec.label}</span>
+                        <strong>{spec.value}</strong>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {features.length > 0 && (
+                <ul className="yamaha-details__highlights">
+                  {features.slice(0, 3).map((feature) => (
+                    <li key={feature.title}>
+                      <strong>{feature.title}</strong>
+                      {feature.description && <span>{feature.description}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : (
+            <div className="yamaha-details__quick-specs">
+              {specificationList.length ? (
+                specificationList.slice(0, 8).map(({ label, value }) => (
+                  <div key={label}>
+                    <span>{label}</span>
+                    <strong>{value}</strong>
+                  </div>
+                ))
+              ) : (
+                <p>Official manufacturer technical specifications are verified directly at the showroom.</p>
+              )}
             </div>
-            {Number.isFinite(price?.onRoad) && (
-              <div className="yamaha-details__on-road-line">
-                <span>Estimated On-Road (Chennai)</span>
-                <strong>{formatINR(price?.onRoad)}</strong>
-              </div>
-            )}
+          )}
+        </div>
+
+        {/* 8. Vathilai Motors Brand Introduction Near the Bottom */}
+        <section className="yamaha-details__about-dealership" aria-label="About Vathilai Motors">
+          <div className="yamaha-details__about-header">
+            <span className="yamaha-details__about-tag">AUTHORISED DEALERSHIP</span>
+            <h3 className="yamaha-details__about-title">About Vathilai Motors</h3>
           </div>
-          <p className="yamaha-details__price-note">
-            Indicative ex-showroom and on-road prices for Chennai. Final on-road pricing, road tax, and insurance are confirmed at the showroom.
+
+          <p className="yamaha-details__about-text">
+            {dealership.brandDescription}
           </p>
 
-          <div className="yamaha-details__cta-group">
-            <button
-              type="button"
-              className="yamaha-details__btn-book"
-              onClick={() => onBookBike(motorcycle.id, selectedVariant)}
-            >
-              <span>BOOK THIS MOTORCYCLE</span>
-              <span aria-hidden="true">→</span>
-            </button>
-            <button
-              type="button"
-              className="yamaha-details__btn-enquire"
-              onClick={scrollToEnquiry}
-            >
-              ENQUIRE ABOUT THIS MOTORCYCLE ↓
-            </button>
+          <div className="yamaha-details__about-pillars">
+            <div className="yamaha-details__about-pillar">
+              <span className="yamaha-details__pillar-icon" aria-hidden="true">✓</span>
+              <div>
+                <strong>Authorised Sales & Support</strong>
+                <p>100% genuine Yamaha motorcycles, transparent guidance, and authentic manufacturer warranty documentation.</p>
+              </div>
+            </div>
+
+            <div className="yamaha-details__about-pillar">
+              <span className="yamaha-details__pillar-icon" aria-hidden="true">⚙</span>
+              <div>
+                <strong>Factory-Certified Expertise</strong>
+                <p>Technicians certified by Yamaha Motor Co. equipped with computerized diagnostic bays and genuine Yamalube lubricants.</p>
+              </div>
+            </div>
+
+            <div className="yamaha-details__about-pillar">
+              <span className="yamaha-details__pillar-icon" aria-hidden="true">★</span>
+              <div>
+                <strong>Customer-Centric Delivery</strong>
+                <p>Priority test-ride scheduling, smooth RTO registration assistance, and dedicated after-sales workshop support.</p>
+              </div>
+            </div>
           </div>
         </section>
       </section>
 
       {/* ==================================================
-          RIGHT PANEL (47% width, Clean Light Background)
+          RIGHT PANEL — MOTORCYCLE DETAILS AND ENQUIRY (52% width)
+          EXACT REQUIRED SECTION ORDER:
+          1. Back to Motorcycles navigation
+          2. Configure Your Motorcycle heading
+          3. Short YZF-R7 description
+          4. Model information card
+          5. Key specifications
+          6. Contact Our Dealership
+          7. Enquire About This Motorcycle form
       ================================================== */}
-      <section className="yamaha-details__content" aria-label="Specifications and dealership enquiry">
+      <section className="yamaha-details__content" aria-label="Motorcycle configuration and enquiry">
+        {/* 1. Back to Motorcycles Navigation */}
         <button type="button" className="yamaha-details__back-link" onClick={onBack}>
           <span aria-hidden="true">←</span> BACK TO MOTORCYCLES
         </button>
 
-        <p className="yamaha-details__right-eyebrow">SPECIFICATIONS & DEALERSHIP ENQUIRY</p>
-        <h2 className="yamaha-details__right-title">Configure & Enquire: {motorcycle.model}</h2>
-        <p className="yamaha-details__right-intro">
-          Review verified manufacturer technical details and submit your enquiry directly to Vathilai Motors.
+        {/* 2. Configure Your Motorcycle Heading */}
+        <h2 className="yamaha-details__right-title">Configure Your Motorcycle</h2>
+
+        {/* 3. Short YZF-R7 Description */}
+        <p className="yamaha-details__right-subtitle">
+          {motorcycle.description || 'Select your factory variant, review verified technical details, and connect directly with our sales team for pricing and availability.'}
         </p>
 
-        {/* Selected Motorcycle Summary */}
+        {/* 4. Model Information Card */}
         <div className="yamaha-details__summary-card">
-          <span className="yamaha-details__tag">SELECTED MODEL</span>
-          <h3>{motorcycle.model}</h3>
-          <p>{motorcycle.category} · {motorcycle.catalogue?.category || 'SPORT'}</p>
+          <div className="yamaha-details__summary-meta">
+            <span className="yamaha-details__tag">SELECTED MODEL</span>
+            <h3>{motorcycle.model}</h3>
+            <p>{motorcycle.category} · {motorcycle.catalogue?.category || 'SPORT'}</p>
+          </div>
 
           {variants.length > 1 && (
-            <label className="yamaha-details__variant-selector">
-              <span>SELECT VARIANT</span>
-              <select
-                value={selectedVariant}
-                onChange={(e) => setSelectedVariant(e.target.value)}
-              >
+            <div className="yamaha-details__variant-selector-wrap">
+              <span className="yamaha-details__field-label">SELECT VARIANT</span>
+              <div className="yamaha-details__variant-pills" role="radiogroup" aria-label="Motorcycle variant">
                 {variants.map((v) => (
-                  <option value={v} key={v}>{v}</option>
+                  <button
+                    key={v}
+                    type="button"
+                    role="radio"
+                    aria-checked={selectedVariant === v}
+                    className={`yamaha-details__variant-pill ${selectedVariant === v ? 'is-selected' : ''}`}
+                    onClick={() => setSelectedVariant(v)}
+                  >
+                    {v}
+                  </button>
                 ))}
-              </select>
-            </label>
+              </div>
+            </div>
           )}
 
           {colors.length > 0 && (
             <div className="yamaha-details__colors-available">
-              <span>VERIFIED FACTORY COLOURS</span>
+              <span className="yamaha-details__field-label">FACTORY COLOURS</span>
               <div className="yamaha-details__color-tags">
                 {colors.map((c) => (
                   <span key={c} className="yamaha-details__color-tag">{c}</span>
@@ -440,100 +632,102 @@ function YamahaBikeDetailsPage({
               </div>
             </div>
           )}
-        </div>
 
-        {/* Verified Technical Specifications */}
-        <div className="yamaha-details__section-heading">
-          <span className="yamaha-details__step-num">01</span>
-          <div>
-            <h3>Verified Manufacturer Specifications</h3>
-            <p>Official technical figures from Yamaha Motor India.</p>
+          <div className="yamaha-details__summary-prices">
+            <div className="yamaha-details__summary-price-item">
+              <span>EX-SHOWROOM · CHENNAI</span>
+              <strong>{formatINR(price?.exShowroom)}</strong>
+            </div>
+            {Number.isFinite(price?.onRoad) && (
+              <div className="yamaha-details__summary-price-item yamaha-details__summary-price-item--onroad">
+                <span>ESTIMATED ON-ROAD</span>
+                <strong>{formatINR(price?.onRoad)}</strong>
+              </div>
+            )}
+          </div>
+
+          <div className="yamaha-details__summary-actions">
+            <button
+              type="button"
+              className="yamaha-details__btn-book-now"
+              onClick={() => onBookBike(motorcycle.id, selectedVariant)}
+            >
+              <span>BOOK THIS MOTORCYCLE</span>
+              <span aria-hidden="true">→</span>
+            </button>
           </div>
         </div>
 
-        <SpecificationsSection motorcycle={motorcycle} />
-
-        {motorcycle.catalogue?.officialSourceUrl && (
-          <p className="yamaha-details__source-url">
-            <span>Official manufacturer source:</span>{' '}
-            <a href={motorcycle.catalogue.officialSourceUrl} target="_blank" rel="noopener noreferrer">
-              Yamaha Motor India Official Page ↗
-            </a>
-          </p>
-        )}
-
-        {/* Dealership Contact Details Section - 4 Contact Cards */}
-        <div className="yamaha-details__section-heading" style={{ marginTop: 40 }}>
-          <span className="yamaha-details__step-num">02</span>
-          <div>
-            <h3>Contact Our Dealership</h3>
-            <p>Visit our authorised Chennai showroom or connect directly with our sales specialists.</p>
+        {/* 5. Key Specifications */}
+        <div className="yamaha-details__config-section">
+          <div className="yamaha-details__section-heading">
+            <span className="yamaha-details__step-num">01</span>
+            <div>
+              <h3>Key Specifications</h3>
+              <p>Official technical specifications from Yamaha Motor Co.</p>
+            </div>
           </div>
+
+          <SpecificationsSection
+            motorcycle={motorcycle}
+            activeCategory={specCategory}
+            onCategoryChange={setSpecCategory}
+          />
+
+          {motorcycle.catalogue?.officialSourceUrl && (
+            <p className="yamaha-details__source-url">
+              <span>Official manufacturer source:</span>{' '}
+              <a href={motorcycle.catalogue.officialSourceUrl} target="_blank" rel="noopener noreferrer">
+                Yamaha Motor Official Website ↗
+              </a>
+            </p>
+          )}
         </div>
 
+        {/* 6. Dealership contact actions */}
         <section className="yamaha-details__dealership-section" aria-label="Dealership contact information">
+          <div className="yamaha-details__section-heading">
+            <span className="yamaha-details__step-num">02</span>
+            <div>
+              <h3>Contact Vathilai Motors</h3>
+              <p>{dealership.locality} · {dealership.businessCategory}</p>
+            </div>
+          </div>
+
+          {settingsError && <p className="yamaha-details__settings-error" role="status">{settingsError}</p>}
+
           <div className="yamaha-details__contact-cards">
-            {/* 1. Phone — Call Us */}
             <article className="yamaha-details__contact-card">
-              <div className="yamaha-details__contact-card-icon" aria-hidden="true">📞</div>
+              <div className="yamaha-details__contact-card-icon">
+                <ContactIcon name="phone" />
+              </div>
               <div className="yamaha-details__contact-card-content">
                 <span className="yamaha-details__contact-card-channel">PHONE</span>
-                <h4 className="yamaha-details__contact-card-title">Call Us</h4>
-                <p className="yamaha-details__contact-card-val">{DEALERSHIP_INFO.phone}</p>
-                <small className="yamaha-details__contact-card-note">Direct sales enquiry</small>
+                <h4 className="yamaha-details__contact-card-title">Call Dealership</h4>
+                <p className="yamaha-details__contact-card-val">
+                  <a href={getPhoneHref(dealership.phone)} className="yamaha-details__contact-tel-link">
+                    {dealership.phone}
+                  </a>
+                </p>
+                <small className="yamaha-details__contact-card-note">{dealership.dealershipName}</small>
               </div>
-              <a href={`tel:${DEALERSHIP_INFO.phoneClean}`} className="yamaha-details__contact-card-btn">
-                CALL NOW
+              <a href={getPhoneHref(dealership.phone)} className="yamaha-details__contact-card-btn">
+                CALL DEALERSHIP
               </a>
             </article>
 
-            {/* 2. WhatsApp — WhatsApp Enquiry */}
-            <article className="yamaha-details__contact-card yamaha-details__contact-card--whatsapp">
-              <div className="yamaha-details__contact-card-icon" aria-hidden="true">💬</div>
-              <div className="yamaha-details__contact-card-content">
-                <span className="yamaha-details__contact-card-channel">WHATSAPP</span>
-                <h4 className="yamaha-details__contact-card-title">WhatsApp Enquiry</h4>
-                <p className="yamaha-details__contact-card-val">{DEALERSHIP_INFO.whatsapp}</p>
-                <small className="yamaha-details__contact-card-note">Instant product specialist chat</small>
-              </div>
-              <a
-                href={`${DEALERSHIP_INFO.whatsappUrl}?text=${encodeURIComponent(`Hello Vathilai Motors, I am enquiring about the ${motorcycle.model}.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="yamaha-details__contact-card-btn yamaha-details__contact-card-btn--whatsapp"
-              >
-                WHATSAPP ENQUIRY
-              </a>
-            </article>
-
-            {/* 3. Email — Email Us */}
-            <article className="yamaha-details__contact-card">
-              <div className="yamaha-details__contact-card-icon" aria-hidden="true">✉</div>
-              <div className="yamaha-details__contact-card-content">
-                <span className="yamaha-details__contact-card-channel">EMAIL</span>
-                <h4 className="yamaha-details__contact-card-title">Email Us</h4>
-                <p className="yamaha-details__contact-card-val">{DEALERSHIP_INFO.email}</p>
-                <small className="yamaha-details__contact-card-note">Written quotation & specs</small>
-              </div>
-              <a
-                href={`mailto:${DEALERSHIP_INFO.email}?subject=${encodeURIComponent(`Enquiry: ${motorcycle.model}`)}`}
-                className="yamaha-details__contact-card-btn"
-              >
-                EMAIL US
-              </a>
-            </article>
-
-            {/* 4. Location — Get Directions */}
             <article className="yamaha-details__contact-card yamaha-details__contact-card--location">
-              <div className="yamaha-details__contact-card-icon" aria-hidden="true">📍</div>
+              <div className="yamaha-details__contact-card-icon">
+                <ContactIcon name="map-pin" />
+              </div>
               <div className="yamaha-details__contact-card-content">
                 <span className="yamaha-details__contact-card-channel">LOCATION</span>
                 <h4 className="yamaha-details__contact-card-title">Get Directions</h4>
-                <p className="yamaha-details__contact-card-val">{DEALERSHIP_INFO.address}</p>
-                <small className="yamaha-details__contact-card-note">{DEALERSHIP_INFO.hours}</small>
+                <p className="yamaha-details__contact-card-val">{dealership.address}</p>
+                <small className="yamaha-details__contact-card-note">{dealership.postalCode}</small>
               </div>
               <a
-                href={DEALERSHIP_INFO.directionsUrl}
+                href={getDirectionsUrl(dealership.address)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="yamaha-details__contact-card-btn yamaha-details__contact-card-btn--location"
@@ -541,211 +735,279 @@ function YamahaBikeDetailsPage({
                 GET DIRECTIONS
               </a>
             </article>
+
+            {whatsappHref && (
+              <article className="yamaha-details__contact-card yamaha-details__contact-card--whatsapp">
+                <div className="yamaha-details__contact-card-icon">
+                  <ContactIcon name="whatsapp" />
+                </div>
+                <div className="yamaha-details__contact-card-content">
+                  <span className="yamaha-details__contact-card-channel">WHATSAPP</span>
+                  <h4 className="yamaha-details__contact-card-title">WhatsApp Dealership</h4>
+                  <p className="yamaha-details__contact-card-val">{dealership.whatsapp}</p>
+                  <small className="yamaha-details__contact-card-note">Verified WhatsApp contact</small>
+                </div>
+                <a
+                  href={`${whatsappHref}?text=${encodeURIComponent(`Hello ${dealership.dealershipName}, I am enquiring about the ${motorcycle.model} (${selectedVariant || 'Standard'}).`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="yamaha-details__contact-card-btn yamaha-details__contact-card-btn--whatsapp"
+                >
+                  WHATSAPP
+                </a>
+              </article>
+            )}
+
+            {dealership.instagramUrl && (
+              <article className="yamaha-details__contact-card">
+                <div className="yamaha-details__contact-card-icon">
+                  <ContactIcon name="instagram" />
+                </div>
+                <div className="yamaha-details__contact-card-content">
+                  <span className="yamaha-details__contact-card-channel">INSTAGRAM</span>
+                  <h4 className="yamaha-details__contact-card-title">Follow Vathilai Motors</h4>
+                  <p className="yamaha-details__contact-card-val">@vathilaimotors</p>
+                  <small className="yamaha-details__contact-card-note">Dealership updates</small>
+                </div>
+                <a
+                  href={dealership.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="yamaha-details__contact-card-btn"
+                >
+                  INSTAGRAM
+                </a>
+              </article>
+            )}
           </div>
         </section>
 
-        {/* Motorcycle Enquiry Form */}
-        <div ref={enquirySectionRef} className="yamaha-details__section-heading" style={{ marginTop: 40 }}>
-          <span className="yamaha-details__step-num">03</span>
-          <div>
-            <h3>ENQUIRE ABOUT THIS MOTORCYCLE</h3>
-            <p>Submit your details to receive priority pricing, availability, and showroom consultation.</p>
-          </div>
-        </div>
-
-        {reference ? (
-          <div className="yamaha-details__enquiry-success" role="alert">
-            <div className="yamaha-details__success-icon-wrap" aria-hidden="true">✓</div>
-            <span className="yamaha-details__success-eyebrow">CONFIRMATION</span>
-            <h3 className="yamaha-details__success-title">ENQUIRY SUBMITTED SUCCESSFULLY</h3>
-            <p className="yamaha-details__success-lead">
-              Thank you for your interest in Vathilai Motors.
-            </p>
-
-            <div className="yamaha-details__success-summary-box">
-              <div className="yamaha-details__success-row">
-                <span>Enquiry Reference:</span>
-                <strong className="yamaha-details__success-ref">{reference}</strong>
-              </div>
-              <div className="yamaha-details__success-row">
-                <span>Selected Motorcycle:</span>
-                <strong>{motorcycle.model} ({selectedVariant || 'Standard'})</strong>
-              </div>
-              <div className="yamaha-details__success-row">
-                <span>Customer Name:</span>
-                <strong>{form.name}</strong>
-              </div>
-              <div className="yamaha-details__success-row">
-                <span>Mobile Number:</span>
-                <strong>{form.phone}</strong>
-              </div>
-              <div className="yamaha-details__success-row">
-                <span>Preferred Contact:</span>
-                <strong>{form.contactMethod}</strong>
-              </div>
-            </div>
-
-            <div className="yamaha-details__success-dealership-card">
-              <h4>DEALERSHIP DETAILS</h4>
-              <p><strong>{DEALERSHIP_INFO.name}</strong></p>
-              <p>{DEALERSHIP_INFO.address}</p>
-              <p>Phone: <a href={`tel:${DEALERSHIP_INFO.phoneClean}`}>{DEALERSHIP_INFO.phone}</a> · Email: <a href={`mailto:${DEALERSHIP_INFO.email}`}>{DEALERSHIP_INFO.email}</a></p>
-              <p><small>{DEALERSHIP_INFO.hours}</small></p>
-            </div>
-
-            <div className="yamaha-details__success-actions">
-              <button
-                type="button"
-                className="yamaha-details__btn-back-motorcycles"
-                onClick={onBack}
-              >
-                ← BACK TO MOTORCYCLES
-              </button>
-              <button
-                type="button"
-                className="yamaha-details__btn-sub-another"
-                onClick={handleResetEnquiry}
-              >
-                SUBMIT ANOTHER ENQUIRY
-              </button>
+        {/* 7. Enquire About This Motorcycle Form */}
+        <section ref={enquirySectionRef} className="yamaha-details__enquiry-section" aria-label="Motorcycle enquiry form">
+          <div className="yamaha-details__section-heading">
+            <span className="yamaha-details__step-num">03</span>
+            <div>
+              <h3>Enquire About This Motorcycle</h3>
+              <p>Submit your details to receive verified pricing, current availability, and showroom consultation.</p>
             </div>
           </div>
-        ) : (
-          <form className="yamaha-details__enquiry-form" onSubmit={handleEnquirySubmit} noValidate>
-            <div className="yamaha-details__form-header">
-              <h4>Enquire About This Motorcycle</h4>
-              <span className="yamaha-details__form-subtitle">
-                Official dealership enquiry for {motorcycle.model} at Vathilai Motors
-              </span>
-            </div>
 
-            {/* Auto-identified motorcycle banner */}
-            <div className="yamaha-details__auto-selected-badge">
-              <div className="yamaha-details__auto-selected-thumb">
-                <YamahaBikeImage src={activeMotorcycleImage} alt={motorcycle.model} />
-              </div>
-              <div className="yamaha-details__auto-selected-meta">
-                <span className="yamaha-details__auto-tag">CURRENT SELECTION</span>
-                <h5>{motorcycle.model}</h5>
-                <p>{selectedVariant || 'Standard Variant'} · {motorcycle.category}</p>
-                <div className="yamaha-details__auto-prices">
-                  <span>Ex-Showroom: <strong>{formatINR(price?.exShowroom)}</strong></span>
-                  {Number.isFinite(price?.onRoad) && (
-                    <span>Estimated On-Road: <strong>{formatINR(price?.onRoad)}</strong></span>
-                  )}
-                  <span>City: <strong>{form.city || 'Chennai'}</strong></span>
+          {reference ? (
+            <div className="yamaha-details__enquiry-success" role="alert">
+              <div className="yamaha-details__success-icon-wrap" aria-hidden="true">✓</div>
+              <span className="yamaha-details__success-eyebrow">CONFIRMATION</span>
+              <h3 className="yamaha-details__success-title">ENQUIRY SUBMITTED SUCCESSFULLY</h3>
+              <p className="yamaha-details__success-lead">
+                Thank you for your interest in Vathilai Motors. Our sales advisor will connect with you shortly.
+              </p>
+
+              <div className="yamaha-details__success-summary-box">
+                <div className="yamaha-details__success-row">
+                  <span>Enquiry Reference:</span>
+                  <strong className="yamaha-details__success-ref">{reference}</strong>
                 </div>
-              </div>
-            </div>
-
-            {formError && (
-              <div className="yamaha-details__form-error" role="alert">
-                <strong>Attention:</strong> {formError}
-              </div>
-            )}
-
-            <div className="yamaha-details__form-grid">
-              <label className="yamaha-details__field">
-                <span>FULL NAME <b aria-hidden="true">*</b></span>
-                <input
-                  name="name"
-                  type="text"
-                  maxLength="100"
-                  placeholder="Your full name"
-                  required
-                  value={form.name}
-                  onChange={handleFormChange}
-                />
-              </label>
-
-              <label className="yamaha-details__field">
-                <span>MOBILE NUMBER <b aria-hidden="true">*</b></span>
-                <input
-                  name="phone"
-                  type="tel"
-                  maxLength="15"
-                  placeholder="10-digit number e.g. 9840123456"
-                  required
-                  value={form.phone}
-                  onChange={handleFormChange}
-                />
-                <small>Indian mobile number</small>
-              </label>
-
-              <label className="yamaha-details__field">
-                <span>EMAIL ADDRESS <b aria-hidden="true">*</b></span>
-                <input
-                  name="email"
-                  type="email"
-                  maxLength="254"
-                  placeholder="name@example.com"
-                  required
-                  value={form.email}
-                  onChange={handleFormChange}
-                />
-              </label>
-
-              <label className="yamaha-details__field">
-                <span>CITY <b aria-hidden="true">*</b></span>
-                <input
-                  name="city"
-                  type="text"
-                  maxLength="80"
-                  placeholder="Your city"
-                  required
-                  value={form.city}
-                  onChange={handleFormChange}
-                />
-              </label>
-
-              <div className="yamaha-details__field yamaha-details__field--full">
-                <span>PREFERRED CONTACT METHOD <b aria-hidden="true">*</b></span>
-                <div className="yamaha-details__method-chips" role="radiogroup" aria-label="Preferred contact method">
-                  {CONTACT_METHODS.map((m) => (
-                    <button
-                      type="button"
-                      key={m.id}
-                      role="radio"
-                      aria-checked={form.contactMethod === m.label}
-                      className={`yamaha-details__method-chip ${form.contactMethod === m.label ? 'is-selected' : ''}`}
-                      onClick={() => {
-                        submissionId.current = '';
-                        setForm((curr) => ({ ...curr, contactMethod: m.label }));
-                      }}
-                    >
-                      <span className="yamaha-details__chip-radio-circle" aria-hidden="true" />
-                      <span className="yamaha-details__chip-icon" aria-hidden="true">{m.icon}</span>
-                      <span className="yamaha-details__chip-label">{m.label}</span>
-                    </button>
-                  ))}
+                <div className="yamaha-details__success-row">
+                  <span>Selected Motorcycle:</span>
+                  <strong>{motorcycle.model} ({selectedVariant || 'Standard'})</strong>
+                </div>
+                <div className="yamaha-details__success-row">
+                  <span>Customer Name:</span>
+                  <strong>{form.name}</strong>
+                </div>
+                <div className="yamaha-details__success-row">
+                  <span>Mobile Number:</span>
+                  <strong>{form.phone}</strong>
+                </div>
+                <div className="yamaha-details__success-row">
+                  <span>City:</span>
+                  <strong>{form.city}</strong>
+                </div>
+                <div className="yamaha-details__success-row">
+                  <span>Preferred Contact:</span>
+                  <strong>{form.contactMethod}</strong>
                 </div>
               </div>
 
-              <label className="yamaha-details__field yamaha-details__field--full">
-                <span>YOUR MESSAGE (OPTIONAL)</span>
-                <textarea
-                  name="message"
-                  rows="3"
-                  maxLength="1000"
-                  placeholder="Ask about availability, delivery timeline, on-road quotation, or exchange offers."
-                  value={form.message}
-                  onChange={handleFormChange}
-                />
-              </label>
-            </div>
+              <div className="yamaha-details__success-dealership-card">
+                <h4>DEALERSHIP DETAILS</h4>
+                <p><strong>{dealership.dealershipName}</strong></p>
+                <p>{dealership.address}</p>
+                <p>Phone: <a href={getPhoneHref(dealership.phone)}>{dealership.phone}</a></p>
+                {dealership.instagramUrl && (
+                  <p><a href={dealership.instagramUrl} target="_blank" rel="noopener noreferrer">Instagram</a></p>
+                )}
+              </div>
 
-            <button
-              type="submit"
-              className="yamaha-details__enquiry-submit-btn"
-              disabled={submitting}
-            >
-              {submitting ? 'SUBMITTING ENQUIRY…' : 'SUBMIT ENQUIRY'}
-            </button>
-            <p className="yamaha-details__form-footnote">
-              Your contact details are encrypted and sent directly to Vathilai Motors. We never share your personal information.
-            </p>
-          </form>
-        )}
+              <div className="yamaha-details__success-actions">
+                <button
+                  type="button"
+                  className="yamaha-details__btn-back-motorcycles"
+                  onClick={onBack}
+                >
+                  ← BACK TO MOTORCYCLES
+                </button>
+                <button
+                  type="button"
+                  className="yamaha-details__btn-sub-another"
+                  onClick={handleResetEnquiry}
+                >
+                  SUBMIT ANOTHER ENQUIRY
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form className="yamaha-details__enquiry-form" onSubmit={handleEnquirySubmit} noValidate>
+              <div className="yamaha-details__form-header">
+                <h4>Enquire About This Motorcycle</h4>
+                <span className="yamaha-details__form-subtitle">
+                  Official dealership enquiry for {motorcycle.model} at Vathilai Motors
+                </span>
+              </div>
+
+              {/* Auto-identified motorcycle badge */}
+              <div className="yamaha-details__auto-selected-badge">
+                <div className="yamaha-details__auto-selected-thumb">
+                  <YamahaBikeImage src={activeMotorcycleImage} alt={motorcycle.model} />
+                </div>
+                <div className="yamaha-details__auto-selected-meta">
+                  <span className="yamaha-details__auto-tag">CURRENT SELECTION</span>
+                  <h5>{motorcycle.model}</h5>
+                  <p>{selectedVariant || 'Standard Variant'} · {motorcycle.category}</p>
+                  <div className="yamaha-details__auto-prices">
+                    <span>Ex-Showroom: <strong>{formatINR(price?.exShowroom)}</strong></span>
+                    {Number.isFinite(price?.onRoad) && (
+                      <span>Estimated On-Road: <strong>{formatINR(price?.onRoad)}</strong></span>
+                    )}
+                    <span>City: <strong>{form.city || 'Enter your city'}</strong></span>
+                  </div>
+                </div>
+              </div>
+
+              {formError && (
+                <div className="yamaha-details__form-error" role="alert">
+                  <strong>Attention:</strong> {formError}
+                </div>
+              )}
+
+              <div className="yamaha-details__form-grid">
+                <label className="yamaha-details__field yamaha-details__field--full">
+                  <span>SELECTED MOTORCYCLE</span>
+                  <input
+                    type="text"
+                    value={`${motorcycle.model} (${selectedVariant || 'Standard'})`}
+                    readOnly
+                    aria-label="Selected motorcycle"
+                  />
+                </label>
+
+                <label className="yamaha-details__field">
+                  <span>FULL NAME <b aria-hidden="true">*</b></span>
+                  <input
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    maxLength="100"
+                    placeholder="Your full name"
+                    required
+                    value={form.name}
+                    onChange={handleFormChange}
+                  />
+                </label>
+
+                <label className="yamaha-details__field">
+                  <span>MOBILE NUMBER <b aria-hidden="true">*</b></span>
+                  <input
+                    name="phone"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    maxLength="15"
+                    placeholder="10-digit number e.g. 9841234567"
+                    required
+                    value={form.phone}
+                    onChange={handleFormChange}
+                  />
+                  <small>10-digit Indian mobile number</small>
+                </label>
+
+                <label className="yamaha-details__field">
+                  <span>EMAIL ADDRESS <b aria-hidden="true">*</b></span>
+                  <input
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    maxLength="254"
+                    placeholder="name@example.com"
+                    required
+                    value={form.email}
+                    onChange={handleFormChange}
+                  />
+                </label>
+
+                <label className="yamaha-details__field">
+                  <span>CITY <b aria-hidden="true">*</b></span>
+                  <input
+                    name="city"
+                    type="text"
+                    maxLength="80"
+                    placeholder="Your city"
+                    required
+                    value={form.city}
+                    onChange={handleFormChange}
+                  />
+                </label>
+
+                <div className="yamaha-details__field yamaha-details__field--full">
+                  <span>PREFERRED CONTACT METHOD <b aria-hidden="true">*</b></span>
+                  <div className="yamaha-details__method-chips" role="radiogroup" aria-label="Preferred contact method">
+                    {CONTACT_METHODS.map((m) => (
+                      <button
+                        type="button"
+                        key={m.id}
+                        role="radio"
+                        aria-checked={form.contactMethod === m.label}
+                        className={`yamaha-details__method-chip ${form.contactMethod === m.label ? 'is-selected' : ''}`}
+                        onClick={() => {
+                          submissionId.current = '';
+                          setForm((curr) => ({ ...curr, contactMethod: m.label }));
+                        }}
+                      >
+                        <span className="yamaha-details__chip-radio-circle" aria-hidden="true" />
+                        <span className="yamaha-details__chip-icon" aria-hidden="true">
+                          <ContactIcon name={m.icon} />
+                        </span>
+                        <span className="yamaha-details__chip-label">{m.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="yamaha-details__field yamaha-details__field--full">
+                  <span>YOUR MESSAGE (OPTIONAL)</span>
+                  <textarea
+                    name="message"
+                    rows="3"
+                    maxLength="1000"
+                    placeholder="Ask about availability, delivery timeline, on-road quotation, or exchange offers."
+                    value={form.message}
+                    onChange={handleFormChange}
+                  />
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="yamaha-details__enquiry-submit-btn"
+                disabled={submitting}
+              >
+                {submitting ? 'SUBMITTING ENQUIRY…' : 'SUBMIT ENQUIRY'}
+              </button>
+              <p className="yamaha-details__form-footnote">
+                Your enquiry is sent to {dealership.dealershipName} and is available to authorized dealership staff.
+              </p>
+            </form>
+          )}
+        </section>
       </section>
     </main>
   );

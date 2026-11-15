@@ -20,6 +20,29 @@ const { app } = await import('./index.js');
 const catalogPath = resolve('server/data/motorcycles.json');
 const bookingsPath = resolve('server/data/bookings.json');
 
+test('public business settings expose the current dealership details', async () => {
+  const server = app.listen(0, '127.0.0.1');
+  await new Promise((resolveListen) => server.once('listening', resolveListen));
+  const base = `http://127.0.0.1:${server.address().port}`;
+
+  try {
+    const response = await fetch(`${base}/api/public/settings`);
+    assert.equal(response.status, 200);
+    const { settings } = await response.json();
+    assert.equal(settings.dealershipName, 'Vathilai Motors');
+    assert.equal(settings.phone, '081444 45566');
+    assert.equal(settings.address, 'Parimalam Theatre Complex, Main Road, Opp. Union Office Madurai, Batlagundu, Dindigul, Tamil Nadu – 624202.');
+    assert.equal(settings.instagramUrl, 'https://www.instagram.com/vathilaimotors/');
+    assert.equal(settings.googleRatingVerified, true);
+    assert.equal(settings.googleRating, 4.5);
+    assert.equal(settings.googleReviewCount, 36);
+    assert.equal(settings.whatsapp, '');
+    assert.equal(settings.email, '');
+  } finally {
+    await closeServer(server);
+  }
+});
+
 async function closeServer(server) {
   const closed = new Promise((resolveClose, rejectClose) => {
     server.close((error) => error ? rejectClose(error) : resolveClose());

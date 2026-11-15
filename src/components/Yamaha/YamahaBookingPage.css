@@ -1,6 +1,6 @@
 .yamaha-booking {
   min-height: 100vh;
-  padding-top: var(--nav-h, 76px);
+  padding-top: 0;
   background: #f4f6f9;
   color: #101d2e;
 }
@@ -803,7 +803,7 @@
 ================================================== */
 @media (max-width: 900px) {
   .yamaha-booking {
-    padding-top: var(--nav-h, 76px);
+    padding-top: 0;
   }
 
   .yamaha-booking__hero {
@@ -835,7 +835,7 @@
 
 @media (max-width: 650px) {
   .yamaha-booking {
-    padding-top: var(--nav-h, 64px);
+    padding-top: 0;
   }
 
   .yamaha-booking__hero {
@@ -875,4 +875,107 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ==================================================
+   SELECTED BIKE AUTOMATIC BANNER
+================================================== */
+.yamaha-booking__selected-bike-banner {
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  border: 1px solid #c7e0f8;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e6f2fe 100%);
+  box-shadow: 0 2px 8px rgba(8, 118, 201, 0.06);
+}
+
+.yamaha-booking__selected-bike-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: #0876c9;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.yamaha-booking__badge-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+.yamaha-booking__selected-bike-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.yamaha-booking__selected-bike-title h3 {
+  margin: 0;
+  color: #0b2545;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.yamaha-booking__selected-bike-variant {
+  display: inline-block;
+  margin-top: 2px;
+  color: #536982;
+  font-size: 13px;
+}
+
+.yamaha-booking__selected-bike-price {
+  text-align: right;
+}
+
+.yamaha-booking__selected-bike-price span {
+  display: block;
+  color: #6a7f96;
+  font-size: 11px;
+}
+
+.yamaha-booking__selected-bike-price strong {
+  color: #0876c9;
+  font: 700 22px/1 'Barlow Condensed', sans-serif;
+}
+
+/* ==================================================
+   WHATSAPP AUTOMATIC STATUS BADGE (NO USER ACTION NEEDED)
+================================================== */
+.yamaha-booking__whatsapp-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto 24px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+}
+
+.yamaha-booking__whatsapp-status-badge strong {
+  color: #047857;
+  font-weight: 700;
+}
+
+.yamaha-booking__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }

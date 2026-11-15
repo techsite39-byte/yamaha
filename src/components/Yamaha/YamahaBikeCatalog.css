@@ -1,6 +1,6 @@
 .yamaha-bike-catalog {
   min-height: 100vh;
-  padding: calc(var(--nav-h) + 56px) clamp(22px, 7vw, 112px) 90px;
+  padding: 48px clamp(22px, 7vw, 112px) 90px;
   background: #f5f7f9;
   color: #101a2c;
 }
@@ -427,7 +427,7 @@
 
 @media (max-width: 700px) {
   .yamaha-bike-catalog {
-    padding: calc(var(--nav-h) + 32px) 18px 65px;
+    padding: 24px 18px 65px;
   }
 
   .yamaha-bike-catalog__intro {
