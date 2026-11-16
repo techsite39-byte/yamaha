@@ -135,6 +135,106 @@
 }
 
 /* =========================================================
+   COLUMN 1: SOCIAL CHANNELS
+   ========================================================= */
+.yamaha-footer__social-section {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.yamaha-footer__social-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7e9bb9;
+}
+
+.yamaha-footer__social-icons-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.yamaha-footer__social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.yamaha-footer__social-btn svg {
+  display: block;
+  transition: transform 0.22s ease;
+}
+
+.yamaha-footer__social-btn:hover {
+  transform: translateY(-3px);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+.yamaha-footer__social-btn:hover svg {
+  transform: scale(1.12);
+}
+
+.yamaha-footer__social-btn--instagram:hover {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(214, 36, 159, 0.45);
+}
+
+.yamaha-footer__social-btn--facebook:hover {
+  background: #1877f2;
+  border-color: #1877f2;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(24, 119, 242, 0.45);
+}
+
+.yamaha-footer__social-btn--youtube:hover {
+  background: #ff0000;
+  border-color: #ff0000;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(255, 0, 0, 0.45);
+}
+
+.yamaha-footer__social-btn--xtwitter:hover,
+.yamaha-footer__social-btn--x:hover,
+.yamaha-footer__social-btn--twitter:hover {
+  background: #000000;
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+}
+
+.yamaha-footer__social-btn--whatsapp:hover {
+  background: #25d366;
+  border-color: #25d366;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
+}
+
+.yamaha-footer__social-btn--linkedin:hover {
+  background: #0077b5;
+  border-color: #0077b5;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 119, 181, 0.45);
+}
+
+/* =========================================================
    COLUMN 2: QUICK LINKS
    ========================================================= */
 .yamaha-footer__col-heading {
@@ -298,6 +398,88 @@
   color: #ffffff;
 }
 
+/* Contact column dynamic social pills */
+.yamaha-footer__contact-socials-block {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.yamaha-footer__contact-socials-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7e9bb9;
+}
+
+.yamaha-footer__contact-socials-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.yamaha-footer__contact-social-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  color: #c5d3e3;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.yamaha-footer__contact-social-pill svg {
+  flex-shrink: 0;
+  color: var(--yamaha-footer-blue);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.yamaha-footer__contact-social-pill:hover {
+  background: rgba(22, 141, 226, 0.18);
+  border-color: rgba(22, 141, 226, 0.45);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.yamaha-footer__contact-social-pill:hover svg {
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.yamaha-footer__contact-social-pill--instagram:hover {
+  border-color: rgba(225, 48, 108, 0.5);
+  background: rgba(225, 48, 108, 0.18);
+}
+
+.yamaha-footer__contact-social-pill--facebook:hover {
+  border-color: rgba(24, 119, 242, 0.5);
+  background: rgba(24, 119, 242, 0.18);
+}
+
+.yamaha-footer__contact-social-pill--youtube:hover {
+  border-color: rgba(255, 0, 0, 0.5);
+  background: rgba(255, 0, 0, 0.18);
+}
+
+.yamaha-footer__contact-social-pill--whatsapp:hover {
+  border-color: rgba(37, 211, 102, 0.5);
+  background: rgba(37, 211, 102, 0.18);
+}
+
+.yamaha-footer__contact-social-pill--linkedin:hover {
+  border-color: rgba(0, 119, 181, 0.5);
+  background: rgba(0, 119, 181, 0.18);
+}
+
 /* =========================================================
    COLUMN 4: BUSINESS INFORMATION
    ========================================================= */
@@ -433,7 +615,29 @@
 .yamaha-footer__legal {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  align-items: center;
+  gap: 12px;
+}
+
+.yamaha-footer__legal-link {
+  color: var(--yamaha-footer-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.yamaha-footer__legal-link:hover,
+.yamaha-footer__legal-link:focus-visible {
+  color: #65c5ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.yamaha-footer__legal-sep {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 10px;
+  user-select: none;
 }
 
 .yamaha-footer__legal-item details {

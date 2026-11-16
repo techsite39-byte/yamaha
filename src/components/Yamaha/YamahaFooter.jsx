@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getDirectionsUrl, getPhoneHref } from './businessConfig.js';
@@ -6,6 +6,61 @@ import { useBusinessSettings } from './useBusinessSettings.js';
 import './YamahaFooter.css';
 
 gsap.registerPlugin(ScrollTrigger);
+
+function FooterSocialIcon({ platform, size = 18 }) {
+  const p = String(platform || '').toLowerCase();
+  if (p.includes('instagram')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+      </svg>
+    );
+  }
+  if (p.includes('facebook')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+      </svg>
+    );
+  }
+  if (p.includes('youtube')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+      </svg>
+    );
+  }
+  if (p.includes('x') || p.includes('twitter')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    );
+  }
+  if (p.includes('whatsapp')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+      </svg>
+    );
+  }
+  if (p.includes('linkedin')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+      </svg>
+    );
+  }
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" x2="22" y1="12" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
 
 const links = [
   { label: 'Home', href: '/', action: 'home' },
@@ -24,10 +79,46 @@ function YamahaFooter({
   onServices,
   onBookNow,
   onContact,
+  onLegal,
 }) {
   const footerRef = useRef(null);
   const contentRef = useRef(null);
   const { business, error } = useBusinessSettings();
+  const [liveSocialProfiles, setLiveSocialProfiles] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/public/social-profiles')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (active && Array.isArray(data?.profiles)) {
+          setLiveSocialProfiles(data.profiles);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const visibleSocialProfiles = useMemo(() => {
+    if (liveSocialProfiles.length > 0) return liveSocialProfiles;
+    if (Array.isArray(business.socialProfiles) && business.socialProfiles.length > 0) {
+      return business.socialProfiles;
+    }
+    if (business.instagramUrl) {
+      return [
+        {
+          id: 'soc-instagram',
+          platform: 'Instagram',
+          profileUrl: business.instagramUrl,
+          handle: '@vathilaimotors',
+          status: 'connected',
+        },
+      ];
+    }
+    return [];
+  }, [liveSocialProfiles, business.socialProfiles, business.instagramUrl]);
 
   const rating = Number(business.googleRating) || 4.5;
   const reviewCount = Number(business.googleReviewCount) || 36;
@@ -76,6 +167,13 @@ function YamahaFooter({
     navigate();
   };
 
+  const handleLegalLink = (event, path) => {
+    if (onLegal) {
+      event.preventDefault();
+      onLegal(path);
+    }
+  };
+
   return (
     <footer ref={footerRef} id="yamaha-footer" className="yamaha-footer" aria-label="Vathilai Motors footer">
       <div className="yamaha-footer__inner" ref={contentRef}>
@@ -104,6 +202,34 @@ function YamahaFooter({
           <p className="yamaha-footer__description">
             Your trusted Yamaha two-wheeler dealership in Batlagundu, offering genuine Yamaha motorcycles, expert assistance and dedicated customer support.
           </p>
+
+          {/* Dynamic Social Media Channels (Brand Column) */}
+          {visibleSocialProfiles.length > 0 && (
+            <div className="yamaha-footer__social-section" aria-label="Official Social Media Channels">
+              <span className="yamaha-footer__social-title">Official Social Channels</span>
+              <div className="yamaha-footer__social-icons-row">
+                {visibleSocialProfiles.map((p) => {
+                  const platformName = p.platform || p.name || 'Social';
+                  const link = p.profileUrl || p.url;
+                  if (!link || link === '#') return null;
+                  const slug = platformName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                  return (
+                    <a
+                      key={p.id || platformName}
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`yamaha-footer__social-btn yamaha-footer__social-btn--${slug}`}
+                      aria-label={`Follow Vathilai Motors on ${platformName}`}
+                      title={`${platformName} (${p.handle || platformName})`}
+                    >
+                      <FooterSocialIcon platform={platformName} size={18} />
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </section>
 
         {/* =========================================================
@@ -130,8 +256,7 @@ function YamahaFooter({
 
         {/* =========================================================
             SECTION 3: CONTACT INFORMATION
-            Business name, address, click-to-call button, directions, Instagram
-            No fake email or WhatsApp number.
+            Business name, address, click-to-call button, directions, Social Channels
             ========================================================= */}
         <section className="yamaha-footer__column yamaha-footer__contact" aria-labelledby="yamaha-footer-contact">
           <h2 id="yamaha-footer-contact" className="yamaha-footer__col-heading">Contact Information</h2>
@@ -173,22 +298,46 @@ function YamahaFooter({
               <span>Get Directions on Google Maps ↗</span>
             </a>
 
-            {/* Instagram link */}
-            {business.instagramUrl && (
-              <a
-                className="yamaha-footer__action-link"
-                href={business.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Follow Vathilai Motors on Instagram"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="5" />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" />
-                </svg>
-                <span>Follow on Instagram ↗</span>
-              </a>
+            {/* Dynamic Social Media Channels (Contact Column) */}
+            {visibleSocialProfiles.length > 0 ? (
+              <div className="yamaha-footer__contact-socials-block">
+                <span className="yamaha-footer__contact-socials-label">Connect Online:</span>
+                <div className="yamaha-footer__contact-socials-row">
+                  {visibleSocialProfiles.map((p) => {
+                    const platformName = p.platform || p.name || 'Social';
+                    const link = p.profileUrl || p.url;
+                    if (!link || link === '#') return null;
+                    const slug = platformName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    return (
+                      <a
+                        key={p.id || platformName}
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`yamaha-footer__contact-social-pill yamaha-footer__contact-social-pill--${slug}`}
+                        aria-label={`Follow Vathilai Motors on ${platformName}`}
+                        title={`${platformName}: ${p.handle || link}`}
+                      >
+                        <FooterSocialIcon platform={platformName} size={15} />
+                        <span>{platformName}</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              business.instagramUrl && (
+                <a
+                  className="yamaha-footer__action-link"
+                  href={business.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow Vathilai Motors on Instagram"
+                >
+                  <FooterSocialIcon platform="Instagram" size={15} />
+                  <span>Follow on Instagram ↗</span>
+                </a>
+              )
             )}
           </address>
         </section>
@@ -249,26 +398,37 @@ function YamahaFooter({
 
       {/* =========================================================
           FOOTER BOTTOM BAR
-          Copyright notice, Privacy Policy, Terms & Conditions
+          Copyright notice, Privacy Policy, Terms & Conditions, Data Deletion
           ========================================================= */}
       <div className="yamaha-footer__bottom">
         <p className="yamaha-footer__copyright">
           Copyright © {new Date().getFullYear()} {business.dealershipName}. All Rights Reserved.
         </p>
-        <div className="yamaha-footer__legal">
-          <details className="yamaha-footer__legal-item">
-            <summary>Privacy Policy</summary>
-            <p>
-              Customer contact information submitted through this website is exclusively handled by {business.dealershipName} to respond to motorcycle enquiries and booking requests. No personal details are sold or shared with unauthorized third parties.
-            </p>
-          </details>
-          <details className="yamaha-footer__legal-item">
-            <summary>Terms &amp; Conditions</summary>
-            <p>
-              Motorcycle specifications, ex-showroom and on-road prices, colour schemes, and availability are subject to official manufacturer revisions and final confirmation at the {business.dealershipName} showroom.
-            </p>
-          </details>
-        </div>
+        <nav className="yamaha-footer__legal" aria-label="Legal and Compliance Links">
+          <a
+            href="/privacy-policy"
+            onClick={(event) => handleLegalLink(event, '/privacy-policy')}
+            className="yamaha-footer__legal-link"
+          >
+            Privacy Policy
+          </a>
+          <span className="yamaha-footer__legal-sep" aria-hidden="true">•</span>
+          <a
+            href="/terms"
+            onClick={(event) => handleLegalLink(event, '/terms')}
+            className="yamaha-footer__legal-link"
+          >
+            Terms &amp; Conditions
+          </a>
+          <span className="yamaha-footer__legal-sep" aria-hidden="true">•</span>
+          <a
+            href="/data-deletion"
+            onClick={(event) => handleLegalLink(event, '/data-deletion')}
+            className="yamaha-footer__legal-link"
+          >
+            User Data Deletion
+          </a>
+        </nav>
       </div>
     </footer>
   );

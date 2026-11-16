@@ -1,0 +1,746 @@
+[
+  {
+    "id": "act-1794812001148-7884c8",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-6D2CFBC8",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T06:53:21.148Z"
+  },
+  {
+    "id": "act-1794812001145-264a43",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-6D2CFBC8",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T06:53:21.145Z"
+  },
+  {
+    "id": "act-1794802517446-fcfa13",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-887A5A08",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T04:15:17.446Z"
+  },
+  {
+    "id": "act-1794802517441-ac88b4",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-887A5A08",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T04:15:17.441Z"
+  },
+  {
+    "id": "act-1794802486279-e8109e",
+    "user": "Public Web Portal",
+    "action": "CUSTOMER_DATA_DELETION_REQUEST",
+    "target": "Phone: 9876543210",
+    "details": "{\"referenceId\":\"DEL-MWIR25MU-7268\",\"fullName\":\"Test Customer\",\"phone\":\"9876543210\",\"email\":\"test@example.com\",\"requestType\":\"full_deletion\",\"reason\":\"Testing data deletion flow\",\"status\":\"pending_verification\",\"submittedAt\":\"2026-11-16T04:14:46.278Z\"}",
+    "timestamp": "2026-11-16T04:14:46.279Z"
+  },
+  {
+    "id": "act-1794802375554-a2973a",
+    "user": "Public Web Portal",
+    "action": "CUSTOMER_DATA_DELETION_REQUEST",
+    "target": "Phone: 9841234567",
+    "details": "{\"referenceId\":\"DEL-MWIQZS5Z-2390\",\"fullName\":\"Venkatesh Kumar\",\"phone\":\"9841234567\",\"email\":\"venkatesh@example.com\",\"requestType\":\"full_deletion\",\"reason\":\"Requested privacy removal\",\"status\":\"pending_verification\",\"submittedAt\":\"2026-11-16T04:12:55.511Z\"}",
+    "timestamp": "2026-11-16T04:12:55.554Z"
+  },
+  {
+    "id": "act-1794799767692-603356",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-3EB854D8",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T03:29:27.692Z"
+  },
+  {
+    "id": "act-1794799767688-c85ac8",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-3EB854D8",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T03:29:27.688Z"
+  },
+  {
+    "id": "act-1794798578824-a303ee",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-AF10B393",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T03:09:38.824Z"
+  },
+  {
+    "id": "act-1794798578821-0ab8ec",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-AF10B393",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T03:09:38.821Z"
+  },
+  {
+    "id": "act-1794796347679-e02a1f",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-1FB637F5",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T02:32:27.679Z"
+  },
+  {
+    "id": "act-1794796347676-f9b6e6",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-1FB637F5",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T02:32:27.676Z"
+  },
+  {
+    "id": "act-1794795596615-e305cc",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-6182ADAE",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T02:19:56.615Z"
+  },
+  {
+    "id": "act-1794795596612-00e867",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-6182ADAE",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T02:19:56.612Z"
+  },
+  {
+    "id": "act-1794794694253-36a9bd",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-C03C4E70",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T02:04:54.253Z"
+  },
+  {
+    "id": "act-1794794694232-1fd470",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-C03C4E70",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T02:04:54.232Z"
+  },
+  {
+    "id": "act-1794794007066-12040f",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-580D0330",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T01:53:27.066Z"
+  },
+  {
+    "id": "act-1794794007063-68e2c5",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-580D0330",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T01:53:27.063Z"
+  },
+  {
+    "id": "act-1794791417780-faaec4",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-33B822DE",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T01:10:17.780Z"
+  },
+  {
+    "id": "act-1794791417776-dc37c3",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-33B822DE",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T01:10:17.776Z"
+  },
+  {
+    "id": "act-1794791121250-046c2e",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-713B4BED",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T01:05:21.250Z"
+  },
+  {
+    "id": "act-1794791121246-589327",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-713B4BED",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T01:05:21.246Z"
+  },
+  {
+    "id": "act-1794791075050-1a6f75",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-BCA309A5",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T01:04:35.050Z"
+  },
+  {
+    "id": "act-1794791075046-d262d3",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-BCA309A5",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T01:04:35.046Z"
+  },
+  {
+    "id": "act-1794790555418-07c149",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-D00EBB92",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-16T00:55:55.418Z"
+  },
+  {
+    "id": "act-1794790555404-5bd349",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261116-D00EBB92",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-16T00:55:55.404Z"
+  },
+  {
+    "id": "act-1794734381543-b1f683",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-F53AE291",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-15T09:19:41.543Z"
+  },
+  {
+    "id": "act-1794734381539-22a69e",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-F53AE291",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-15T09:19:41.539Z"
+  },
+  {
+    "id": "act-1794733851500-32009e",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-4BA405C1",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-15T09:10:51.500Z"
+  },
+  {
+    "id": "act-1794733851488-5f41d9",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-4BA405C1",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-15T09:10:51.488Z"
+  },
+  {
+    "id": "act-1794731087982-d89f81",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-08FF85C5",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-15T08:24:47.982Z"
+  },
+  {
+    "id": "act-1794731087829-24420f",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-08FF85C5",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-15T08:24:47.829Z"
+  },
+  {
+    "id": "act-1794730248073-60258f",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-FBAC9294",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-15T08:10:48.073Z"
+  },
+  {
+    "id": "act-1794730248069-8b9c30",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-FBAC9294",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-15T08:10:48.069Z"
+  },
+  {
+    "id": "act-1794727330479-76c70c",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-920F0B82",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-15T07:22:10.479Z"
+  },
+  {
+    "id": "act-1794727330475-36aa34",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-920F0B82",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-15T07:22:10.475Z"
+  },
+  {
+    "id": "act-1794727317527-13b722",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-CC8FAF14",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-15T07:21:57.527Z"
+  },
+  {
+    "id": "act-1794727317522-48ec6c",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-CC8FAF14",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-15T07:21:57.522Z"
+  },
+  {
+    "id": "act-1794727300179-2eed15",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-3D1DC075",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-15T07:21:40.179Z"
+  },
+  {
+    "id": "act-1794727300145-479174",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-3D1DC075",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-15T07:21:40.145Z"
+  },
+  {
+    "id": "act-1794727246806-13afc2",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-AE0DB660",
+    "details": "Status changed to converted",
+    "timestamp": "2026-11-15T07:20:46.806Z"
+  },
+  {
+    "id": "act-1794727246792-8f5777",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261115-AE0DB660",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-15T07:20:46.792Z"
+  },
+  {
+    "id": "act-1794665302381-de3cb6",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261114-1BD0C64B",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-14T14:08:22.381Z"
+  },
+  {
+    "id": "act-1794665302371-19e55f",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Motorcycle: test-yamaha-r-zero",
+    "details": "Removed from catalogue",
+    "timestamp": "2026-11-14T14:08:22.371Z"
+  },
+  {
+    "id": "act-1794665302360-7f0688",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Motorcycle: Test Yamaha R-Zero",
+    "details": "Updated catalogue specifications and pricing",
+    "timestamp": "2026-11-14T14:08:22.360Z"
+  },
+  {
+    "id": "act-1794665302344-621a17",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Motorcycle: Test Yamaha R-Zero",
+    "details": "Added to catalogue",
+    "timestamp": "2026-11-14T14:08:22.344Z"
+  },
+  {
+    "id": "act-1794665249361-bcc773",
+    "user": "Vathilai Administrator",
+    "action": "STATUS_CHANGE",
+    "target": "Booking: VM261114-1BD0C64B",
+    "details": "Status changed to contacted",
+    "timestamp": "2026-11-14T14:07:29.362Z"
+  },
+  {
+    "id": "act-1794646937644-65d681",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Site Settings",
+    "details": "Saved dealership contact info and operating hours",
+    "timestamp": "2026-11-14T09:02:17.645Z"
+  },
+  {
+    "id": "act-1794646937310-c96f69",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Review: rev-1794646937298-cecf4b",
+    "details": "Removed customer review",
+    "timestamp": "2026-11-14T09:02:17.310Z"
+  },
+  {
+    "id": "act-1794646937301-503025",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Customer Review: Praveen Kumar",
+    "details": "Added review for MT-15 V2",
+    "timestamp": "2026-11-14T09:02:17.301Z"
+  },
+  {
+    "id": "act-1794646937294-0c2637",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Social Post: post-1794646937270-d8cbef",
+    "details": "Deleted post",
+    "timestamp": "2026-11-14T09:02:17.294Z"
+  },
+  {
+    "id": "act-1794646937288-3ed396",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Social Post: instagram",
+    "details": "Created social media post",
+    "timestamp": "2026-11-14T09:02:17.288Z"
+  },
+  {
+    "id": "act-1794646937225-cce399",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Service Video: video-1794646937214-622934",
+    "details": "Removed video",
+    "timestamp": "2026-11-14T09:02:17.225Z"
+  },
+  {
+    "id": "act-1794646937218-979fd2",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Service Video: Brake Fluid Flush Procedure",
+    "details": "Added workshop service video",
+    "timestamp": "2026-11-14T09:02:17.218Z"
+  },
+  {
+    "id": "act-1794646937210-ed9553",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Motorcycle: mt-09-sp-verification",
+    "details": "Removed from catalogue",
+    "timestamp": "2026-11-14T09:02:17.210Z"
+  },
+  {
+    "id": "act-1794646937202-c4d0bd",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Motorcycle: MT-09 SP Verification",
+    "details": "Added to catalogue",
+    "timestamp": "2026-11-14T09:02:17.202Z"
+  },
+  {
+    "id": "act-1794646894698-f4b942",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Site Settings",
+    "details": "Saved dealership contact info and operating hours",
+    "timestamp": "2026-11-14T09:01:34.699Z"
+  },
+  {
+    "id": "act-1794646894683-674737",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Review: rev-1794646894530-1cd581",
+    "details": "Removed customer review",
+    "timestamp": "2026-11-14T09:01:34.683Z"
+  },
+  {
+    "id": "act-1794646894676-d129e7",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Customer Review: Praveen Kumar",
+    "details": "Added review for MT-15 V2",
+    "timestamp": "2026-11-14T09:01:34.676Z"
+  },
+  {
+    "id": "act-1794646894525-f9863d",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Social Post: post-1794646894506-fc4774",
+    "details": "Deleted post",
+    "timestamp": "2026-11-14T09:01:34.525Z"
+  },
+  {
+    "id": "act-1794646894515-66b77c",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Social Post: instagram",
+    "details": "Created social media post",
+    "timestamp": "2026-11-14T09:01:34.515Z"
+  },
+  {
+    "id": "act-1794646894495-40ff23",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Service Video: video-1794646894475-d6c4df",
+    "details": "Removed video",
+    "timestamp": "2026-11-14T09:01:34.495Z"
+  },
+  {
+    "id": "act-1794646894482-e01737",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Service Video: Brake Fluid Flush Procedure",
+    "details": "Added workshop service video",
+    "timestamp": "2026-11-14T09:01:34.482Z"
+  },
+  {
+    "id": "act-1794646869722-330e1a",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Site Settings",
+    "details": "Saved dealership contact info and operating hours",
+    "timestamp": "2026-11-14T09:01:09.722Z"
+  },
+  {
+    "id": "act-1794646869638-e1e3af",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Review: rev-1794646869624-96b0e7",
+    "details": "Removed customer review",
+    "timestamp": "2026-11-14T09:01:09.638Z"
+  },
+  {
+    "id": "act-1794646869628-71087b",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Customer Review: Praveen Kumar",
+    "details": "Added review for MT-15 V2",
+    "timestamp": "2026-11-14T09:01:09.628Z"
+  },
+  {
+    "id": "act-1794646869621-c1b8fa",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Social Post: post-1794646869611-9ab011",
+    "details": "Deleted post",
+    "timestamp": "2026-11-14T09:01:09.621Z"
+  },
+  {
+    "id": "act-1794646869615-4e41f2",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Social Post: instagram",
+    "details": "Created social media post",
+    "timestamp": "2026-11-14T09:01:09.615Z"
+  },
+  {
+    "id": "act-1794646869596-424ba5",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Service Video: video-1794646869583-c3fe32",
+    "details": "Removed video",
+    "timestamp": "2026-11-14T09:01:09.597Z"
+  },
+  {
+    "id": "act-1794646869589-d480d3",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Service Video: Brake Fluid Flush Procedure",
+    "details": "Added workshop service video",
+    "timestamp": "2026-11-14T09:01:09.589Z"
+  },
+  {
+    "id": "act-1794646808978-4f2711",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Site Settings",
+    "details": "Saved dealership contact info and operating hours",
+    "timestamp": "2026-11-14T09:00:08.978Z"
+  },
+  {
+    "id": "act-1794646808964-5db911",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Review: rev-1794646808955-af7233",
+    "details": "Removed customer review",
+    "timestamp": "2026-11-14T09:00:08.964Z"
+  },
+  {
+    "id": "act-1794646808958-25350c",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Customer Review: Praveen Kumar",
+    "details": "Added review for MT-15 V2",
+    "timestamp": "2026-11-14T09:00:08.958Z"
+  },
+  {
+    "id": "act-1794646808953-04c728",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Social Post: post-1794646808945-d40c76",
+    "details": "Deleted post",
+    "timestamp": "2026-11-14T09:00:08.953Z"
+  },
+  {
+    "id": "act-1794646808948-a6aa94",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Social Post: instagram",
+    "details": "Created social media post",
+    "timestamp": "2026-11-14T09:00:08.948Z"
+  },
+  {
+    "id": "act-1794646808942-c19cb1",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Service Video: video-1794646808932-fbb30b",
+    "details": "Removed video",
+    "timestamp": "2026-11-14T09:00:08.942Z"
+  },
+  {
+    "id": "act-1794646808936-7aabd2",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Service Video: Brake Fluid Flush Procedure",
+    "details": "Added workshop service video",
+    "timestamp": "2026-11-14T09:00:08.936Z"
+  },
+  {
+    "id": "act-1794646647649-a38e94",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Site Settings",
+    "details": "Saved dealership contact info and operating hours",
+    "timestamp": "2026-11-14T08:57:27.649Z"
+  },
+  {
+    "id": "act-1794646647507-6e08b7",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Social Post: post-1794646647314-bd478f",
+    "details": "Deleted post",
+    "timestamp": "2026-11-14T08:57:27.508Z"
+  },
+  {
+    "id": "act-1794646647492-61523f",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Social Post: instagram",
+    "details": "Created social media post",
+    "timestamp": "2026-11-14T08:57:27.493Z"
+  },
+  {
+    "id": "act-1794645714642-658bff",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Home Page Settings",
+    "details": "Saved hero slider slides and settings",
+    "timestamp": "2026-11-14T08:41:54.642Z"
+  },
+  {
+    "id": "act-1794645714593-eeab63",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Gallery: gal-1794645714585-94a86c",
+    "details": "Removed gallery item",
+    "timestamp": "2026-11-14T08:41:54.593Z"
+  },
+  {
+    "id": "act-1794645714588-47f54b",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Gallery: Test Gallery Item",
+    "details": "Added gallery media",
+    "timestamp": "2026-11-14T08:41:54.588Z"
+  },
+  {
+    "id": "act-1794645714582-4eec9a",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Social Post: post-1794645714566-c4ae81",
+    "details": "Deleted post",
+    "timestamp": "2026-11-14T08:41:54.582Z"
+  },
+  {
+    "id": "act-1794645714576-1bed3a",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Social Post: Instagram",
+    "details": "Updated post details",
+    "timestamp": "2026-11-14T08:41:54.576Z"
+  },
+  {
+    "id": "act-1794645714569-2126da",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Social Post: Instagram",
+    "details": "Created social media post",
+    "timestamp": "2026-11-14T08:41:54.569Z"
+  },
+  {
+    "id": "act-1794645714563-e2e8ff",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Review: rev-1794645714545-5702e7",
+    "details": "Removed customer review",
+    "timestamp": "2026-11-14T08:41:54.563Z"
+  },
+  {
+    "id": "act-1794645714556-3f4be9",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Customer Review: Test Reviewer",
+    "details": "Updated review details",
+    "timestamp": "2026-11-14T08:41:54.556Z"
+  },
+  {
+    "id": "act-1794645714549-820dc7",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Customer Review: Test Reviewer",
+    "details": "Added review for YZF-R15M",
+    "timestamp": "2026-11-14T08:41:54.549Z"
+  },
+  {
+    "id": "act-1794645714542-1bde49",
+    "user": "Vathilai Administrator",
+    "action": "DELETE",
+    "target": "Service Video: video-1794645714524-a4ff10",
+    "details": "Removed video",
+    "timestamp": "2026-11-14T08:41:54.542Z"
+  },
+  {
+    "id": "act-1794645714536-49ef22",
+    "user": "Vathilai Administrator",
+    "action": "UPDATE",
+    "target": "Service Video: Updated Test Service Video",
+    "details": "Updated video details",
+    "timestamp": "2026-11-14T08:41:54.536Z"
+  },
+  {
+    "id": "act-1794645714529-280449",
+    "user": "Vathilai Administrator",
+    "action": "CREATE",
+    "target": "Service Video: Test Service Video",
+    "details": "Added workshop service video",
+    "timestamp": "2026-11-14T08:41:54.529Z"
+  },
+  {
+    "id": "act-init",
+    "user": "System",
+    "action": "SYSTEM_START",
+    "target": "Database Engine",
+    "details": "Yamaha Production Admin Database initialized and operational.",
+    "timestamp": "2026-11-14T08:41:18.014Z"
+  }
+]

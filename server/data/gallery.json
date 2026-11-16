@@ -1,0 +1,67 @@
+[
+  {
+    "id": "gal-1",
+    "title": "YZF-R15M Track Heritage",
+    "category": "Motorcycles",
+    "mediaType": "image",
+    "mediaUrl": "/imgs/f1.png",
+    "altText": "Yamaha R15M Racing Edition in paddock setup",
+    "description": "Track-ready aerodynamics, carbon-look saddle, and metallic finish.",
+    "status": "published",
+    "displayOrder": 1,
+    "createdAt": "2026-11-02T10:00:00.000Z",
+    "updatedAt": "2026-11-02T10:00:00.000Z"
+  },
+  {
+    "id": "gal-2",
+    "title": "MT-15 Street Fighter Night Run",
+    "category": "Motorcycles",
+    "mediaType": "image",
+    "mediaUrl": "/imgs/f2.png",
+    "altText": "Yamaha MT-15 in dark city atmosphere",
+    "description": "Dark Side of Japan design language with twin LED position lamps.",
+    "status": "published",
+    "displayOrder": 2,
+    "createdAt": "2026-11-03T11:00:00.000Z",
+    "updatedAt": "2026-11-03T11:00:00.000Z"
+  },
+  {
+    "id": "gal-3",
+    "title": "FZ Series Urban Tour",
+    "category": "Motorcycles",
+    "mediaType": "image",
+    "mediaUrl": "/imgs/f3.png",
+    "altText": "Yamaha FZ-S City Riding in Chennai",
+    "description": "Lord of the Streets touring shot with muscular fuel tank profile.",
+    "status": "published",
+    "displayOrder": 3,
+    "createdAt": "2026-11-04T12:00:00.000Z",
+    "updatedAt": "2026-11-04T12:00:00.000Z"
+  },
+  {
+    "id": "gal-4",
+    "title": "Aerox 160 Maxi-Sports Scooter",
+    "category": "Motorcycles",
+    "mediaType": "image",
+    "mediaUrl": "/imgs/f4.png",
+    "altText": "Yamaha Aerox 155 with racing graphics",
+    "description": "Liquid-cooled 155cc performance scooter with variable valve actuation.",
+    "status": "published",
+    "displayOrder": 4,
+    "createdAt": "2026-11-05T13:00:00.000Z",
+    "updatedAt": "2026-11-05T13:00:00.000Z"
+  },
+  {
+    "id": "gal-5",
+    "title": "Vathilai Motors Certified Service Bay",
+    "category": "Workshop",
+    "mediaType": "video",
+    "mediaUrl": "/s1.mp4",
+    "altText": "Workshop service bay walkthrough",
+    "description": "Authorized service bay equipped with specialized Yamaha tools and diagnostic racks.",
+    "status": "published",
+    "displayOrder": 5,
+    "createdAt": "2026-11-06T14:00:00.000Z",
+    "updatedAt": "2026-11-06T14:00:00.000Z"
+  }
+]

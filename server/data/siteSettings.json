@@ -1,0 +1,29 @@
+{
+  "dealershipName": "Vathilai Motors",
+  "tagline": "Authorised Yamaha Dealer & Certified Service",
+  "brandDescription": "Your trusted Yamaha two-wheeler dealership in Batlagundu, offering genuine Yamaha motorcycles, expert assistance and dedicated customer support.",
+  "phone": "081444 45566",
+  "email": "",
+  "whatsapp": "",
+  "whatsappVerified": false,
+  "address": "Parimalam Theatre Complex, Main Road, Opp. Union Office Madurai, Batlagundu, Dindigul, Tamil Nadu – 624202.",
+  "instagramUrl": "https://www.instagram.com/vathilaimotors/",
+  "businessCategory": "Two-Wheeler Dealer",
+  "locality": "Batlagundu, Dindigul",
+  "postalCode": "Tamil Nadu – 624202",
+  "operatingHours": "",
+  "googleRating": 4.5,
+  "googleReviewCount": 36,
+  "googleRatingVerified": true,
+  "googleRatingSource": "Google",
+  "availableSlots": [
+    "10:00 AM – 12:00 PM (Morning Slot)",
+    "12:00 PM – 02:00 PM (Noon Slot)",
+    "02:00 PM – 04:00 PM (Afternoon Slot)",
+    "04:00 PM – 06:00 PM (Evening Slot)",
+    "06:00 PM – 08:00 PM (Late Slot)"
+  ],
+  "maintenanceMode": false,
+  "allowOnlineBookings": true,
+  "updatedAt": "2026-11-14T08:41:53.838Z"
+}

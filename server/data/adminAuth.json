@@ -1,0 +1,18 @@
+{
+  "adminUsers": [
+    {
+      "id": "adm-1",
+      "email": "yourssanjay63@gmail.com",
+      "name": "Sanjay",
+      "role": "Super Admin",
+      "passwordHash": "1dcc980c4af6a3dd92361e71659ebb694a4c657b588ae52cdb960a0c8debcf8b",
+      "salt": "ddb3985e4b1b5a18b05f72548edacf54",
+      "resetCode": null,
+      "resetExpires": null,
+      "createdAt": "2026-11-16T00:00:00.000Z",
+      "updatedAt": "2026-11-16T06:53:19.564Z",
+      "lastLogin": "2026-11-16T06:53:19.566Z"
+    }
+  ],
+  "sessions": []
+}

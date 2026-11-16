@@ -2090,6 +2090,189 @@
   flex-direction: column;
 }
 
+/* Redesigned Responsive Social Channels Grid */
+.admin-social-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.admin-social-channel-card {
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 180ms ease;
+  position: relative;
+}
+
+.admin-social-channel-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.admin-social-channel-card.is-visible {
+  border-left: 4px solid #10b981;
+}
+
+.admin-social-channel-card.is-hidden {
+  border-left: 4px solid #94a3b8;
+  background: #fcfdfe;
+}
+
+.admin-social-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-social-card__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-social-card__icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.admin-social-card__icon-box--instagram {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+}
+
+.admin-social-card__icon-box--facebook {
+  background: #1877f2;
+}
+
+.admin-social-card__icon-box--youtube {
+  background: #ff0000;
+}
+
+.admin-social-card__icon-box--xtwitter,
+.admin-social-card__icon-box--x {
+  background: #000000;
+}
+
+.admin-social-card__icon-box--whatsapp {
+  background: #25d366;
+}
+
+.admin-social-card__icon-box--linkedin {
+  background: #0a66c2;
+}
+
+.admin-social-card__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.admin-social-card__handle {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.admin-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.admin-status-badge--live {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.admin-status-badge--muted {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-social-card__url-box {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.admin-social-card__url-label {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.admin-social-card__url-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0284c7;
+  text-decoration: none;
+  font-weight: 500;
+  word-break: break-all;
+  max-width: 100%;
+}
+
+.admin-social-card__url-link:hover {
+  text-decoration: underline;
+  color: #0369a1;
+}
+
+.admin-social-card__url-empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.admin-social-card__notes {
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.admin-social-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
 .admin-social-platform-card {
   display: flex;
   align-items: center;

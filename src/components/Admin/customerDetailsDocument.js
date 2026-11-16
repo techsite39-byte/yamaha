@@ -104,27 +104,42 @@ export function createBookingDetailsDocument(booking) {
 
 export function createEnquiryDetailsDocument(enquiry) {
   const customer = enquiry.customer || {};
-  const reference = enquiry.reference ?? enquiry.id;
+  const reference = enquiry.reference ?? enquiry.enquiryId ?? enquiry.id;
+  const name = enquiry.customerName || customer.name || enquiry.name;
+  const phone = enquiry.mobileNumber || customer.phone || enquiry.phone;
+  const email = enquiry.email || customer.email;
+  const city = enquiry.city || customer.city;
+  const state = enquiry.state || customer.state;
+  const model = enquiry.motorcycleModel || enquiry.motorcycle?.model || enquiry.model;
+  const variant = enquiry.motorcycleVariant || enquiry.variant;
+  const category = enquiry.motorcycleCategory || enquiry.category;
+  const source = enquiry.source || 'motorcycle-details';
+  const preferredContact = enquiry.preferredContactMethod || customer.preferredContactMethod || 'Call';
+  const message = enquiry.message || customer.message;
+  const status = enquiry.enquiryStatus || enquiry.status || 'new';
+
   const details = [
-    ['Customer', customer.name || enquiry.name],
-    ['Phone', customer.phone || enquiry.phone],
-    ['Email', customer.email || enquiry.email],
-    ['Motorcycle', enquiry.motorcycle?.model || enquiry.model],
-    ['Variant', enquiry.variant],
-    ['City', customer.city || enquiry.city],
-    ['State', customer.state || enquiry.state],
-    ['Dealership', customer.dealership || enquiry.dealership],
-    ['Preferred contact', customer.preferredContactMethod || enquiry.preferredContactMethod],
+    ['Customer', name],
+    ['Phone', phone],
+    ['Email', email],
+    ['Motorcycle', model],
+    ['Variant', variant],
+    ['Category', category],
+    ['City', city],
+    ['State', state],
+    ['Enquiry Source', source],
+    ['Dealership', customer.dealership || enquiry.dealership || 'Vathilai Motors — Batlagundu'],
+    ['Preferred contact', preferredContact],
     ['Received', enquiry.createdAt],
-    ['Status', enquiry.status || 'new'],
-    ['Message', customer.message || enquiry.message],
+    ['Status', status],
+    ['Message', message],
   ];
 
   return createDetailsDocument({
     recordType: 'Customer enquiry',
     reference,
-    heading: customer.name || enquiry.name,
-    status: enquiry.status,
+    heading: name,
+    status,
     details,
   });
 }

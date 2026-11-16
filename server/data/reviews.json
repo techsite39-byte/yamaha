@@ -1,0 +1,38 @@
+[
+  {
+    "id": "rev-1",
+    "customerName": "Arjun Ramesh",
+    "model": "Yamaha YZF-R15 V4",
+    "rating": 5,
+    "review": "Exceptional riding posture, quick-shifter is ultra smooth, and mileage is easily 45+ km/l in Chennai city traffic. Vathilai Motors delivered on the promised date with zero hassle.",
+    "imageUrl": "/bikevid/ezgif-frame-076.webp",
+    "status": "published",
+    "displayOrder": 1,
+    "createdAt": "2026-11-01T12:00:00.000Z",
+    "updatedAt": "2026-11-01T12:00:00.000Z"
+  },
+  {
+    "id": "rev-2",
+    "customerName": "Deepak Sundaram",
+    "model": "Yamaha MT-15 V2",
+    "rating": 5,
+    "review": "Torquey low-end and incredible agility for city commutes. The workshop team at Vathilai Motors completed the first free service with thorough care and computerized diagnostics.",
+    "imageUrl": "/bikevid/ezgif-frame-080.webp",
+    "status": "published",
+    "displayOrder": 2,
+    "createdAt": "2026-11-04T15:20:00.000Z",
+    "updatedAt": "2026-11-04T15:20:00.000Z"
+  },
+  {
+    "id": "rev-3",
+    "customerName": "Karthik Subramanian",
+    "model": "Yamaha FZ-S FI Ver 4.0",
+    "rating": 4,
+    "review": "Very comfortable seat and relaxed handling for daily office rides. Great customer service, transparent on-road pricing, and clear documentation at the dealership.",
+    "imageUrl": "/bikevid/ezgif-frame-085.webp",
+    "status": "published",
+    "displayOrder": 3,
+    "createdAt": "2026-11-08T09:45:00.000Z",
+    "updatedAt": "2026-11-08T09:45:00.000Z"
+  }
+]

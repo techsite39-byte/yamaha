@@ -34,7 +34,7 @@ test('overview shortcuts and KPI cards point to their intended admin destination
     ['Completed bookings', '/admin/bookings'],
     ['Unread enquiries', '/admin/enquiries'],
     ['Customer reviews', '/admin/reviews'],
-    ['Published social posts', '/admin/social/posts'],
+    ['Published social posts', '/admin/social'],
     ['Service videos', '/admin/service-videos'],
   ]) {
     assert.match(

@@ -2,19 +2,16 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './YamahaAdmin.css';
 import { AdminIcon } from './adminIcons.jsx';
 import { navigation, pageTitles } from './adminNavigation.js';
-import { requestJson, downloadCsv, uploadMediaBinary } from './adminApi.js';
+import { requestJson, downloadCsv, uploadMediaBinary, logoutAdmin } from './adminApi.js';
 import { createBookingDetailsDocument } from './customerDetailsDocument.js';
+import YamahaAdminLogin from './YamahaAdminLogin.jsx';
 import {
   SectionIntro,
   SocialPlatformSummary,
   SocialMediaDashboard,
-  SocialPosts,
   ContactEnquiries,
   CustomerReviews,
-  GalleryManagement,
-  WebsiteContent,
   HomePageEditor,
-  WebsiteSections,
   MediaLibrary,
   AdminAnalytics,
   AdminProfileSettings,
@@ -536,13 +533,23 @@ function BookingsManagement({ bookings = [], onUpdateStatus, onDelete, onSendWha
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [selectedBooking]);
 
+  const isDummyBooking = (b) => {
+    if (!b) return true;
+    const email = String(b.customer?.email || b.email || '').toLowerCase();
+    const name = String(b.customer?.name || b.customerName || b.name || '').toLowerCase();
+    const reqId = String(b.requestId || '').toLowerCase();
+    return email.includes('example.com') || reqId.startsWith('test-') || reqId.startsWith('demo-') || name === 'vikram chandran' || name === 'priya sundaram';
+  };
+
   const filtered = useMemo(() => {
-    return bookings.filter((b) => {
-      const matchesStatus = filter === 'all' || b.status === filter;
-      const q = search.trim().toLowerCase();
-      const matchesSearch = !q || `${b.customer?.name || b.name} ${b.customer?.phone || b.phone} ${b.model || ''} ${b.reference || ''}`.toLowerCase().includes(q);
-      return matchesStatus && matchesSearch;
-    });
+    return bookings
+      .filter((b) => !isDummyBooking(b))
+      .filter((b) => {
+        const matchesStatus = filter === 'all' || b.status === filter;
+        const q = search.trim().toLowerCase();
+        const matchesSearch = !q || `${b.customer?.name || b.name} ${b.customer?.phone || b.phone} ${b.model || ''} ${b.reference || ''}`.toLowerCase().includes(q);
+        return matchesStatus && matchesSearch;
+      });
   }, [bookings, filter, search]);
 
   return (
@@ -821,7 +828,7 @@ function AdminDashboard({ overview = {}, onNavigate }) {
     { label: 'Completed bookings', value: overview.completedBookings, icon: 'bookings', path: '/admin/bookings' },
     { label: 'Unread enquiries', value: overview.unreadEnquiries, icon: 'enquiries', path: '/admin/enquiries' },
     { label: 'Customer reviews', value: overview.totalReviews, icon: 'reviews', path: '/admin/reviews' },
-    { label: 'Published social posts', value: overview.publishedSocialPosts, icon: 'social', path: '/admin/social/posts' },
+    { label: 'Published social posts', value: overview.publishedSocialPosts, icon: 'social', path: '/admin/social' },
     { label: 'Service videos', value: overview.totalServiceVideos, icon: 'videos', path: '/admin/service-videos' },
   ];
   const monthlyTrends = Array.isArray(overview.monthlyTrends) ? overview.monthlyTrends : null;
@@ -1099,8 +1106,16 @@ function AdminDashboard({ overview = {}, onNavigate }) {
   );
 }
 
+function normalizeAdminPath(rawPath) {
+  const p = (rawPath || '').replace(/\/+$/, '') || '/admin';
+  if (p === '/admin/social/posts') return '/admin/social';
+  if (p === '/admin/gallery') return '/admin/media';
+  if (p === '/admin/content' || p === '/admin/sections') return '/admin/home-page';
+  return p;
+}
+
 function YamahaAdmin() {
-  const [pathname, setPathname] = useState(() => window.location.pathname.replace(/\/+$/, '') || '/admin');
+  const [pathname, setPathname] = useState(() => normalizeAdminPath(window.location.pathname));
   const [session, setSession] = useState(null);
   const [sessionError, setSessionError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -1157,7 +1172,7 @@ function YamahaAdmin() {
   }, [reloadKey]);
 
   useEffect(() => {
-    const updatePath = () => setPathname(window.location.pathname.replace(/\/+$/, '') || '/admin');
+    const updatePath = () => setPathname(normalizeAdminPath(window.location.pathname));
     window.addEventListener('popstate', updatePath);
     return () => window.removeEventListener('popstate', updatePath);
   }, []);
@@ -1205,16 +1220,19 @@ function YamahaAdmin() {
   const navigate = (event, path) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    window.history.pushState({}, '', path);
-    setPathname(path);
+    const targetPath = normalizeAdminPath(path);
+    window.history.pushState({}, '', targetPath);
+    setPathname(targetPath);
     setQuery('');
     setSidebarOpen(false);
     window.scrollTo(0, 0);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm('Log out from Vathilai Motors Admin Panel?')) {
-      window.location.href = '/';
+      await logoutAdmin();
+      setSession({ authenticated: false, isAdmin: false });
+      setReloadKey((k) => k + 1);
     }
   };
 
@@ -1333,6 +1351,17 @@ function YamahaAdmin() {
   }
 
   if (!session) return <main className="yamaha-admin"><AdminLoading /></main>;
+
+  if (!session.authenticated || !session.isAdmin) {
+    return (
+      <YamahaAdminLogin
+        onLoginSuccess={(newSession) => {
+          setSession(newSession);
+          setReloadKey((k) => k + 1);
+        }}
+      />
+    );
+  }
 
   const currentGroup = activeNavigation?.group ?? 'Configuration';
   const groups = [...new Set(navigation.map((item) => item.group))];
@@ -1599,42 +1628,22 @@ function YamahaAdmin() {
             <SocialMediaDashboard onNavigate={(e) => navigate(e, e.currentTarget.getAttribute('href'))} />
           )}
 
-          {/* Module 6: Social Posts */}
-          {!loadingPage && pathname === '/admin/social/posts' && (
-            <SocialPosts />
-          )}
-
-          {/* Module 7: Contact & Enquiries */}
+          {/* Module 6: Contact & Enquiries */}
           {!loadingPage && pathname === '/admin/enquiries' && (
             <ContactEnquiries onNavigate={(e) => navigate(e, e.currentTarget.getAttribute('href'))} />
           )}
 
-          {/* Module 8: Customer Reviews */}
+          {/* Module 7: Customer Reviews */}
           {!loadingPage && pathname === '/admin/reviews' && (
             <CustomerReviews />
           )}
 
-          {/* Module 9: Gallery Management */}
-          {!loadingPage && pathname === '/admin/gallery' && (
-            <GalleryManagement />
-          )}
-
-          {/* Module 10: Website Content */}
-          {!loadingPage && pathname === '/admin/content' && (
-            <WebsiteContent />
-          )}
-
-          {/* Module 11: Home Page Editor */}
+          {/* Module 8: Home Page Editor */}
           {!loadingPage && pathname === '/admin/home-page' && (
             <HomePageEditor />
           )}
 
-          {/* Module 12: Website Sections */}
-          {!loadingPage && pathname === '/admin/sections' && (
-            <WebsiteSections />
-          )}
-
-          {/* Module 13: Media Library */}
+          {/* Module 9: Media Library */}
           {!loadingPage && pathname === '/admin/media' && (
             <MediaLibrary />
           )}

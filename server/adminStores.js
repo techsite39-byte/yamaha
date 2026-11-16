@@ -634,34 +634,14 @@ export const defaultSeoSettings = [
 
 export const defaultUsers = [
   {
-    id: 'usr-1',
-    name: 'Vathilai Motors Administrator',
-    email: 'admin@vathilaimotors.com',
+    id: 'adm-1',
+    name: 'Sanjay',
+    email: 'yourssanjay63@gmail.com',
     role: 'Super Admin',
-    status: 'active',
+    status: 'Active',
     lastLogin: new Date().toISOString(),
     createdAt: '2026-10-01T00:00:00.000Z',
-    updatedAt: '2026-10-01T00:00:00.000Z',
-  },
-  {
-    id: 'usr-2',
-    name: 'Showroom Sales Lead',
-    email: 'sales@vathilaimotors.com',
-    role: 'Admin',
-    status: 'active',
-    lastLogin: '2026-11-13T10:30:00.000Z',
-    createdAt: '2026-10-15T00:00:00.000Z',
-    updatedAt: '2026-10-15T00:00:00.000Z',
-  },
-  {
-    id: 'usr-3',
-    name: 'Service Manager',
-    email: 'service@vathilaimotors.com',
-    role: 'Editor',
-    status: 'active',
-    lastLogin: '2026-11-14T08:15:00.000Z',
-    createdAt: '2026-11-01T00:00:00.000Z',
-    updatedAt: '2026-11-01T00:00:00.000Z',
+    updatedAt: '2026-11-16T00:00:00.000Z',
   },
 ];
 

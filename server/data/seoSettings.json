@@ -1,0 +1,50 @@
+[
+  {
+    "id": "seo-home",
+    "page": "Homepage",
+    "path": "/",
+    "title": "Yamaha Motorcycles Chennai | Vathilai Motors Official Dealer",
+    "description": "Authorized Yamaha motorcycle dealer in Chennai. Explore YZF-R15, MT-15, FZ series with best on-road prices, test rides and service.",
+    "keywords": "yamaha chennai, vathilai motors, r15m price, mt 15 on road price chennai, yamaha showroom",
+    "ogImage": "/imgs/f1.png",
+    "canonicalUrl": "https://vathilaimotors.com/",
+    "status": "published",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "seo-bikes",
+    "page": "Motorcycle Catalogue",
+    "path": "/bikes",
+    "title": "Yamaha Motorcycle Range 2026 | Vathilai Motors Chennai",
+    "description": "Browse the complete lineup of Yamaha sport, street, and maxi-scooters. Compare technical specs, verified prices and book your test ride.",
+    "keywords": "yamaha bike catalogue, yamaha sport bikes, yamaha prices india, r15 v4 specs",
+    "ogImage": "/imgs/f2.png",
+    "canonicalUrl": "https://vathilaimotors.com/bikes",
+    "status": "published",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "seo-services",
+    "page": "Workshop & Services",
+    "path": "/services",
+    "title": "Authorised Yamaha Service Center | Vathilai Motors Chennai",
+    "description": "Certified Yamaha motorcycle maintenance, genuine Yamalube oil service, and computer diagnostics in Anna Salai, Chennai.",
+    "keywords": "yamaha service center chennai, motorcycle service, genuine yamaha parts, yamalube chennai",
+    "ogImage": "/s1.mp4",
+    "canonicalUrl": "https://vathilaimotors.com/services",
+    "status": "published",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "seo-booking",
+    "page": "Book Us",
+    "path": "/book-us",
+    "title": "Book Test Ride & Consultation | Vathilai Motors Yamaha",
+    "description": "Schedule an authorized showroom visit or test ride for your dream Yamaha motorcycle at Vathilai Motors Anna Salai.",
+    "keywords": "book yamaha test ride, yamaha showroom chennai booking, yamaha test drive slot",
+    "ogImage": "/imgs/f1.png",
+    "canonicalUrl": "https://vathilaimotors.com/book-us",
+    "status": "published",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  }
+]

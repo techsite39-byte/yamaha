@@ -1,0 +1,536 @@
+/* ===================================================================
+   VATHILAI MOTORS — PROFESSIONAL LEGAL PAGES STYLING
+   Privacy Policy, Terms & Conditions, and Data Deletion Pages
+   =================================================================== */
+
+.yamaha-legal-page {
+  position: relative;
+  min-height: calc(100svh - var(--header-height, 74px));
+  background: radial-gradient(circle at 85% 15%, rgba(14, 46, 82, 0.22) 0%, transparent 55%),
+              linear-gradient(180deg, #06090e 0%, #0a0f16 40%, #080c12 100%);
+  color: #e2e8f0;
+  padding: clamp(36px, 5vw, 64px) clamp(16px, 3.5vw, 36px) clamp(64px, 8vw, 108px);
+  font-family: Manrope, Arial, sans-serif;
+  line-height: 1.7;
+}
+
+.yamaha-legal-shell {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* 1. HERO HEADER */
+.yamaha-legal-header {
+  position: relative;
+  padding-bottom: clamp(24px, 3vw, 36px);
+  margin-bottom: clamp(32px, 4vw, 48px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.yamaha-legal-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  margin-bottom: 14px;
+}
+
+.yamaha-legal-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 2px;
+  background: #38bdf8;
+  border-radius: 2px;
+}
+
+.yamaha-legal-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(38px, 6vw, 64px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  color: #ffffff;
+  margin: 0 0 16px;
+  text-transform: uppercase;
+}
+
+.yamaha-legal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px clamp(16px, 2.5vw, 28px);
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+.yamaha-legal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 999px;
+  color: #7dd3fc;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.yamaha-legal-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
+/* Quick Nav / Table of Contents */
+.yamaha-legal-toc {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 40px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.yamaha-legal-toc-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin: 0 0 14px;
+}
+
+.yamaha-legal-toc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px 18px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.yamaha-legal-toc-link {
+  color: #cbd5e1;
+  font-size: 13px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.yamaha-legal-toc-link:hover {
+  color: #38bdf8;
+  transform: translateX(3px);
+}
+
+.yamaha-legal-toc-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  color: #0284c7;
+  font-weight: 700;
+}
+
+/* 2. BODY CONTENT SECTIONS */
+.yamaha-legal-content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(36px, 4.5vw, 52px);
+}
+
+.yamaha-legal-section {
+  position: relative;
+  scroll-margin-top: 100px;
+}
+
+.yamaha-legal-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.yamaha-legal-section-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #38bdf8;
+  line-height: 1;
+}
+
+.yamaha-legal-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(22px, 3.2vw, 30px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.yamaha-legal-prose {
+  font-size: clamp(14px, 1.15vw, 15.5px);
+  color: #cbd5e1;
+  margin: 0 0 16px;
+}
+
+.yamaha-legal-prose strong {
+  color: #ffffff;
+}
+
+.yamaha-legal-list {
+  padding-left: 20px;
+  margin: 14px 0 20px;
+  color: #cbd5e1;
+  font-size: clamp(14px, 1.15vw, 15.5px);
+}
+
+.yamaha-legal-list li {
+  margin-bottom: 10px;
+}
+
+.yamaha-legal-list li strong {
+  color: #f1f5f9;
+}
+
+/* Highlight / Callout Cards */
+.yamaha-legal-card {
+  background: linear-gradient(135deg, rgba(14, 28, 48, 0.7) 0%, rgba(8, 16, 28, 0.6) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-left: 4px solid #38bdf8;
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 22px 0;
+  backdrop-filter: blur(8px);
+}
+
+.yamaha-legal-card--whatsapp {
+  border-left-color: #25d366;
+  border-color: rgba(37, 211, 102, 0.3);
+  background: linear-gradient(135deg, rgba(10, 36, 22, 0.65) 0%, rgba(6, 20, 14, 0.65) 100%);
+}
+
+.yamaha-legal-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 10px;
+}
+
+.yamaha-legal-card-title svg {
+  flex-shrink: 0;
+}
+
+.yamaha-legal-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #cbd5e1;
+}
+
+/* Key Details Table / Grid */
+.yamaha-legal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.yamaha-legal-grid-item {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.yamaha-legal-grid-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.yamaha-legal-grid-value {
+  font-size: 14px;
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+/* Contact Address Box */
+.yamaha-legal-contact-box {
+  background: linear-gradient(135deg, rgba(8, 24, 48, 0.8) 0%, rgba(4, 12, 24, 0.7) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 14px;
+  padding: 26px 30px;
+  margin: 28px 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .yamaha-legal-contact-box {
+    grid-template-columns: 1fr;
+  }
+}
+
+.yamaha-legal-contact-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.yamaha-legal-contact-sub {
+  font-size: 12px;
+  color: #38bdf8;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.yamaha-legal-contact-details {
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.yamaha-legal-contact-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.yamaha-legal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.yamaha-legal-btn:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px);
+}
+
+.yamaha-legal-btn--outline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #e2e8f0;
+}
+
+.yamaha-legal-btn--outline:hover {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+/* 3. INTERACTIVE DATA DELETION FORM */
+.yamaha-deletion-form-card {
+  background: linear-gradient(135deg, rgba(15, 25, 42, 0.85) 0%, rgba(8, 16, 28, 0.8) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 16px;
+  padding: clamp(24px, 4vw, 36px);
+  margin: 32px 0;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.yamaha-deletion-form-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.yamaha-deletion-form-sub {
+  font-size: 13.5px;
+  color: #94a3b8;
+  margin: 0 0 24px;
+}
+
+.yamaha-deletion-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.yamaha-deletion-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.yamaha-deletion-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #cbd5e1;
+  letter-spacing: 0.04em;
+}
+
+.yamaha-deletion-field label span {
+  color: #f43f5e;
+}
+
+.yamaha-deletion-input,
+.yamaha-deletion-textarea,
+.yamaha-deletion-select {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(6, 12, 22, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.yamaha-deletion-input:focus,
+.yamaha-deletion-textarea:focus,
+.yamaha-deletion-select:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.yamaha-deletion-submit {
+  margin-top: 8px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.yamaha-deletion-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  transform: translateY(-2px);
+}
+
+.yamaha-deletion-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.yamaha-deletion-status {
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 18px;
+}
+
+.yamaha-deletion-status--success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+.yamaha-deletion-status--error {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: #fca5a5;
+}
+
+/* 4. FOOTER CROSS-LINKS */
+.yamaha-legal-crosslinks {
+  margin-top: 52px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.yamaha-legal-crosslinks-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+}
+
+.yamaha-legal-crosslink {
+  color: #38bdf8;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.yamaha-legal-crosslink:hover {
+  color: #7dd3fc;
+  transform: translateY(-1px);
+}
+
+.yamaha-legal-backhome {
+  color: #94a3b8;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.yamaha-legal-backhome:hover {
+  color: #ffffff;
+}
+
+/* Responsive Overrides */
+@media (max-width: 640px) {
+  .yamaha-legal-page {
+    padding-top: 28px;
+  }
+  .yamaha-legal-toc-grid {
+    grid-template-columns: 1fr;
+  }
+  .yamaha-legal-crosslinks {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -233,13 +233,14 @@
 .yamaha03-menu span{display:block;width:12px;height:1px;background:#101318;border-radius:999px}
 .yamaha03-showcase{display:flex;align-items:center;justify-content:space-between;gap:clamp(18px,2vw,32px);padding-top:0}
 .yamaha03-bike-line{display:flex;align-items:center;justify-content:center;gap:clamp(8px,1vw,16px);flex:1;min-width:0;height:clamp(320px,46vh,480px);padding:0}
-.yamaha03-bike-slot{display:flex;align-items:center;justify-content:center;min-width:0;height:100%;opacity:0}
-.yamaha03-bike-slot--left,.yamaha03-bike-slot--right{width:30%;z-index:0}
-.yamaha03-bike-slot--center{position:relative;width:40%;z-index:1;align-self:stretch;height:auto}
+.yamaha03-bike-slot{display:flex;align-items:center;justify-content:center;min-width:0;height:100%}
+.yamaha03-bike-slot--left,.yamaha03-bike-slot--right{width:30%;z-index:0;opacity:0}
+.yamaha03-bike-slot--center{position:relative;width:40%;z-index:1;align-self:stretch;height:auto;opacity:1}
 .yamaha03-bike-slot img{display:block;width:100%;height:100%;object-fit:contain}
 .yamaha03-bike-slot--left img,.yamaha03-bike-slot--right img{opacity:.42;transform:scale(.86)}
-.yamaha03-bike-slot--center img:not(.yamaha03-travel-bike){transform:scale(1.12)}
-.yamaha03-bike-slot--center .yamaha03-travel-bike{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;transform-origin:center center;will-change:transform,opacity;z-index:10}
+.yamaha03-landing-bike{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;transform:scale(1.08);opacity:0;transition:opacity .15s ease}
+.yamaha03-landing-bike.is-landed{opacity:1}
+.yamaha-bike-scroll-flyer{position:fixed;pointer-events:none;z-index:999;object-fit:contain;opacity:0;will-change:left,top,width,height,opacity}
 .yamaha03-card{flex:0 0 min(28vw,340px);background:linear-gradient(155deg,#0877c7 0%,#0065ad 48%,#00447f 100%);border-radius:28px;padding:clamp(22px,2vw,28px);color:#fff;box-shadow:0 30px 80px rgba(0,57,113,.18);position:relative;overflow:visible;z-index:2}
 .yamaha-section03.is-bike-travelling .yamaha03-card{z-index:3}
 .yamaha03-card::before{content:'';position:absolute;inset:0;border-radius:28px;background:linear-gradient(120deg,rgba(255,255,255,.10),transparent 30%,rgba(0,0,0,.08) 100%);pointer-events:none}
@@ -261,7 +262,7 @@
 .yamaha03-card-action span{font-size:20px;line-height:1}
 @media (max-width: 1024px){.yamaha03-shell{min-height:0}.yamaha03-showcase{flex-direction:column;align-items:stretch;gap:12px}.yamaha03-bike-line{width:100%;height:clamp(340px,52vh,520px)}.yamaha03-card{flex:0 0 auto;width:min(100%,480px);align-self:center}}
 @media (max-width: 720px){.yamaha03-shell{padding:20px 18px 32px}.yamaha03-header{flex-wrap:wrap}.yamaha03-brand-sub{flex-basis:100%;padding-left:30px}.yamaha03-nav{width:100%;justify-content:flex-end}.yamaha03-showcase{padding-top:18px}.yamaha03-bike-line{height:clamp(220px,65vw,360px);gap:4px;padding:10px 0}.yamaha03-bike-slot--left,.yamaha03-bike-slot--right{width:29%}.yamaha03-bike-slot--center{width:42%}.yamaha03-bike-slot--left img,.yamaha03-bike-slot--right img{transform:scale(.94)}.yamaha03-bike-slot--center img{transform:scale(1.08)}.yamaha03-card{width:100%;border-radius:22px;padding:22px}.yamaha03-card::before{border-radius:22px}.yamaha03-card-image{height:150px}.yamaha03-card-specs{gap:7px}}
-@media (prefers-reduced-motion: reduce){.yamaha03-bike-slot{opacity:1;transform:none}.yamaha03-card-action{transition:none}}
+@media (prefers-reduced-motion: reduce){.yamaha03-bike-slot{opacity:1;transform:none}.yamaha03-landing-bike{opacity:1}.yamaha-bike-scroll-flyer{display:none}.yamaha03-card-action{transition:none}}
 .yamaha-intro{position:fixed;z-index:10000;inset:0;display:grid;place-items:center;overflow:hidden;background:#03172f;opacity:1;animation:yamaha-intro-enter 700ms cubic-bezier(.22,.61,.36,1) both}
 .yamaha-intro__canvas{display:block;width:100%;height:100%;pointer-events:none}
 .yamaha-intro--leaving{animation:yamaha-intro-exit 700ms cubic-bezier(.4,0,.2,1) forwards;pointer-events:none}

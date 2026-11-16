@@ -1,0 +1,41 @@
+[
+  {
+    "id": "sec-1",
+    "sectionKey": "performance-spotlight",
+    "title": "Performance Spotlight",
+    "subtitle": "Racing Heritage in Every Machine",
+    "placement": "Homepage",
+    "content": "From variable valve actuation (VVA) to assist & slipper clutches and traction control, Yamaha engineering gives you unmatched control.",
+    "imageUrl": "/imgs/f1.png",
+    "status": "active",
+    "displayOrder": 1,
+    "createdAt": "2026-11-01T00:00:00.000Z",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "sec-2",
+    "sectionKey": "certified-service",
+    "title": "Certified Workshop Care",
+    "subtitle": "Factory Trained Technicians",
+    "placement": "Services",
+    "content": "Our service facility uses computerized Yamaha diagnostic systems, laser wheel alignment, and 100% genuine Yamalube lubricants.",
+    "imageUrl": "/s1.mp4",
+    "status": "active",
+    "displayOrder": 2,
+    "createdAt": "2026-11-01T00:00:00.000Z",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "sec-3",
+    "sectionKey": "dealership-network",
+    "title": "Authorised Dealership Network",
+    "subtitle": "Vathilai Motors Chennai",
+    "placement": "Footer",
+    "content": "Conveniently located at Anna Salai, Chennai with full showroom display, dedicated test ride fleet, and certified workshop bays.",
+    "imageUrl": "/imgs/f3.png",
+    "status": "active",
+    "displayOrder": 3,
+    "createdAt": "2026-11-01T00:00:00.000Z",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  }
+]

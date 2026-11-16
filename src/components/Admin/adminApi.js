@@ -4,6 +4,14 @@ export async function requestJson(path, { method = 'GET', body, headers: customH
     headers['Content-Type'] = 'application/json';
   }
 
+  if (typeof localStorage !== 'undefined') {
+    const token = localStorage.getItem('vathilai_admin_token');
+    if (token) {
+      headers['X-Admin-Token'] = token;
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
   const response = await fetch(path, {
     method,
     headers,
@@ -28,13 +36,23 @@ export async function uploadMediaBinary(file) {
     category: file.type.startsWith('video/') ? 'video' : 'image',
   });
 
+  const headers = {
+    Accept: 'application/json',
+    'Content-Type': file.type || 'application/octet-stream',
+    'X-Filename': encodeURIComponent(file.name),
+  };
+
+  if (typeof localStorage !== 'undefined') {
+    const token = localStorage.getItem('vathilai_admin_token');
+    if (token) {
+      headers['X-Admin-Token'] = token;
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
   const response = await fetch(`/api/admin/media/upload?${query.toString()}`, {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': file.type || 'application/octet-stream',
-      'X-Filename': encodeURIComponent(file.name),
-    },
+    headers,
     body: file,
     cache: 'no-store',
     credentials: 'same-origin',
@@ -45,6 +63,41 @@ export async function uploadMediaBinary(file) {
     throw new Error(result.message ?? `Upload failed with status ${response.status}`);
   }
   return result.file;
+}
+
+export async function loginAdmin({ email, password, rememberMe = false }) {
+  const result = await requestJson('/api/admin/login', {
+    method: 'POST',
+    body: { email, password, rememberMe },
+  });
+  if (result.token && typeof localStorage !== 'undefined') {
+    localStorage.setItem('vathilai_admin_token', result.token);
+  }
+  return result;
+}
+
+export async function logoutAdmin() {
+  try {
+    await requestJson('/api/admin/logout', { method: 'POST' });
+  } finally {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('vathilai_admin_token');
+    }
+  }
+}
+
+export async function requestForgotPassword({ email }) {
+  return requestJson('/api/admin/forgot-password', {
+    method: 'POST',
+    body: { email },
+  });
+}
+
+export async function submitResetPassword({ email, code, newPassword }) {
+  return requestJson('/api/admin/reset-password', {
+    method: 'POST',
+    body: { email, code, newPassword },
+  });
 }
 
 export function downloadCsv(filename, data, columns) {

@@ -173,7 +173,7 @@ function YamahaHeroSlider({ onExplore }) {
           <span aria-hidden="true">←</span>
         </button>
         <div className="yamaha-image-hero__indicators">
-          {SLIDES.map((slide, index) => (
+          {slides.map((slide, index) => (
             <button
               className={`yamaha-image-hero__indicator${index === activeSlide ? ' is-active' : ''}`}
               key={slide.src}

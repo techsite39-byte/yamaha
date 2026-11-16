@@ -1,0 +1,41 @@
+[
+  {
+    "id": "post-1",
+    "platform": "Instagram",
+    "caption": "The R-Series DNA is waiting for you. Experience the Yamaha YZF-R15M at Vathilai Motors with quickshifter and traction control. #YamahaR15M #VathilaiMotors",
+    "description": "Launch showcase campaign for R15M 2026 model.",
+    "mediaUrl": "/imgs/f1.png",
+    "postUrl": "https://www.instagram.com/p/DBYamahaR15M",
+    "scheduledAt": "",
+    "status": "published",
+    "displayOrder": 1,
+    "createdAt": "2026-11-10T10:00:00.000Z",
+    "updatedAt": "2026-11-10T10:00:00.000Z"
+  },
+  {
+    "id": "post-2",
+    "platform": "YouTube",
+    "caption": "Workshop Walkaround: Keeping your Yamaha MT-15 in peak performance condition with Yamalube Full Synthetic.",
+    "description": "Certified workshop service video release.",
+    "mediaUrl": "/s1.mp4",
+    "postUrl": "https://www.youtube.com/watch?v=yamaha-service-guide",
+    "scheduledAt": "",
+    "status": "published",
+    "displayOrder": 2,
+    "createdAt": "2026-11-11T14:30:00.000Z",
+    "updatedAt": "2026-11-11T14:30:00.000Z"
+  },
+  {
+    "id": "post-3",
+    "platform": "Facebook",
+    "caption": "Special test ride weekend at Vathilai Motors Anna Salai! Book your priority slot online and experience the Dark Side of Japan.",
+    "description": "Showroom test ride announcement campaign.",
+    "mediaUrl": "/imgs/f2.png",
+    "postUrl": "https://www.facebook.com/events/vathilai-test-ride",
+    "scheduledAt": "2026-11-20T09:00:00.000Z",
+    "status": "scheduled",
+    "displayOrder": 3,
+    "createdAt": "2026-11-12T16:00:00.000Z",
+    "updatedAt": "2026-11-12T16:00:00.000Z"
+  }
+]

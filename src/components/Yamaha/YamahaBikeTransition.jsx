@@ -81,14 +81,14 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
           }, sequenceDuration - 0.32);
         });
 
-        // The active/final motorcycle smoothly hands off to Section 03 destination
+        // The final motorcycle (Tracer 9 GT) remains active and visible at the end of Section 02
         const lastImage = images[images.length - 1];
         if (lastImage) {
           timeline.to(lastImage, {
-            autoAlpha: 0,
-            duration: 0.16,
-            ease: 'power1.in',
-          }, sequenceDuration - 0.16);
+            autoAlpha: 1,
+            duration: 0.32,
+            ease: 'none',
+          }, sequenceDuration - 0.32);
         }
       }
 

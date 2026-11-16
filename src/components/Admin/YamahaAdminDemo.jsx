@@ -65,7 +65,7 @@ function DemoDashboard({ onNavigate }) {
   const metrics = [
     { label: 'DEMO MOTORCYCLES', value: motorcycles.length, note: 'Isolated sample records', path: '/admin/motorcycles' },
     { label: 'SERVICE VIDEO PREVIEWS', value: serviceVideos.length, note: 'Existing local files', path: '/admin/service-videos' },
-    { label: 'DEMO SOCIAL POSTS', value: socialPosts.length, note: 'No external posts sent', path: '/admin/social/posts' },
+    { label: 'DEMO SOCIAL CHANNELS', value: 6, note: 'Footer links configured', path: '/admin/social' },
     { label: 'DEMO ENQUIRIES', value: enquiries.length, note: 'Fictional example.com records', path: '/admin/enquiries' },
   ];
 
@@ -94,9 +94,9 @@ function DemoDashboard({ onNavigate }) {
           </div>
           <div className="admin-quick-links">
             {[
-              ['Manage posts and profiles', '/admin/social/posts'],
+              ['Manage social channels', '/admin/social'],
               ['Review customer enquiries', '/admin/enquiries'],
-              ['Edit gallery sample items', '/admin/gallery'],
+              ['Browse media library', '/admin/media'],
               ['Manage demo users and roles', '/admin/users'],
             ].map(([label, path]) => (
               <a href={path} onClick={(event) => onNavigate(event, path)} key={path}>{label}<span>↗</span></a>

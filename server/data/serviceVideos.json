@@ -1,0 +1,80 @@
+[
+  {
+    "id": "video-s1",
+    "title": "Yamaha Certified Master Service",
+    "fileName": "s1.mp4",
+    "mediaUrl": "/s1.mp4",
+    "thumbnailUrl": "/imgs/f1.png",
+    "order": 1,
+    "status": "published",
+    "description": "Complete multipoint diagnostic and synthetic Yamalube oil service inspection.",
+    "sizeBytes": 3145728,
+    "createdAt": "2026-11-01T10:00:00.000Z",
+    "updatedAt": "2026-11-01T10:00:00.000Z"
+  },
+  {
+    "id": "video-s2",
+    "title": "Precision Engine Diagnostics & Tuning",
+    "fileName": "s2.mp4",
+    "mediaUrl": "/s2.mp4",
+    "thumbnailUrl": "/imgs/f2.png",
+    "order": 2,
+    "status": "published",
+    "description": "Yamaha Diagnostic Tool (YDT) computerized electronic systems evaluation.",
+    "sizeBytes": 2845000,
+    "createdAt": "2026-11-01T10:05:00.000Z",
+    "updatedAt": "2026-11-01T10:05:00.000Z"
+  },
+  {
+    "id": "video-s3",
+    "title": "Suspension & Chassis Alignment",
+    "fileName": "s3.mp4",
+    "mediaUrl": "/s3.mp4",
+    "thumbnailUrl": "/imgs/f3.png",
+    "order": 3,
+    "status": "published",
+    "description": "Inverted front fork rebuild, swingarm inspection, and high-speed suspension tuning.",
+    "sizeBytes": 3012000,
+    "createdAt": "2026-11-01T10:10:00.000Z",
+    "updatedAt": "2026-11-01T10:10:00.000Z"
+  },
+  {
+    "id": "video-s4",
+    "title": "Dual-Channel ABS & Brake Overhaul",
+    "fileName": "s4.mp4",
+    "mediaUrl": "/s4.mp4",
+    "thumbnailUrl": "/imgs/f4.png",
+    "order": 4,
+    "status": "published",
+    "description": "Brembo-caliper bleed, high-temperature brake fluid flush, and pad replacement.",
+    "sizeBytes": 2950000,
+    "createdAt": "2026-11-01T10:15:00.000Z",
+    "updatedAt": "2026-11-01T10:15:00.000Z"
+  },
+  {
+    "id": "video-s5",
+    "title": "EFI Fuel Injection & Throttle Calibration",
+    "fileName": "s5.mp4",
+    "mediaUrl": "/s5.mp4",
+    "thumbnailUrl": "/imgs/f1.png",
+    "order": 5,
+    "status": "published",
+    "description": "Ultrasonic injector cleaning, air-fuel sensor diagnostics, and throttle body sync.",
+    "sizeBytes": 3200000,
+    "createdAt": "2026-11-01T10:20:00.000Z",
+    "updatedAt": "2026-11-01T10:20:00.000Z"
+  },
+  {
+    "id": "video-s6",
+    "title": "Final 40-Point Pre-Delivery Quality Inspection",
+    "fileName": "s6.mp4",
+    "mediaUrl": "/s6.mp4",
+    "thumbnailUrl": "/imgs/f2.png",
+    "order": 6,
+    "status": "published",
+    "description": "Comprehensive road testing, dynamometer clearance, and final detailing.",
+    "sizeBytes": 2780000,
+    "createdAt": "2026-11-01T10:25:00.000Z",
+    "updatedAt": "2026-11-01T10:25:00.000Z"
+  }
+]

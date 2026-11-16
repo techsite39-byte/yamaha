@@ -38,6 +38,61 @@ function StatusToast({ message, type = 'success', onClose }) {
 // -------------------------------------------------------------
 // 1. SOCIAL PLATFORM SUMMARY (Dashboard Widget)
 // -------------------------------------------------------------
+export function SocialPlatformIcon({ platform, size = 18 }) {
+  const p = String(platform || '').toLowerCase();
+  if (p.includes('instagram')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+      </svg>
+    );
+  }
+  if (p.includes('facebook')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+      </svg>
+    );
+  }
+  if (p.includes('youtube')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+      </svg>
+    );
+  }
+  if (p.includes('x') || p.includes('twitter')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    );
+  }
+  if (p.includes('whatsapp')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+      </svg>
+    );
+  }
+  if (p.includes('linkedin')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+      </svg>
+    );
+  }
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" x2="22" y1="12" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
+
 export function SocialPlatformSummary({ onNavigate }) {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,22 +114,25 @@ export function SocialPlatformSummary({ onNavigate }) {
       </div>
       <div className="admin-social-platforms admin-social-platforms--compact">
         {profiles.map((p) => {
-          const isConfigured = Boolean(p.url && p.url.trim() && p.url !== '#');
+          const name = p.platform || p.name || 'Channel';
+          const url = p.profileUrl || p.url || '';
+          const isConfigured = Boolean(url && url.trim() && url !== '#');
+          const isVisible = (p.status === 'connected' || p.status === 'active') && p.showInFooter !== false && isConfigured;
           return (
             <a
               href="/admin/social"
               onClick={onNavigate}
               className="admin-social-platform"
-              key={p.platform || p.id}
-              title={isConfigured ? `${p.name}: ${p.url}` : `${p.name}: Click to configure`}
+              key={p.id || name}
+              title={isConfigured ? `${name}: ${url}` : `${name}: Click to configure`}
             >
-              <span className="admin-social-platform__mark" aria-hidden="true">
-                {(p.platform || p.name || 'SO').slice(0, 2).toUpperCase()}
+              <span className={`admin-social-platform__mark admin-social-platform__mark--${name.toLowerCase().replace(/[\s()]/g, '')}`} aria-hidden="true">
+                <SocialPlatformIcon platform={name} size={16} />
               </span>
               <span>
-                <strong>{p.name}</strong>
-                <small style={{ color: isConfigured ? '#10b981' : '#94a3b8' }}>
-                  {isConfigured ? 'Connected' : 'Click to add URL'}
+                <strong>{name}</strong>
+                <small style={{ color: isVisible ? '#10b981' : (isConfigured ? '#64748b' : '#f59e0b') }}>
+                  {isVisible ? 'Visible in Footer' : (isConfigured ? 'Hidden' : 'Add Link')}
                 </small>
               </span>
             </a>
@@ -91,20 +149,17 @@ export function SocialPlatformSummary({ onNavigate }) {
 // -------------------------------------------------------------
 export function SocialMediaDashboard({ onNavigate }) {
   const [profiles, setProfiles] = useState([]);
-  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingProfile, setEditingProfile] = useState(null);
+  const [isAddingNew, setIsAddingNew] = useState(false);
   const [toast, setToast] = useState('');
+  const [savingId, setSavingId] = useState('');
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const [profilesRes, postsRes] = await Promise.all([
-        requestJson('/api/admin/social/profiles'),
-        requestJson('/api/admin/social/posts'),
-      ]);
+      const profilesRes = await requestJson('/api/admin/social/profiles');
       if (profilesRes?.profiles) setProfiles(profilesRes.profiles);
-      if (postsRes?.posts) setPosts(postsRes.posts);
     } catch (e) {
       setToast(`Failed to load social data: ${e.message}`);
     } finally {
@@ -114,362 +169,379 @@ export function SocialMediaDashboard({ onNavigate }) {
 
   useEffect(() => { loadData(); }, []);
 
+  // Quick 1-click toggle for showing/hiding in website footer
+  const handleToggleFooterVisibility = async (p) => {
+    const isCurrentlyVisible = (p.status === 'connected' || p.status === 'active') && p.showInFooter !== false;
+    const newStatus = isCurrentlyVisible ? 'hidden' : 'connected';
+    const newShowInFooter = !isCurrentlyVisible;
+    const updated = {
+      ...p,
+      status: newStatus,
+      showInFooter: newShowInFooter,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setSavingId(p.id);
+    try {
+      await requestJson(`/api/admin/social/profiles/${encodeURIComponent(p.id)}`, {
+        method: 'PUT',
+        body: updated,
+      });
+      setProfiles((prev) => prev.map((item) => (item.id === p.id ? updated : item)));
+      setToast(`${p.platform || p.name} is now ${newShowInFooter ? 'VISIBLE in website footer' : 'HIDDEN from website footer'}.`);
+    } catch (err) {
+      setToast(`Failed to update visibility: ${err.message}`);
+    } finally {
+      setSavingId('');
+    }
+  };
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    if (!editingProfile) return;
+    const isNew = isAddingNew;
+    const cleanUrl = (editingProfile.profileUrl || editingProfile.url || '').trim();
+    if (!cleanUrl) {
+      setToast('Please provide a valid profile link.');
+      return;
+    }
+
+    const payload = {
+      ...editingProfile,
+      platform: editingProfile.platform || editingProfile.name || 'Social',
+      profileUrl: cleanUrl,
+      handle: (editingProfile.handle || '').trim(),
+      status: editingProfile.showInFooter !== false ? 'connected' : 'hidden',
+      showInFooter: editingProfile.showInFooter !== false,
+      notes: (editingProfile.notes || '').trim(),
+      updatedAt: new Date().toISOString(),
+    };
+
     try {
-      const updated = profiles.map((p) => (p.platform === editingProfile.platform ? editingProfile : p));
-      await requestJson('/api/admin/social/profiles', { method: 'PUT', body: { profiles: updated } });
-      setProfiles(updated);
+      if (isNew) {
+        payload.id = payload.id || `soc-${payload.platform.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+        payload.createdAt = new Date().toISOString();
+        await requestJson('/api/admin/social/profiles', {
+          method: 'PUT',
+          body: { profiles: [...profiles, payload] },
+        });
+        setProfiles((prev) => [...prev, payload]);
+        setToast(`Channel ${payload.platform} added successfully. Live on website footer!`);
+      } else {
+        await requestJson(`/api/admin/social/profiles/${encodeURIComponent(payload.id)}`, {
+          method: 'PUT',
+          body: payload,
+        });
+        setProfiles((prev) => prev.map((item) => (item.id === payload.id ? payload : item)));
+        setToast(`${payload.platform} updated successfully. Changes reflected on website footer!`);
+      }
       setEditingProfile(null);
-      setToast('Social profile updated successfully in database.');
+      setIsAddingNew(false);
     } catch (err) {
-      setToast(`Error saving profile: ${err.message}`);
+      setToast(`Error saving channel: ${err.message}`);
     }
   };
 
   const statusCounts = useMemo(() => {
-    const counts = { total: posts.length, draft: 0, scheduled: 0, published: 0, failed: 0 };
-    posts.forEach((p) => {
-      const s = (p.status || 'draft').toLowerCase();
-      if (counts[s] !== undefined) counts[s]++;
-    });
-    return counts;
-  }, [posts]);
+    const totalChannels = profiles.length;
+    const visibleChannels = profiles.filter((p) => {
+      const url = p.profileUrl || p.url;
+      return (p.status === 'connected' || p.status === 'active') && p.showInFooter !== false && url && url !== '#';
+    }).length;
+    const hiddenChannels = totalChannels - visibleChannels;
+    const configuredLinks = profiles.filter((p) => {
+      const url = p.profileUrl || p.url;
+      return url && url !== '#' && !url.includes('example.com');
+    }).length;
+    return { totalChannels, visibleChannels, hiddenChannels, configuredLinks };
+  }, [profiles]);
 
   return (
     <>
       <SectionIntro
         eyebrow="CHANNELS / OVERVIEW"
-        title="Social media operations"
-        description="Monitor channel profiles, publishing schedules, and campaign posts. Changes sync to the database and public site."
-        action={<a className="admin-button admin-button--primary" href="/admin/social/posts" onClick={onNavigate}>CREATE & MANAGE POSTS <span>↗</span></a>}
-      />
-
-      <StatusToast message={toast} onClose={() => setToast('')} />
-
-      <section className="admin-metrics admin-metrics--social" aria-label="Social media post totals">
-        <article className="admin-metric">
-          <span>TOTAL POSTS</span>
-          <strong>{statusCounts.total}</strong>
-          <small>In database storage</small>
-        </article>
-        <article className="admin-metric">
-          <span>PUBLISHED</span>
-          <strong style={{ color: '#10b981' }}>{statusCounts.published}</strong>
-          <small>Live on channels</small>
-        </article>
-        <article className="admin-metric">
-          <span>SCHEDULED</span>
-          <strong style={{ color: '#0284c7' }}>{statusCounts.scheduled}</strong>
-          <small>Upcoming campaigns</small>
-        </article>
-        <article className="admin-metric">
-          <span>DRAFTS</span>
-          <strong>{statusCounts.draft}</strong>
-          <small>In editorial prep</small>
-        </article>
-      </section>
-
-      <section className="admin-panel admin-social-panel">
-        <div className="admin-panel__heading">
-          <div><span className="admin-eyebrow">CHANNELS</span><h3>Platform Profiles</h3></div>
-          <span className="admin-panel__hint">{profiles.length} platforms registered</span>
-        </div>
-        <div className="admin-social-platforms">
-          {profiles.map((p) => (
-            <article className="admin-social-platform-card" key={p.platform || p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <span className="admin-social-platform__mark" aria-hidden="true" style={{ fontSize: '14px', fontWeight: 700, background: '#0f172a', color: '#fff', padding: '8px 12px', borderRadius: '6px' }}>
-                  {(p.platform || p.name).slice(0, 2).toUpperCase()}
-                </span>
-                <div>
-                  <strong style={{ fontSize: '15px', color: '#0f172a' }}>{p.name}</strong>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                    {p.url && p.url !== '#' ? <a href={p.url} target="_blank" rel="noreferrer" style={{ color: '#0284c7' }}>{p.url}</a> : 'No URL configured'}
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <span className={`admin-status-tag ${p.url && p.url !== '#' ? 'is-published' : ''}`}>
-                  {p.url && p.url !== '#' ? 'CONNECTED' : 'DISCONNECTED'}
-                </span>
-                <button type="button" className="admin-button" style={{ padding: '6px 12px', fontSize: '12px' }} onClick={() => setEditingProfile({ ...p })}>
-                  EDIT URL
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {editingProfile && (
-        <div className="admin-modal" role="dialog" aria-modal="true">
-          <div className="admin-modal__card" style={{ maxWidth: 500 }}>
-            <div className="admin-modal__heading">
-              <div><span className="admin-eyebrow">UPDATE CHANNEL</span><h3>Configure {editingProfile.name}</h3></div>
-              <button type="button" className="admin-modal__close" onClick={() => setEditingProfile(null)}>✕</button>
-            </div>
-            <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
-              <label className="admin-demo-field">
-                <span>Profile / Page URL *</span>
-                <input required type="url" value={editingProfile.url || ''} onChange={(e) => setEditingProfile({ ...editingProfile, url: e.target.value })} placeholder="https://..." />
-              </label>
-              <label className="admin-demo-field">
-                <span>Display Handle</span>
-                <input value={editingProfile.handle || ''} onChange={(e) => setEditingProfile({ ...editingProfile, handle: e.target.value })} placeholder="@vathilaimotors" />
-              </label>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
-                <button type="button" className="admin-button" onClick={() => setEditingProfile(null)}>CANCEL</button>
-                <button type="submit" className="admin-button admin-button--primary">SAVE URL</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-// -------------------------------------------------------------
-// 3. SOCIAL POSTS (/admin/social/posts)
-// -------------------------------------------------------------
-export function SocialPosts({ selectedPlatform, onSelectPlatform }) {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingPost, setEditingPost] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [toast, setToast] = useState('');
-
-  const platforms = [
-    { id: 'all', name: 'All platforms', mark: 'ALL' },
-    { id: 'instagram', name: 'Instagram', mark: 'IG' },
-    { id: 'facebook', name: 'Facebook', mark: 'FB' },
-    { id: 'youtube', name: 'YouTube', mark: 'YT' },
-    { id: 'x', name: 'X', mark: 'X' },
-    { id: 'linkedin', name: 'LinkedIn', mark: 'in' },
-  ];
-
-  const loadPosts = async () => {
-    try {
-      setLoading(true);
-      const res = await requestJson('/api/admin/social/posts');
-      if (res?.posts) setPosts(res.posts);
-    } catch (err) {
-      setToast(`Failed to load posts: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadPosts(); }, []);
-
-  const filteredPosts = useMemo(() => {
-    if (!selectedPlatform || selectedPlatform === 'all') return posts;
-    return posts.filter((p) => (p.platform || '').toLowerCase() === selectedPlatform.toLowerCase());
-  }, [posts, selectedPlatform]);
-
-  const handleSavePost = async (e) => {
-    e.preventDefault();
-    try {
-      const isNew = !editingPost.id;
-      const url = isNew ? '/api/admin/social/posts' : `/api/admin/social/posts/${editingPost.id}`;
-      const method = isNew ? 'POST' : 'PUT';
-      const res = await requestJson(url, { method, body: editingPost });
-      setToast(`Post ${isNew ? 'created' : 'updated'} successfully in database.`);
-      setEditingPost(null);
-      loadPosts();
-    } catch (err) {
-      setToast(`Error saving post: ${err.message}`);
-    }
-  };
-
-  const handleDeletePost = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this social post?')) return;
-    try {
-      await requestJson(`/api/admin/social/posts/${id}`, { method: 'DELETE' });
-      setToast('Post deleted from database.');
-      loadPosts();
-    } catch (err) {
-      setToast(`Error deleting post: ${err.message}`);
-    }
-  };
-
-  const handleMediaUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setUploading(true);
-      const uploaded = await uploadMediaBinary(file);
-      setEditingPost((prev) => ({ ...prev, mediaUrl: uploaded.url }));
-      setToast(`Uploaded ${file.name}`);
-    } catch (err) {
-      setToast(`Upload failed: ${err.message}`);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <>
-      <SectionIntro
-        eyebrow="SOCIAL / CONTENT"
-        title="Social post manager"
-        description="Create, schedule, and review social marketing posts across Instagram, Facebook, YouTube, X, and LinkedIn."
+        title="Social Media & Footer Channels"
+        description="Configure dealership social media profiles, public website footer links, and marketing campaign visibility. Any change or toggle here reflects live across the entire website."
         action={
-          <button
-            className="admin-button admin-button--primary"
-            type="button"
-            onClick={() => setEditingPost({
-              platform: selectedPlatform && selectedPlatform !== 'all' ? selectedPlatform : 'instagram',
-              title: '',
-              caption: '',
-              mediaUrl: '',
-              status: 'draft',
-              scheduledDate: new Date().toISOString().slice(0, 16),
-            })}
-          >
-            CREATE POST <span>＋</span>
-          </button>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="admin-button admin-button--primary"
+              onClick={() => {
+                setIsAddingNew(true);
+                setEditingProfile({
+                  platform: '',
+                  profileUrl: '',
+                  handle: '',
+                  status: 'connected',
+                  showInFooter: true,
+                  notes: '',
+                });
+              }}
+            >
+              + ADD CHANNEL
+            </button>
+          </div>
         }
       />
 
       <StatusToast message={toast} onClose={() => setToast('')} />
 
+      {/* Top Metrics Row */}
+      <section className="admin-metrics admin-metrics--social" aria-label="Social media channel totals">
+        <article className="admin-metric">
+          <span>TOTAL CHANNELS</span>
+          <strong>{statusCounts.totalChannels}</strong>
+          <small>Registered platforms</small>
+        </article>
+        <article className="admin-metric">
+          <span>VISIBLE IN FOOTER</span>
+          <strong style={{ color: '#10b981' }}>{statusCounts.visibleChannels}</strong>
+          <small>Active on website footer</small>
+        </article>
+        <article className="admin-metric">
+          <span>HIDDEN FROM FOOTER</span>
+          <strong style={{ color: '#64748b' }}>{statusCounts.hiddenChannels}</strong>
+          <small>Offline or draft channels</small>
+        </article>
+        <article className="admin-metric">
+          <span>DESTINATION LINKS</span>
+          <strong style={{ color: '#0284c7' }}>{statusCounts.configuredLinks}</strong>
+          <small>Configured direct URLs</small>
+        </article>
+      </section>
+
+      {/* Modern, User-Friendly Platform Profiles Card Grid */}
       <section className="admin-panel admin-social-panel">
         <div className="admin-panel__heading">
-          <div><span className="admin-eyebrow">CHANNEL FILTER</span><h3>Choose a platform</h3></div>
-          <span className="admin-panel__hint">{filteredPosts.length} posts listed</span>
-        </div>
-        <div className="admin-platform-filter" role="group" aria-label="Filter social posts by platform">
-          {platforms.map((platform) => (
-            <button
-              type="button"
-              className={`admin-platform-filter__button${selectedPlatform === platform.id ? ' is-active' : ''}`}
-              aria-pressed={selectedPlatform === platform.id}
-              key={platform.id}
-              onClick={() => onSelectPlatform(platform.id)}
-            >
-              <span aria-hidden="true">{platform.mark}</span>{platform.name}
-            </button>
-          ))}
+          <div>
+            <span className="admin-eyebrow">FOOTER & MARKETING INTEGRATION</span>
+            <h3>Platform Channels & Footer Visibility</h3>
+          </div>
+          <span className="admin-panel__hint">
+            {statusCounts.visibleChannels} of {profiles.length} showing in footer
+          </span>
         </div>
 
-        <div className="admin-table-scroll" style={{ marginTop: '20px' }}>
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Platform</th>
-                <th>Post Title & Caption</th>
-                <th>Media Preview</th>
-                <th>Scheduled / Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPosts.map((post) => (
-                <tr key={post.id}>
-                  <td>
-                    <span className="admin-status-tag" style={{ background: '#e0f2fe', color: '#0369a1', fontWeight: 700 }}>
-                      {(post.platform || 'General').toUpperCase()}
+        <div className="admin-social-cards-grid">
+          {profiles.map((p) => {
+            const platform = p.platform || p.name || 'Social';
+            const url = p.profileUrl || p.url || '';
+            const handle = p.handle || '';
+            const hasUrl = Boolean(url && url.trim() && url !== '#');
+            const isVisibleInFooter = (p.status === 'connected' || p.status === 'active') && p.showInFooter !== false && hasUrl;
+            const isSaving = savingId === p.id;
+
+            return (
+              <article
+                className={`admin-social-channel-card ${isVisibleInFooter ? 'is-visible' : 'is-hidden'}`}
+                key={p.id || platform}
+              >
+                {/* Header: Platform Mark, Name, Status Badge */}
+                <div className="admin-social-card__top">
+                  <div className="admin-social-card__brand">
+                    <span className={`admin-social-card__icon-box admin-social-card__icon-box--${platform.toLowerCase().replace(/[\s()]/g, '')}`}>
+                      <SocialPlatformIcon platform={platform} size={22} />
                     </span>
-                  </td>
-                  <td style={{ maxWidth: 300 }}>
-                    <strong>{post.title}</strong>
-                    <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {post.caption}
-                    </p>
-                  </td>
-                  <td>
-                    {post.mediaUrl ? (
-                      <img src={post.mediaUrl} alt="" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 4, border: '1px solid #cbd5e1' }} />
-                    ) : (
-                      <span style={{ color: '#94a3b8', fontSize: '12px' }}>No media</span>
-                    )}
-                  </td>
-                  <td>
-                    <small>{post.scheduledDate ? new Date(post.scheduledDate).toLocaleString() : 'Immediate'}</small>
-                  </td>
-                  <td>
-                    <span className={`admin-status-tag ${post.status === 'published' ? 'is-published' : ''}`}>
-                      {(post.status || 'draft').toUpperCase()}
-                    </span>
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button type="button" className="admin-text-button" onClick={() => setEditingPost({ ...post })}>EDIT</button>
-                      <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => handleDeletePost(post.id)}>DELETE</button>
+                    <div>
+                      <h4 className="admin-social-card__title">{platform}</h4>
+                      {handle ? (
+                        <span className="admin-social-card__handle">{handle}</span>
+                      ) : (
+                        <span className="admin-social-card__handle" style={{ color: '#94a3b8' }}>No handle</span>
+                      )}
                     </div>
-                  </td>
-                </tr>
-              ))}
-              {filteredPosts.length === 0 && (
-                <tr><td colSpan="6" className="admin-table__empty">No posts found for this platform. Click "CREATE POST" to add one.</td></tr>
-              )}
-            </tbody>
-          </table>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div>
+                    {isVisibleInFooter ? (
+                      <span className="admin-status-badge admin-status-badge--live" title="Active on public footer">
+                        ✓ VISIBLE IN FOOTER
+                      </span>
+                    ) : (
+                      <span className="admin-status-badge admin-status-badge--muted" title="Hidden from public footer">
+                        {hasUrl ? 'HIDDEN FROM FOOTER' : 'NO LINK SET'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Profile URL Link */}
+                <div className="admin-social-card__url-box">
+                  <span className="admin-social-card__url-label">DESTINATION LINK:</span>
+                  {hasUrl ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="admin-social-card__url-link"
+                      title={url}
+                    >
+                      <span>{url}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </a>
+                  ) : (
+                    <span className="admin-social-card__url-empty">No profile link configured yet</span>
+                  )}
+                </div>
+
+                {/* Notes or description if any */}
+                {p.notes && (
+                  <p className="admin-social-card__notes">
+                    {p.notes}
+                  </p>
+                )}
+
+                {/* Card Action Buttons */}
+                <div className="admin-social-card__actions">
+                  {/* Toggle Visibility */}
+                  <button
+                    type="button"
+                    className={`admin-button admin-button--sm ${isVisibleInFooter ? 'admin-button--secondary' : 'admin-button--primary'}`}
+                    disabled={isSaving || !hasUrl}
+                    onClick={() => handleToggleFooterVisibility(p)}
+                    title={!hasUrl ? 'Please configure a URL first' : (isVisibleInFooter ? 'Hide from footer' : 'Show in footer')}
+                  >
+                    {isSaving ? 'Updating...' : (isVisibleInFooter ? '👁 Hide from Footer' : '✓ Show in Footer')}
+                  </button>
+
+                  {/* Edit Channel Details */}
+                  <button
+                    type="button"
+                    className="admin-button admin-button--secondary admin-button--sm"
+                    onClick={() => {
+                      setIsAddingNew(false);
+                      setEditingProfile({
+                        ...p,
+                        platform,
+                        profileUrl: url,
+                        handle,
+                        showInFooter: p.showInFooter !== false,
+                      });
+                    }}
+                  >
+                    Configure
+                  </button>
+
+                  {/* Test link */}
+                  {hasUrl && (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="admin-text-button"
+                      style={{ fontSize: '12px', padding: '4px 6px' }}
+                    >
+                      Test Link ↗
+                    </a>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 
-      {editingPost && (
-        <div className="admin-modal" role="dialog" aria-modal="true">
-          <div className="admin-modal__card" style={{ maxWidth: 600 }}>
+      {/* Modal for Editing / Adding Social Channel */}
+      {editingProfile && (
+        <div className="admin-modal" role="dialog" aria-modal="true" onMouseDown={(e) => { if (e.target === e.currentTarget) setEditingProfile(null); }}>
+          <div className="admin-modal__card" style={{ maxWidth: 540 }}>
             <div className="admin-modal__heading">
-              <div><span className="admin-eyebrow">POST EDITOR</span><h3>{editingPost.id ? 'Edit Social Post' : 'Create New Post'}</h3></div>
-              <button type="button" className="admin-modal__close" onClick={() => setEditingPost(null)}>✕</button>
+              <div>
+                <span className="admin-eyebrow">{isAddingNew ? 'ADD NEW CHANNEL' : 'CONFIGURE CHANNEL'}</span>
+                <h3>{editingProfile.platform || 'Social Channel'}</h3>
+              </div>
+              <button type="button" className="admin-modal__close" onClick={() => setEditingProfile(null)} aria-label="Close modal">✕</button>
             </div>
-            <form onSubmit={handleSavePost} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <label className="admin-demo-field">
-                  <span>Platform *</span>
-                  <select value={editingPost.platform || 'instagram'} onChange={(e) => setEditingPost({ ...editingPost, platform: e.target.value })}>
-                    <option value="instagram">Instagram</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="youtube">YouTube</option>
-                    <option value="x">X / Twitter</option>
-                    <option value="linkedin">LinkedIn</option>
-                  </select>
-                </label>
-                <label className="admin-demo-field">
-                  <span>Publish Status *</span>
-                  <select value={editingPost.status || 'draft'} onChange={(e) => setEditingPost({ ...editingPost, status: e.target.value })}>
-                    <option value="draft">Draft</option>
-                    <option value="scheduled">Scheduled</option>
-                    <option value="published">Published</option>
-                    <option value="failed">Failed</option>
-                  </select>
-                </label>
-              </div>
+
+            <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
               <label className="admin-demo-field">
-                <span>Post Title / Headline *</span>
-                <input required value={editingPost.title || ''} onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })} placeholder="e.g. Pure Racing DNA — Yamaha R15M Delivery" />
+                <span>Platform Name *</span>
+                <input
+                  required
+                  type="text"
+                  value={editingProfile.platform || ''}
+                  onChange={(e) => setEditingProfile({ ...editingProfile, platform: e.target.value })}
+                  placeholder="e.g. Instagram, Facebook, YouTube, WhatsApp"
+                  disabled={!isAddingNew}
+                />
               </label>
+
               <label className="admin-demo-field">
-                <span>Caption / Text Content *</span>
-                <textarea required rows="4" value={editingPost.caption || ''} onChange={(e) => setEditingPost({ ...editingPost, caption: e.target.value })} placeholder="Write your post caption, tags and hashtags here..." />
+                <span>Profile / Page Direct URL *</span>
+                <input
+                  required
+                  type="url"
+                  value={editingProfile.profileUrl || editingProfile.url || ''}
+                  onChange={(e) => setEditingProfile({ ...editingProfile, profileUrl: e.target.value, url: e.target.value })}
+                  placeholder="https://www.instagram.com/vathilaimotors/"
+                />
+                <small style={{ color: '#64748b', fontSize: '11px', marginTop: '3px' }}>
+                  Visitors will be directed to this link when clicking the social icon in the website footer.
+                </small>
               </label>
+
               <label className="admin-demo-field">
-                <span>Scheduled Date & Time</span>
-                <input type="datetime-local" value={editingPost.scheduledDate ? editingPost.scheduledDate.slice(0, 16) : ''} onChange={(e) => setEditingPost({ ...editingPost, scheduledDate: e.target.value })} />
+                <span>Display Username or Handle</span>
+                <input
+                  type="text"
+                  value={editingProfile.handle || ''}
+                  onChange={(e) => setEditingProfile({ ...editingProfile, handle: e.target.value })}
+                  placeholder="@vathilaimotors or 081444 45566"
+                />
               </label>
-              <div className="admin-catalogue-section">
-                <span className="admin-eyebrow">POST MEDIA (IMAGE / VIDEO)</span>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '6px' }}>
-                  <input style={{ flex: 1 }} value={editingPost.mediaUrl || ''} onChange={(e) => setEditingPost({ ...editingPost, mediaUrl: e.target.value })} placeholder="/imgs/uploads/... or external URL" />
-                  <label className="admin-button" style={{ cursor: 'pointer', padding: '8px 14px', fontSize: '12px' }}>
-                    {uploading ? 'UPLOADING…' : 'UPLOAD FILE'}
-                    <input type="file" accept="image/*,video/*" style={{ display: 'none' }} disabled={uploading} onChange={handleMediaUpload} />
-                  </label>
+
+              {/* Show in Footer Toggle Box */}
+              <div style={{
+                background: '#f8fafc',
+                border: '1px solid #cbd5e1',
+                borderRadius: '8px',
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px'
+              }}>
+                <div>
+                  <strong style={{ display: 'block', fontSize: '14px', color: '#0f172a' }}>
+                    Show in Website Footer
+                  </strong>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    When checked, the {editingProfile.platform || 'platform'} icon will appear in the footer.
+                  </span>
                 </div>
-                {editingPost.mediaUrl && (
-                  <div style={{ marginTop: '10px' }}>
-                    <img src={editingPost.mediaUrl} alt="" style={{ maxHeight: 120, borderRadius: 6, border: '1px solid #e2e8f0' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                  </div>
-                )}
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', margin: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={editingProfile.showInFooter !== false}
+                    onChange={(e) => setEditingProfile({ ...editingProfile, showInFooter: e.target.checked })}
+                    style={{ width: '20px', height: '20px', accentColor: '#0284c7', cursor: 'pointer' }}
+                  />
+                </label>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
-                <button type="button" className="admin-button" onClick={() => setEditingPost(null)}>CANCEL</button>
-                <button type="submit" className="admin-button admin-button--primary">SAVE TO DATABASE</button>
+
+              <label className="admin-demo-field">
+                <span>Channel Description / Staff Notes</span>
+                <textarea
+                  rows="2"
+                  value={editingProfile.notes || ''}
+                  onChange={(e) => setEditingProfile({ ...editingProfile, notes: e.target.value })}
+                  placeholder="e.g. Official deliveries and rider photos..."
+                />
+              </label>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+                <button type="button" className="admin-button admin-button--secondary" onClick={() => setEditingProfile(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="admin-button admin-button--primary">
+                  Save &amp; Sync to Footer
+                </button>
               </div>
             </form>
           </div>
@@ -479,13 +551,15 @@ export function SocialPosts({ selectedPlatform, onSelectPlatform }) {
   );
 }
 
+
 // -------------------------------------------------------------
-// 4. CONTACT & ENQUIRIES (/admin/enquiries)
+// 3. CONTACT & ENQUIRIES (/admin/enquiries)
 // -------------------------------------------------------------
 export function ContactEnquiries() {
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [notesDraft, setNotesDraft] = useState('');
@@ -500,11 +574,26 @@ export function ContactEnquiries() {
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [selectedEnquiry]);
 
+  const isDummyRecord = (item) => {
+    if (!item) return true;
+    const email = String(item.email || item.customer?.email || '').toLowerCase();
+    const name = String(item.customerName || item.customer?.name || item.name || '').toLowerCase();
+    const reqId = String(item.requestId || '').toLowerCase();
+    return email.includes('example.com') || reqId.startsWith('test-') || reqId.startsWith('demo-') || name === 'vikram chandran' || name === 'priya sundaram';
+  };
+
   const loadEnquiries = async () => {
     try {
       setLoading(true);
-      const res = await requestJson('/api/admin/enquiries');
-      if (res?.enquiries) setEnquiries(res.enquiries);
+      const res = await requestJson('/api/admin/enquiries?source=all');
+      const list = Array.isArray(res?.enquiries) ? res.enquiries : (Array.isArray(res?.all) ? res.all : []);
+      // Strictly exclude any booking records and dummy/mock data
+      const realEnquiries = list.filter((item) => {
+        if (item.source === 'booking' || item.type === 'booking') return false;
+        if (isDummyRecord(item)) return false;
+        return true;
+      });
+      setEnquiries(realEnquiries);
     } catch (err) {
       setToast(`Failed to load enquiries: ${err.message}`);
     } finally {
@@ -516,18 +605,33 @@ export function ContactEnquiries() {
 
   const filteredEnquiries = useMemo(() => {
     return enquiries.filter((item) => {
-      const matchStatus = statusFilter === 'all' || item.status === statusFilter;
+      // 1. Strictly exclude bookings from the Contact & Enquiries page
+      if (item.source === 'booking' || item.type === 'booking') return false;
+
+      // 2. Strictly exclude dummy/mock seed records
+      if (isDummyRecord(item)) return false;
+
+      const itemStatus = item.enquiryStatus || item.status || 'new';
+      const itemSource = item.source || 'motorcycle-details';
+
+      const matchStatus = statusFilter === 'all' || itemStatus === statusFilter;
+      const matchSource = sourceFilter === 'all' ||
+        (sourceFilter === 'motorcycle-details' && (itemSource === 'motorcycle-details' || (!item.source && item.type === 'enquiry'))) ||
+        (sourceFilter === 'general-contact' && itemSource === 'general-contact');
+
       const q = search.trim().toLowerCase();
       const matchSearch = !q ||
-        (item.reference || '').toLowerCase().includes(q) ||
-        (item.customer?.name || item.name || '').toLowerCase().includes(q) ||
+        (item.reference || item.enquiryId || '').toLowerCase().includes(q) ||
+        (item.customer?.name || item.customerName || item.name || '').toLowerCase().includes(q) ||
         (item.customer?.email || item.email || '').toLowerCase().includes(q) ||
-        (item.customer?.phone || item.phone || '').toLowerCase().includes(q) ||
-        (item.motorcycle?.model || item.model || '').toLowerCase().includes(q) ||
-        (item.message || '').toLowerCase().includes(q);
-      return matchStatus && matchSearch;
+        (item.customer?.phone || item.mobileNumber || item.phone || '').toLowerCase().includes(q) ||
+        (item.motorcycle?.model || item.motorcycleModel || item.model || '').toLowerCase().includes(q) ||
+        (item.city || item.customer?.city || '').toLowerCase().includes(q) ||
+        (item.message || item.customer?.message || '').toLowerCase().includes(q);
+
+      return matchStatus && matchSource && matchSearch;
     });
-  }, [enquiries, search, statusFilter]);
+  }, [enquiries, search, statusFilter, sourceFilter]);
 
   const updateStatus = async (ref, newStatus) => {
     try {
@@ -536,9 +640,9 @@ export function ContactEnquiries() {
         body: { status: newStatus },
       });
       setToast(`Enquiry ${ref} updated to ${newStatus}`);
-      setEnquiries((prev) => prev.map((e) => (e.reference === ref ? { ...e, status: newStatus } : e)));
-      if (selectedEnquiry && selectedEnquiry.reference === ref) {
-        setSelectedEnquiry((prev) => ({ ...prev, status: newStatus }));
+      setEnquiries((prev) => prev.map((e) => ((e.reference === ref || e.enquiryId === ref) ? { ...e, status: newStatus, enquiryStatus: newStatus } : e)));
+      if (selectedEnquiry && (selectedEnquiry.reference === ref || selectedEnquiry.enquiryId === ref)) {
+        setSelectedEnquiry((prev) => ({ ...prev, status: newStatus, enquiryStatus: newStatus }));
       }
     } catch (err) {
       setToast(`Failed to update status: ${err.message}`);
@@ -552,7 +656,7 @@ export function ContactEnquiries() {
         body: { notes: notesDraft },
       });
       setToast('Staff notes saved successfully.');
-      setEnquiries((prev) => prev.map((e) => (e.reference === ref ? { ...e, notes: notesDraft } : e)));
+      setEnquiries((prev) => prev.map((e) => ((e.reference === ref || e.enquiryId === ref) ? { ...e, notes: notesDraft } : e)));
       if (selectedEnquiry) {
         setSelectedEnquiry((prev) => ({ ...prev, notes: notesDraft }));
       }
@@ -578,15 +682,18 @@ export function ContactEnquiries() {
       `vathilai_enquiries_${new Date().toISOString().slice(0, 10)}.csv`,
       filteredEnquiries,
       [
-        { label: 'Reference', key: 'reference' },
-        { label: 'Name', getter: (r) => r.customer?.name || r.name || '' },
-        { label: 'Phone', getter: (r) => r.customer?.phone || r.phone || '' },
-        { label: 'Email', getter: (r) => r.customer?.email || r.email || '' },
-        { label: 'Model', getter: (r) => r.motorcycle?.model || r.model || '' },
-        { label: 'City', getter: (r) => r.customer?.city || r.city || '' },
-        { label: 'Status', key: 'status' },
+        { label: 'Reference / Enquiry ID', getter: (r) => r.enquiryId || r.reference || '' },
+        { label: 'Name', getter: (r) => r.customerName || r.customer?.name || r.name || '' },
+        { label: 'Mobile Number', getter: (r) => r.mobileNumber || r.customer?.phone || r.phone || '' },
+        { label: 'Email', getter: (r) => r.email || r.customer?.email || '' },
+        { label: 'City', getter: (r) => r.city || r.customer?.city || '' },
+        { label: 'Motorcycle Model', getter: (r) => r.motorcycleModel || r.motorcycle?.model || r.model || '' },
+        { label: 'Variant', getter: (r) => r.motorcycleVariant || r.variant || '' },
+        { label: 'Preferred Contact Method', getter: (r) => r.preferredContactMethod || r.customer?.preferredContactMethod || 'Call' },
+        { label: 'Enquiry Source', getter: (r) => r.source || 'motorcycle-details' },
+        { label: 'Status', getter: (r) => r.enquiryStatus || r.status || 'new' },
         { label: 'Date', key: 'createdAt' },
-        { label: 'Message', key: 'message' },
+        { label: 'Message', getter: (r) => r.message || r.customer?.message || '' },
         { label: 'Staff Notes', key: 'notes' },
       ]
     );
@@ -613,37 +720,51 @@ export function ContactEnquiries() {
           <span className="admin-panel__hint">{filteredEnquiries.length} of {enquiries.length} total</span>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
           <label className="admin-search" style={{ flex: 1, minWidth: 240 }}>
             <span className="sr-only">Search enquiries</span>
             <input
-              placeholder="Search reference, customer name, phone, model..."
+              placeholder="Search reference, customer name, phone, model, city..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
-          >
-            <option value="all">All Statuses</option>
-            <option value="new">New</option>
-            <option value="contacted">Contacted</option>
-            <option value="follow-up">Follow-up</option>
-            <option value="converted">Converted</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <select
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value)}
+              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff' }}
+              aria-label="Filter by enquiry source"
+            >
+              <option value="all">All Enquiries</option>
+              <option value="motorcycle-details">Motorcycle Details</option>
+              <option value="general-contact">General Contact</option>
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#fff' }}
+              aria-label="Filter by enquiry status"
+            >
+              <option value="all">All Statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="converted">Converted</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
         </div>
 
         <div className="admin-table-scroll">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Reference</th>
+                <th>Reference ID</th>
                 <th>Customer</th>
-                <th>Motorcycle</th>
-                <th>City / Date</th>
+                <th>Motorcycle Model</th>
+                <th>City / Contact</th>
+                <th>Source</th>
                 <th>Status</th>
                 <th>Staff Notes</th>
                 <th>Actions</th>
@@ -651,26 +772,49 @@ export function ContactEnquiries() {
             </thead>
             <tbody>
               {filteredEnquiries.map((item) => {
-                const ref = item.reference || item.id;
-                const name = item.customer?.name || item.name || 'Anonymous';
-                const phone = item.customer?.phone || item.phone || '';
-                const email = item.customer?.email || item.email || '';
-                const bike = item.motorcycle?.model || item.model || 'General Inquiry';
+                const ref = item.enquiryId || item.reference || item.id;
+                const name = item.customerName || item.customer?.name || item.name || 'Customer';
+                const phone = item.mobileNumber || item.customer?.phone || item.phone || '';
+                const email = item.email || item.customer?.email || '';
+                const bike = item.motorcycleModel || item.motorcycle?.model || item.model || 'Yamaha Motorcycle';
+                const city = item.city || item.customer?.city || 'Batlagundu';
+                const contactMethod = item.preferredContactMethod || item.customer?.preferredContactMethod || 'Call';
+                const source = item.source || (item.type === 'booking' ? 'booking' : 'motorcycle-details');
                 const date = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—';
-                const status = item.status || 'new';
+                const status = item.enquiryStatus || item.status || 'new';
 
                 return (
                   <tr key={ref}>
-                    <td><code>{ref}</code></td>
+                    <td>
+                      <code>{ref}</code>
+                      <small style={{ display: 'block', color: '#64748b' }}>{date}</small>
+                    </td>
                     <td>
                       <strong>{name}</strong>
                       {phone && <small style={{ display: 'block' }}><a href={`tel:${phone}`}>{phone}</a></small>}
                       {email && <small style={{ display: 'block', color: '#64748b' }}>{email}</small>}
                     </td>
-                    <td><strong>{bike}</strong></td>
                     <td>
-                      <div>{item.customer?.city || item.city || 'Salem'}</div>
-                      <small style={{ color: '#64748b' }}>{date}</small>
+                      <strong>{bike}</strong>
+                      {item.motorcycleVariant && <small style={{ display: 'block', color: '#64748b' }}>{item.motorcycleVariant}</small>}
+                    </td>
+                    <td>
+                      <div>{city}</div>
+                      <small style={{ color: '#0369a1', fontWeight: 600 }}>Via {contactMethod}</small>
+                    </td>
+                    <td>
+                      <span
+                        className="admin-badge"
+                        style={{
+                          fontSize: '11px',
+                          textTransform: 'uppercase',
+                          background: source === 'motorcycle-details' ? '#eff6ff' : (source === 'booking' ? '#f0fdf4' : '#f8fafc'),
+                          color: source === 'motorcycle-details' ? '#1d4ed8' : (source === 'booking' ? '#15803d' : '#475569'),
+                          borderColor: source === 'motorcycle-details' ? '#bfdbfe' : (source === 'booking' ? '#bbf7d0' : '#e2e8f0'),
+                        }}
+                      >
+                        {source === 'motorcycle-details' ? 'Motorcycle Details' : (source === 'booking' ? 'Booking' : 'General Contact')}
+                      </span>
                     </td>
                     <td>
                       <select
@@ -680,12 +824,12 @@ export function ContactEnquiries() {
                       >
                         <option value="new">New</option>
                         <option value="contacted">Contacted</option>
-                        <option value="follow-up">Follow-up</option>
+                        <option value="confirmed">Confirmed</option>
                         <option value="converted">Converted</option>
                         <option value="cancelled">Cancelled</option>
                       </select>
                     </td>
-                    <td style={{ maxWidth: 200, fontSize: '12px', color: '#475569' }}>
+                    <td style={{ maxWidth: 180, fontSize: '12px', color: '#475569' }}>
                       {item.notes ? item.notes : <span style={{ color: '#94a3b8' }}>None</span>}
                     </td>
                     <td>
@@ -715,7 +859,7 @@ export function ContactEnquiries() {
                 );
               })}
               {filteredEnquiries.length === 0 && (
-                <tr><td colSpan="7" className="admin-table__empty">No customer enquiries found matching criteria.</td></tr>
+                <tr><td colSpan="8" className="admin-table__empty">No customer enquiries found matching criteria.</td></tr>
               )}
             </tbody>
           </table>
@@ -739,7 +883,7 @@ export function ContactEnquiries() {
             <div className="admin-modal__heading">
               <div>
                 <span className="admin-eyebrow">ENQUIRY DETAILS</span>
-                <h3 id="enquiry-details-title">{selectedEnquiry.customer?.name || selectedEnquiry.name || selectedEnquiry.reference || 'Customer enquiry'}</h3>
+                <h3 id="enquiry-details-title">{selectedEnquiry.customerName || selectedEnquiry.customer?.name || selectedEnquiry.name || selectedEnquiry.reference || 'Customer enquiry'}</h3>
               </div>
               <button
                 type="button"
@@ -753,27 +897,28 @@ export function ContactEnquiries() {
             </div>
 
             <div className="admin-enquiry-contact-actions">
-              {(selectedEnquiry.customer?.phone || selectedEnquiry.phone) && (
+              {(selectedEnquiry.mobileNumber || selectedEnquiry.customer?.phone || selectedEnquiry.phone) && (
                 <>
                   <a
-                    href={`tel:${selectedEnquiry.customer?.phone || selectedEnquiry.phone}`}
+                    href={`tel:${selectedEnquiry.mobileNumber || selectedEnquiry.customer?.phone || selectedEnquiry.phone}`}
                     className="admin-button admin-button--primary admin-button--sm"
                   >
-                    CALL
+                    CALL CUSTOMER
                   </a>
                   <a
-                    href={`https://wa.me/91${(selectedEnquiry.customer?.phone || selectedEnquiry.phone).replace(/\D/g, '')}?text=${encodeURIComponent(`Hello ${selectedEnquiry.customer?.name || selectedEnquiry.name}, this is Vathilai Motors following up on your enquiry for ${selectedEnquiry.motorcycle?.model || selectedEnquiry.model || 'Yamaha motorcycle'}.`)}`}
+                    href={`https://wa.me/91${String(selectedEnquiry.mobileNumber || selectedEnquiry.customer?.phone || selectedEnquiry.phone).replace(/\D/g, '').replace(/^0+/, '').replace(/^91/, '')}?text=${encodeURIComponent(`Hello ${selectedEnquiry.customerName || selectedEnquiry.customer?.name || selectedEnquiry.name || 'Customer'}, thank you for contacting Vathilai Motors regarding the ${selectedEnquiry.motorcycleModel || selectedEnquiry.motorcycle?.model || selectedEnquiry.model || 'Yamaha motorcycle'}. Our team is ready to assist you.`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="admin-button admin-button--secondary admin-button--sm"
+                    style={{ background: '#25D366', color: '#fff', borderColor: '#25D366' }}
                   >
                     WHATSAPP
                   </a>
                 </>
               )}
-              {(selectedEnquiry.customer?.email || selectedEnquiry.email) && (
+              {(selectedEnquiry.email || selectedEnquiry.customer?.email) && (
                 <a
-                  href={`mailto:${selectedEnquiry.customer?.email || selectedEnquiry.email}?subject=${encodeURIComponent(`Vathilai Motors — Enquiry for ${selectedEnquiry.motorcycle?.model || selectedEnquiry.model || 'Yamaha motorcycle'}`)}`}
+                  href={`mailto:${selectedEnquiry.email || selectedEnquiry.customer?.email}?subject=${encodeURIComponent(`Vathilai Motors — Enquiry for ${selectedEnquiry.motorcycleModel || selectedEnquiry.motorcycle?.model || selectedEnquiry.model || 'Yamaha Motorcycle'}`)}`}
                   className="admin-button admin-button--secondary admin-button--sm"
                 >
                   EMAIL
@@ -783,7 +928,7 @@ export function ContactEnquiries() {
 
             <iframe
               className="admin-enquiry-details-frame"
-              title={`Enquiry details for ${selectedEnquiry.customer?.name || selectedEnquiry.name || 'customer'}`}
+              title={`Enquiry details for ${selectedEnquiry.customerName || selectedEnquiry.customer?.name || selectedEnquiry.name || 'customer'}`}
               sandbox=""
               srcDoc={createEnquiryDetailsDocument(selectedEnquiry)}
             />
@@ -798,17 +943,19 @@ export function ContactEnquiries() {
                   placeholder="Record staff call notes, customer requirements, quotation details..."
                 />
               </label>
-              <button
-                type="button"
-                className="admin-button admin-button--secondary admin-button--sm"
-                onClick={() => saveNotes(selectedEnquiry.reference)}
-              >
-                SAVE STAFF NOTES
-              </button>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '8px' }}>
+                <button
+                  type="button"
+                  className="admin-button admin-button--primary admin-button--sm"
+                  onClick={() => saveNotes(selectedEnquiry.enquiryId || selectedEnquiry.reference)}
+                >
+                  Save Notes
+                </button>
+              </div>
             </div>
 
-            <div className="admin-enquiry-modal-actions">
-              <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => deleteEnquiry(selectedEnquiry.reference)}>
+            <div className="admin-enquiry-modal-actions" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
+              <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => deleteEnquiry(selectedEnquiry.enquiryId || selectedEnquiry.reference)}>
                 DELETE ENQUIRY
               </button>
               <button type="button" className="admin-button admin-button--secondary admin-button--sm" onClick={() => setSelectedEnquiry(null)}>
@@ -1088,443 +1235,10 @@ export function CustomerReviews() {
   );
 }
 
-// -------------------------------------------------------------
-// 6. GALLERY MANAGEMENT (/admin/gallery)
-// -------------------------------------------------------------
-export function GalleryManagement() {
-  const [items, setItems] = useState([]);
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [editingItem, setEditingItem] = useState(null);
-  const [selectedGalleryItem, setSelectedGalleryItem] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [toast, setToast] = useState('');
 
-  useEffect(() => {
-    if (!selectedGalleryItem) return undefined;
-    const closeOnEscape = (event) => {
-      if (event.key === 'Escape') setSelectedGalleryItem(null);
-    };
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [selectedGalleryItem]);
-
-  const loadGallery = async () => {
-    try {
-      setLoading(true);
-      const res = await requestJson('/api/admin/gallery');
-      if (res?.items) setItems(res.items);
-    } catch (err) {
-      setToast(`Failed to load gallery: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadGallery(); }, []);
-
-  const filteredItems = useMemo(() => {
-    if (categoryFilter === 'all') return items;
-    return items.filter((item) => (item.category || '').toLowerCase() === categoryFilter.toLowerCase());
-  }, [items, categoryFilter]);
-
-  const handleSaveItem = async (e) => {
-    e.preventDefault();
-    try {
-      const isNew = !editingItem.id;
-      const url = isNew ? '/api/admin/gallery' : `/api/admin/gallery/${editingItem.id}`;
-      const method = isNew ? 'POST' : 'PUT';
-      await requestJson(url, { method, body: editingItem });
-      setToast(`Gallery item ${isNew ? 'added' : 'updated'}.`);
-      setEditingItem(null);
-      loadGallery();
-    } catch (err) {
-      setToast(`Error saving gallery item: ${err.message}`);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this image from the gallery?')) return;
-    try {
-      await requestJson(`/api/admin/gallery/${id}`, { method: 'DELETE' });
-      setToast('Gallery item removed.');
-      loadGallery();
-    } catch (err) {
-      setToast(`Error deleting item: ${err.message}`);
-    }
-  };
-
-  const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setUploading(true);
-      const uploaded = await uploadMediaBinary(file);
-      setEditingItem((prev) => ({
-        ...prev,
-        imageUrl: uploaded.url,
-        title: prev?.title || file.name.replace(/\.[^/.]+$/, ''),
-      }));
-      setToast(`Uploaded ${file.name}`);
-    } catch (err) {
-      setToast(`Upload failed: ${err.message}`);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <>
-      <SectionIntro
-        eyebrow="WEBSITE / ASSET LIBRARY"
-        title="Gallery Management"
-        description="Organize showroom photography, track events, and customer delivery moments stored in database."
-        action={
-          <button
-            className="admin-button admin-button--primary"
-            type="button"
-            onClick={() => setEditingItem({
-              title: '',
-              category: 'Showroom',
-              imageUrl: '',
-              caption: '',
-              featured: false,
-            })}
-          >
-            ADD TO GALLERY <span>＋</span>
-          </button>
-        }
-      />
-
-      <StatusToast message={toast} onClose={() => setToast('')} />
-
-      <section className="admin-panel admin-gallery-panel">
-        <div className="admin-panel__heading">
-          <div><span className="admin-eyebrow">GALLERY INVENTORY</span><h3>Image Assets</h3></div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {['all', 'Showroom', 'Events', 'Deliveries', 'Service'].map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                className={`admin-platform-filter__button ${categoryFilter === cat.toLowerCase() || (cat === 'all' && categoryFilter === 'all') ? 'is-active' : ''}`}
-                onClick={() => setCategoryFilter(cat === 'all' ? 'all' : cat.toLowerCase())}
-                style={{ padding: '4px 10px', fontSize: '12px' }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px', marginTop: '16px' }}>
-          {filteredItems.map((item) => (
-            <article key={item.id} style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'relative', height: 160, background: '#0f172a' }}>
-                <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = '/imgs/f1.png'; }} />
-                <span className="admin-status-tag" style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(0,0,0,0.7)', color: '#fff' }}>
-                  {item.category}
-                </span>
-                {item.featured && (
-                  <span className="admin-status-tag is-published" style={{ position: 'absolute', top: 8, right: 8 }}>
-                    FEATURED
-                  </span>
-                )}
-              </div>
-              <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <strong style={{ fontSize: '14px', display: 'block', color: '#0f172a' }}>{item.title}</strong>
-                  {item.caption && <small style={{ color: '#64748b', display: 'block', marginTop: '4px' }}>{item.caption}</small>}
-                </div>
-                <div className="admin-gallery-card-actions">
-                  <button type="button" className="admin-button admin-button--secondary admin-button--sm" onClick={() => setSelectedGalleryItem(item)} aria-label={`View ${item.title || 'gallery image'}`}>
-                    View
-                  </button>
-                  <button type="button" className="admin-text-button" onClick={() => setEditingItem({ ...item })}>EDIT</button>
-                  <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => handleDelete(item.id)}>DELETE</button>
-                </div>
-              </div>
-            </article>
-          ))}
-          {filteredItems.length === 0 && (
-            <div style={{ gridColumn: '1 / -1', padding: '32px', textAlign: 'center', color: '#64748b' }}>
-              No images found in this category. Click "ADD TO GALLERY" to add images.
-            </div>
-          )}
-        </div>
-      </section>
-
-      {selectedGalleryItem && (
-        <div
-          className="admin-modal"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSelectedGalleryItem(null);
-          }}
-        >
-          <section
-            className="admin-modal__card admin-gallery-details-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gallery-details-title"
-          >
-            <div className="admin-modal__heading">
-              <div>
-                <span className="admin-eyebrow">GALLERY IMAGE</span>
-                <h3 id="gallery-details-title">{selectedGalleryItem.title || 'Gallery image details'}</h3>
-              </div>
-              <button
-                type="button"
-                className="admin-modal__close"
-                onClick={() => setSelectedGalleryItem(null)}
-                aria-label="Close gallery details"
-                autoFocus
-              >
-                ✕
-              </button>
-            </div>
-            <iframe
-              className="admin-gallery-details-frame"
-              title={`Gallery details for ${selectedGalleryItem.title || 'image'}`}
-              sandbox=""
-              srcDoc={createGalleryDetailsDocument(selectedGalleryItem)}
-            />
-          </section>
-        </div>
-      )}
-
-      {editingItem && (
-        <div className="admin-modal" role="dialog" aria-modal="true">
-          <div className="admin-modal__card" style={{ maxWidth: 540 }}>
-            <div className="admin-modal__heading">
-              <div><span className="admin-eyebrow">GALLERY ASSET</span><h3>{editingItem.id ? 'Edit Gallery Item' : 'Add Image to Gallery'}</h3></div>
-              <button type="button" className="admin-modal__close" onClick={() => setEditingItem(null)}>✕</button>
-            </div>
-            <form onSubmit={handleSaveItem} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
-              <label className="admin-demo-field">
-                <span>Title *</span>
-                <input required value={editingItem.title || ''} onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })} placeholder="e.g. Salem Showroom Display" />
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <label className="admin-demo-field">
-                  <span>Category</span>
-                  <select value={editingItem.category || 'Showroom'} onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}>
-                    <option value="Showroom">Showroom</option>
-                    <option value="Events">Events</option>
-                    <option value="Deliveries">Deliveries</option>
-                    <option value="Service">Service</option>
-                  </select>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', paddingTop: '24px' }}>
-                  <input type="checkbox" checked={editingItem.featured || false} onChange={(e) => setEditingItem({ ...editingItem, featured: e.target.checked })} />
-                  <span>Featured image</span>
-                </label>
-              </div>
-              <div className="admin-catalogue-section">
-                <span className="admin-eyebrow">IMAGE FILE OR URL *</span>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                  <input required style={{ flex: 1 }} value={editingItem.imageUrl || ''} onChange={(e) => setEditingItem({ ...editingItem, imageUrl: e.target.value })} placeholder="/imgs/... or https://..." />
-                  <label className="admin-button" style={{ cursor: 'pointer', padding: '8px 14px', fontSize: '12px' }}>
-                    {uploading ? 'UPLOADING…' : 'UPLOAD'}
-                    <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading} onChange={handleFileUpload} />
-                  </label>
-                </div>
-              </div>
-              <label className="admin-demo-field">
-                <span>Caption</span>
-                <input value={editingItem.caption || ''} onChange={(e) => setEditingItem({ ...editingItem, caption: e.target.value })} placeholder="Optional description..." />
-              </label>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
-                <button type="button" className="admin-button" onClick={() => setEditingItem(null)}>CANCEL</button>
-                <button type="submit" className="admin-button admin-button--primary">SAVE IMAGE</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
 
 // -------------------------------------------------------------
-// 7. WEBSITE CONTENT (/admin/content)
-// -------------------------------------------------------------
-export function WebsiteContent() {
-  const [contentItems, setContentItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingContent, setEditingContent] = useState(null);
-  const [selectedContent, setSelectedContent] = useState(null);
-  const [toast, setToast] = useState('');
-
-  useEffect(() => {
-    if (!selectedContent) return undefined;
-    const closeOnEscape = (event) => {
-      if (event.key === 'Escape') setSelectedContent(null);
-    };
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [selectedContent]);
-
-  const loadContent = async () => {
-    try {
-      setLoading(true);
-      const res = await requestJson('/api/admin/content');
-      if (res?.content) setContentItems(res.content);
-    } catch (err) {
-      setToast(`Failed to load content: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadContent(); }, []);
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    try {
-      await requestJson(`/api/admin/content/${encodeURIComponent(editingContent.key)}`, {
-        method: 'PUT',
-        body: { value: editingContent.value, label: editingContent.label, section: editingContent.section },
-      });
-      setToast(`Saved content for "${editingContent.label || editingContent.key}".`);
-      setEditingContent(null);
-      loadContent();
-    } catch (err) {
-      setToast(`Error saving content: ${err.message}`);
-    }
-  };
-
-  return (
-    <>
-      <SectionIntro
-        eyebrow="WEBSITE / PUBLISHING"
-        title="Website Content Management"
-        description="Edit public website headlines, promotional copy, dealership announcements, and contact information directly in the database."
-      />
-
-      <StatusToast message={toast} onClose={() => setToast('')} />
-
-      <section className="admin-panel admin-table-panel">
-        <div className="admin-panel__heading">
-          <div><span className="admin-eyebrow">DATABASE CONTENT STRINGS</span><h3>Public Content Blocks</h3></div>
-          <span className="admin-panel__hint">{contentItems.length} editable blocks</span>
-        </div>
-
-        <div className="admin-table-scroll">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Section</th>
-                <th>Label / Key</th>
-                <th>Current Value</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contentItems.map((item) => (
-                <tr key={item.key}>
-                  <td><span className="admin-status-tag">{item.section || 'General'}</span></td>
-                  <td>
-                    <strong>{item.label || item.key}</strong>
-                    <code style={{ display: 'block', fontSize: '11px', color: '#64748b' }}>{item.key}</code>
-                  </td>
-                  <td style={{ maxWidth: 400 }}>
-                    <p style={{ margin: 0, fontSize: '13px', color: '#1e293b' }}>{item.value}</p>
-                  </td>
-                  <td>
-                    <div className="admin-booking-actions">
-                      <button
-                        type="button"
-                        className="admin-button admin-button--secondary admin-button--sm"
-                        onClick={() => setSelectedContent(item)}
-                        aria-label={`View ${item.label || item.key}`}
-                      >
-                        View
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-button admin-button--secondary admin-button--sm"
-                        onClick={() => setEditingContent({ ...item })}
-                      >
-                        EDIT TEXT
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {selectedContent && (
-        <div
-          className="admin-modal"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSelectedContent(null);
-          }}
-        >
-          <section
-            className="admin-modal__card admin-content-details-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="content-details-title"
-          >
-            <div className="admin-modal__heading">
-              <div>
-                <span className="admin-eyebrow">WEBSITE CONTENT</span>
-                <h3 id="content-details-title">{selectedContent.label || selectedContent.key}</h3>
-              </div>
-              <button
-                type="button"
-                className="admin-modal__close"
-                onClick={() => setSelectedContent(null)}
-                aria-label="Close content details"
-                autoFocus
-              >
-                ✕
-              </button>
-            </div>
-            <iframe
-              className="admin-content-details-frame"
-              title={`Website content details for ${selectedContent.label || selectedContent.key}`}
-              sandbox=""
-              srcDoc={createWebsiteContentDetailsDocument(selectedContent)}
-            />
-          </section>
-        </div>
-      )}
-
-      {editingContent && (
-        <div className="admin-modal" role="dialog" aria-modal="true">
-          <div className="admin-modal__card" style={{ maxWidth: 560 }}>
-            <div className="admin-modal__heading">
-              <div><span className="admin-eyebrow">EDIT CONTENT</span><h3>{editingContent.label || editingContent.key}</h3></div>
-              <button type="button" className="admin-modal__close" onClick={() => setEditingContent(null)}>✕</button>
-            </div>
-            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
-              <label className="admin-demo-field">
-                <span>Field Label</span>
-                <input value={editingContent.label || ''} onChange={(e) => setEditingContent({ ...editingContent, label: e.target.value })} />
-              </label>
-              <label className="admin-demo-field">
-                <span>Content Value *</span>
-                <textarea required rows="5" value={editingContent.value || ''} onChange={(e) => setEditingContent({ ...editingContent, value: e.target.value })} />
-              </label>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
-                <button type="button" className="admin-button" onClick={() => setEditingContent(null)}>CANCEL</button>
-                <button type="submit" className="admin-button admin-button--primary">SAVE TO DATABASE</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-// -------------------------------------------------------------
-// 8. HOME PAGE EDITOR (/admin/home-page)
+// 5. HOME PAGE EDITOR (/admin/home-page)
 // -------------------------------------------------------------
 export function HomePageEditor() {
   const [homeConfig, setHomeConfig] = useState({
@@ -1748,149 +1462,9 @@ export function HomePageEditor() {
   );
 }
 
-// -------------------------------------------------------------
-// 9. WEBSITE SECTIONS (/admin/sections)
-// -------------------------------------------------------------
-export function WebsiteSections() {
-  const [sections, setSections] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSection, setSelectedSection] = useState(null);
-  const [toast, setToast] = useState('');
-
-  useEffect(() => {
-    if (!selectedSection) return undefined;
-    const closeOnEscape = (event) => {
-      if (event.key === 'Escape') setSelectedSection(null);
-    };
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [selectedSection]);
-
-  const loadSections = async () => {
-    try {
-      setLoading(true);
-      const res = await requestJson('/api/admin/sections');
-      if (res?.sections) setSections(res.sections);
-    } catch (err) {
-      setToast(`Failed to load sections: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadSections(); }, []);
-
-  const toggleSection = async (sec) => {
-    try {
-      const updated = { ...sec, enabled: !sec.enabled };
-      await requestJson(`/api/admin/sections/${sec.id}`, { method: 'PUT', body: updated });
-      setSections((prev) => prev.map((s) => (s.id === sec.id ? updated : s)));
-      setToast(`Section "${sec.title}" ${updated.enabled ? 'enabled' : 'hidden'}.`);
-    } catch (err) {
-      setToast(`Failed to toggle section: ${err.message}`);
-    }
-  };
-
-  return (
-    <>
-      <SectionIntro
-        eyebrow="WEBSITE / LAYOUT"
-        title="Website Sections & Components"
-        description="Enable or disable homepage modules, showroom highlights, service promotions, and customer reviews."
-      />
-
-      <StatusToast message={toast} onClose={() => setToast('')} />
-
-      <section className="admin-panel admin-table-panel">
-        <div className="admin-panel__heading">
-          <div><span className="admin-eyebrow">SECTIONS</span><h3>Page Modules</h3></div>
-          <span className="admin-panel__hint">{sections.length} registered sections</span>
-        </div>
-
-        <div className="admin-table-scroll">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Section Title</th>
-                <th>Order</th>
-                <th>Description</th>
-                <th>Visibility</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sections.map((sec) => (
-                <tr key={sec.id}>
-                  <td><strong>{sec.title}</strong></td>
-                  <td><code>{sec.order ?? 1}</code></td>
-                  <td style={{ color: '#64748b', fontSize: '13px' }}>{sec.subtitle || 'Active section'}</td>
-                  <td>
-                    <span className={`admin-status-tag ${sec.enabled ? 'is-published' : ''}`}>
-                      {sec.enabled ? 'VISIBLE' : 'HIDDEN'}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="admin-booking-actions">
-                      <button
-                        type="button"
-                        className="admin-button admin-button--secondary admin-button--sm"
-                        onClick={() => setSelectedSection(sec)}
-                        aria-label={`View ${sec.title} section`}
-                      >
-                        View
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-button admin-button--secondary admin-button--sm"
-                        onClick={() => toggleSection(sec)}
-                      >
-                        {sec.enabled ? 'HIDE SECTION' : 'SHOW SECTION'}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {selectedSection && (
-        <div
-          className="admin-modal"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSelectedSection(null);
-          }}
-        >
-          <section
-            className="admin-modal__card admin-website-section-details-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="website-section-details-title"
-          >
-            <div className="admin-modal__heading">
-              <div>
-                <span className="admin-eyebrow">WEBSITE SECTION</span>
-                <h3 id="website-section-details-title">{selectedSection.title || 'Section details'}</h3>
-              </div>
-              <button type="button" className="admin-modal__close" onClick={() => setSelectedSection(null)} aria-label="Close section details" autoFocus>✕</button>
-            </div>
-            <iframe
-              className="admin-website-section-details-frame"
-              title={`Website section details for ${selectedSection.title || 'section'}`}
-              sandbox=""
-              srcDoc={createWebsiteSectionDetailsDocument(selectedSection)}
-            />
-          </section>
-        </div>
-      )}
-    </>
-  );
-}
 
 // -------------------------------------------------------------
-// 10. MEDIA LIBRARY (/admin/media)
+// 6. MEDIA LIBRARY (/admin/media)
 // -------------------------------------------------------------
 export function MediaLibrary() {
   const [media, setMedia] = useState([]);
@@ -2175,10 +1749,10 @@ export function AdminAnalytics({ overview }) {
 // -------------------------------------------------------------
 export function AdminProfileSettings({ user, developmentAccess = false }) {
   const [profile, setProfile] = useState({
-    name: user?.name || 'Vathilai Motors Administrator',
-    email: user?.email || 'admin@vathilaimotors.com',
-    phone: '+91 98765 43210',
-    role: 'Super Administrator',
+    name: user?.name || 'Sanjay',
+    email: user?.email || 'yourssanjay63@gmail.com',
+    phone: '081444 45566',
+    role: user?.role || 'Super Admin',
   });
   const [toast, setToast] = useState('');
 
@@ -2348,9 +1922,11 @@ export function SeoSettings() {
 // -------------------------------------------------------------
 // 14. USERS & ROLES (/admin/users)
 // -------------------------------------------------------------
-export function UsersManagement() {
+export function UsersManagement({ currentUser }) {
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState('');
 
   const loadUsers = async () => {
@@ -2364,26 +1940,75 @@ export function UsersManagement() {
 
   useEffect(() => { loadUsers(); }, []);
 
+  const handleOpenAdd = () => {
+    setShowPassword(false);
+    setEditingUser({
+      name: '',
+      email: '',
+      password: '',
+      role: 'Admin',
+      status: 'Active',
+    });
+  };
+
+  const handleOpenEdit = (u) => {
+    setShowPassword(false);
+    setEditingUser({
+      ...u,
+      password: '', // Blank by default when editing
+    });
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!editingUser) return;
+
+    const isNew = !editingUser.id;
+    if (isNew && (!editingUser.password || editingUser.password.length < 6)) {
+      setToast('Password is required and must be at least 6 characters.');
+      return;
+    }
+    if (!isNew && editingUser.password && editingUser.password.length < 6) {
+      setToast('New password must be at least 6 characters.');
+      return;
+    }
+
+    setSaving(true);
     try {
-      const isNew = !editingUser.id;
       const url = isNew ? '/api/admin/users' : `/api/admin/users/${editingUser.id}`;
       const method = isNew ? 'POST' : 'PUT';
-      await requestJson(url, { method, body: editingUser });
-      setToast(`User ${isNew ? 'created' : 'updated'}.`);
+      const body = {
+        name: editingUser.name.trim(),
+        email: editingUser.email.trim(),
+        role: editingUser.role,
+        status: editingUser.status,
+      };
+      if (editingUser.password) {
+        body.password = editingUser.password;
+      }
+
+      await requestJson(url, { method, body });
+      setToast(`Administrator account ${isNew ? 'created' : 'updated'} successfully.`);
       setEditingUser(null);
-      loadUsers();
+      await loadUsers();
     } catch (err) {
-      setToast(`Error saving user: ${err.message}`);
+      setToast(`Error saving administrator: ${err.message}`);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this administrator account?')) return;
+  const handleDelete = async (u) => {
+    if (u.email?.toLowerCase() === 'yourssanjay63@gmail.com') {
+      alert('The primary Super Administrator account cannot be deleted.');
+      return;
+    }
+    if (!window.confirm(`Permanently remove administrator account for "${u.name}" (${u.email})? They will immediately lose admin portal access.`)) {
+      return;
+    }
     try {
-      await requestJson(`/api/admin/users/${id}`, { method: 'DELETE' });
-      setToast('User deleted.');
+      await requestJson(`/api/admin/users/${u.id}`, { method: 'DELETE' });
+      setToast('Administrator account removed.');
       loadUsers();
     } catch (err) {
       setToast(`Error deleting user: ${err.message}`);
@@ -2400,7 +2025,7 @@ export function UsersManagement() {
           <button
             className="admin-button admin-button--primary"
             type="button"
-            onClick={() => setEditingUser({ name: '', email: '', role: 'Editor', status: 'Active' })}
+            onClick={handleOpenAdd}
           >
             ADD USER <span>＋</span>
           </button>
@@ -2412,35 +2037,91 @@ export function UsersManagement() {
       <section className="admin-panel admin-table-panel">
         <div className="admin-panel__heading">
           <div><span className="admin-eyebrow">PORTAL ACCESS</span><h3>Authorized Accounts</h3></div>
-          <span className="admin-panel__hint">{users.length} accounts</span>
+          <span className="admin-panel__hint">{users.length} {users.length === 1 ? 'account' : 'accounts'}</span>
         </div>
 
         <div className="admin-table-scroll">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
+                <th>Administrator</th>
+                <th>Email Address</th>
                 <th>Role</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td><strong>{u.name}</strong></td>
-                  <td><code>{u.email}</code></td>
-                  <td><span className="admin-status-tag" style={{ background: '#f1f5f9', color: '#0f172a' }}>{u.role}</span></td>
-                  <td><span className="admin-status-tag is-published">{u.status || 'Active'}</span></td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button type="button" className="admin-text-button" onClick={() => setEditingUser({ ...u })}>EDIT</button>
-                      <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => handleDelete(u.id)}>DELETE</button>
-                    </div>
-                  </td>
+              {users.map((u) => {
+                const isPrimary = u.email?.toLowerCase() === 'yourssanjay63@gmail.com';
+                const isSuspended = u.status?.toLowerCase() === 'suspended';
+                return (
+                  <tr key={u.id}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          background: isPrimary ? '#0879D1' : '#0F172A',
+                          color: '#FFFFFF',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: '700',
+                          fontSize: '13px',
+                          flexShrink: 0,
+                        }}>
+                          {(u.name || 'A').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <strong>{u.name}</strong>
+                          {isPrimary && (
+                            <span style={{ marginLeft: '6px', fontSize: '10px', background: 'rgba(8, 121, 209, 0.15)', color: '#0879D1', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>
+                              PRIMARY SUPER ADMIN
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td><code>{u.email}</code></td>
+                    <td>
+                      <span className="admin-status-tag" style={{
+                        background: u.role === 'Super Admin' ? '#0F172A' : u.role === 'Admin' ? '#E0F2FE' : '#F1F5F9',
+                        color: u.role === 'Super Admin' ? '#38BDF8' : u.role === 'Admin' ? '#0369A1' : '#334155',
+                        border: u.role === 'Super Admin' ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
+                        fontWeight: '600',
+                      }}>
+                        {u.role}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`admin-status-tag ${isSuspended ? 'is-rejected' : 'is-published'}`}>
+                        {isSuspended ? '● Suspended' : '● Active'}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button type="button" className="admin-text-button" onClick={() => handleOpenEdit(u)}>
+                          EDIT
+                        </button>
+                        {!isPrimary ? (
+                          <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => handleDelete(u)}>
+                            DELETE
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', padding: '4px 6px' }}>Locked</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="admin-table__empty">No administrator accounts found.</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -2448,40 +2129,109 @@ export function UsersManagement() {
 
       {editingUser && (
         <div className="admin-modal" role="dialog" aria-modal="true">
-          <div className="admin-modal__card" style={{ maxWidth: 480 }}>
+          <div className="admin-modal__card" style={{ maxWidth: 500 }}>
             <div className="admin-modal__heading">
-              <div><span className="admin-eyebrow">ACCOUNT</span><h3>{editingUser.id ? 'Edit User' : 'Add New Administrator'}</h3></div>
-              <button type="button" className="admin-modal__close" onClick={() => setEditingUser(null)}>✕</button>
+              <div>
+                <span className="admin-eyebrow">PORTAL ACCESS</span>
+                <h3>{editingUser.id ? `Edit Administrator: ${editingUser.name || 'User'}` : 'Add New Administrator'}</h3>
+              </div>
+              <button type="button" className="admin-modal__close" onClick={() => setEditingUser(null)} disabled={saving}>✕</button>
             </div>
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
               <label className="admin-demo-field">
                 <span>Full Name *</span>
-                <input required value={editingUser.name || ''} onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })} />
+                <input
+                  required
+                  placeholder="e.g. Sanjay, Rajesh Kumar"
+                  value={editingUser.name || ''}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  disabled={saving}
+                />
               </label>
+
               <label className="admin-demo-field">
                 <span>Email Address *</span>
-                <input required type="email" value={editingUser.email || ''} onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })} />
+                <input
+                  required
+                  type="email"
+                  placeholder="admin@dealership.com"
+                  value={editingUser.email || ''}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  disabled={saving}
+                />
               </label>
+
+              <label className="admin-demo-field">
+                <span>
+                  {editingUser.id ? 'Change Password (optional)' : 'Login Password *'}
+                </span>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    required={!editingUser.id}
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder={editingUser.id ? 'Leave blank to keep existing password' : 'At least 6 characters (e.g. admin123#)'}
+                    value={editingUser.password || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
+                    disabled={saving}
+                    style={{ width: '100%', paddingRight: '48px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      background: 'none',
+                      border: 'none',
+                      color: '#0879D1',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                    }}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? 'HIDE' : 'SHOW'}
+                  </button>
+                </div>
+                <small style={{ color: '#64748b', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+                  {editingUser.id
+                    ? 'Only fill this if you want to change this administrator’s password.'
+                    : 'The user will use this email & password to sign in to /admin.'}
+                </small>
+              </label>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <label className="admin-demo-field">
-                  <span>Role</span>
-                  <select value={editingUser.role || 'Editor'} onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}>
+                  <span>Portal Role</span>
+                  <select
+                    value={editingUser.role || 'Admin'}
+                    onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                    disabled={saving}
+                  >
                     <option value="Super Admin">Super Admin</option>
+                    <option value="Admin">Admin</option>
                     <option value="Editor">Editor</option>
                     <option value="Support">Support</option>
                   </select>
                 </label>
                 <label className="admin-demo-field">
-                  <span>Status</span>
-                  <select value={editingUser.status || 'Active'} onChange={(e) => setEditingUser({ ...editingUser, status: e.target.value })}>
-                    <option value="Active">Active</option>
-                    <option value="Suspended">Suspended</option>
+                  <span>Account Status</span>
+                  <select
+                    value={editingUser.status || 'Active'}
+                    onChange={(e) => setEditingUser({ ...editingUser, status: e.target.value })}
+                    disabled={saving}
+                  >
+                    <option value="Active">Active (Permit Login)</option>
+                    <option value="Suspended">Suspended (Block Login)</option>
                   </select>
                 </label>
               </div>
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
-                <button type="button" className="admin-button" onClick={() => setEditingUser(null)}>CANCEL</button>
-                <button type="submit" className="admin-button admin-button--primary">SAVE USER</button>
+                <button type="button" className="admin-button" onClick={() => setEditingUser(null)} disabled={saving}>CANCEL</button>
+                <button type="submit" className="admin-button admin-button--primary" disabled={saving}>
+                  {saving ? 'SAVING…' : editingUser.id ? 'UPDATE ADMINISTRATOR' : 'CREATE ADMINISTRATOR'}
+                </button>
               </div>
             </form>
           </div>

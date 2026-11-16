@@ -1,0 +1,41 @@
+[
+  {
+    "id": "cnt-1",
+    "key": "hero-headline",
+    "title": "Homepage Hero Headline",
+    "section": "Homepage",
+    "body": "REVS YOUR HEART — PURE YAMAHA ENGINEERING",
+    "imageUrl": "/imgs/f1.png",
+    "ctaText": "BOOK A TEST RIDE",
+    "ctaLink": "/book-us",
+    "status": "published",
+    "createdAt": "2026-11-01T00:00:00.000Z",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "cnt-2",
+    "key": "service-headline",
+    "title": "Services Page Heading",
+    "section": "Services",
+    "body": "PRECISION WORKSHOP CARE & YAMAHA GENUINE PARTS",
+    "imageUrl": "/s1.mp4",
+    "ctaText": "SCHEDULE SERVICE",
+    "ctaLink": "/book-us",
+    "status": "published",
+    "createdAt": "2026-11-01T00:00:00.000Z",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "cnt-3",
+    "key": "dealership-about",
+    "title": "About Vathilai Motors",
+    "section": "About",
+    "body": "Premier authorized Yamaha dealership in Chennai delivering genuine motorcycles, factory-certified maintenance, transparent on-road pricing, and dedicated customer support.",
+    "imageUrl": "/imgs/bgsec2.png",
+    "ctaText": "VISIT DEALERSHIP",
+    "ctaLink": "/#yamaha-footer",
+    "status": "published",
+    "createdAt": "2026-11-01T00:00:00.000Z",
+    "updatedAt": "2026-11-01T00:00:00.000Z"
+  }
+]

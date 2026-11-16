@@ -25,51 +25,35 @@ const tracerBike = {
   alt: 'Yamaha TRACER 9 GT',
 };
 
-function getTravelTransitionOffsets(slotEl) {
-  const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
-  const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
-
-  let startX = Math.round(vw * 0.12);
-  if (slotEl) {
-    const slotRect = slotEl.getBoundingClientRect();
-    const slotCenterX = slotRect.left + slotRect.width / 2;
-    if (slotCenterX > 0) {
-      startX = Math.round((vw * 0.5) - slotCenterX);
-    }
-  }
-
-  const startY = -Math.round(vh * (vw <= 720 ? 0.55 : 0.72));
-  const startScale = vw <= 720 ? 1.2 : 1.35;
-
-  return { x: startX, y: startY, scale: startScale };
-}
-
 function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
   const sectionRef = useRef(null);
   const showcaseRef = useRef(null);
   const cardRef = useRef(null);
-  const travelBikeRef = useRef(null);
+  const landingBikeRef = useRef(null);
+  const flyerBikeRef = useRef(null);
   const centerSlotRef = useRef(null);
   const sideSlotsRef = useRef([]);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const sideSlots = sideSlotsRef.current.filter(Boolean);
-    const bikeElement = travelBikeRef.current;
     const cardElement = cardRef.current;
     const sectionElement = sectionRef.current;
+    const landingBike = landingBikeRef.current;
+    const flyerBike = flyerBikeRef.current;
 
-    if (!sectionElement || !bikeElement || !cardElement) return undefined;
+    if (!sectionElement || !landingBike || !cardElement) return undefined;
 
     const context = gsap.context(() => {
       if (reducedMotion) {
-        gsap.set([showcaseRef.current, cardElement, bikeElement, ...sideSlots], {
+        gsap.set([showcaseRef.current, cardElement, landingBike, ...sideSlots], {
           autoAlpha: 1,
           x: 0,
           y: 0,
           scale: 1,
           opacity: 1,
         });
+        landingBike.classList.add('is-landed');
         return;
       }
 
@@ -91,7 +75,7 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
         }
       );
 
-      // 2. Destination Card entrance
+      // 2. Destination Blue Featured Card entrance
       gsap.fromTo(
         cardElement,
         { opacity: 0, x: 24, y: 16 },
@@ -109,35 +93,111 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
         }
       );
 
-      // 3. ONE Continuous Motorcycle Visual Element:
-      // Tracer 9 GT smoothly travels from upper showcase position into Section 03 center destination slot
-      gsap.fromTo(
-        bikeElement,
-        {
-          x: () => getTravelTransitionOffsets(centerSlotRef.current).x,
-          y: () => getTravelTransitionOffsets(centerSlotRef.current).y,
-          scale: () => getTravelTransitionOffsets(centerSlotRef.current).scale,
-          opacity: 1,
-        },
-        {
-          x: 0,
-          y: 0,
-          scale: 1,
-          opacity: 1,
-          ease: 'power1.out',
-          scrollTrigger: {
-            trigger: sectionElement,
-            start: 'top bottom', // Starts the moment Section 03 enters bottom of screen
-            end: 'top top+=60',  // Completes when Section 03 settles in primary view
-            scrub: 1.2,          // Continuous smooth scroll tracking both down and up
-            invalidateOnRefresh: true,
-            onEnter: () => sectionElement.classList.add('is-bike-travelling'),
-            onLeave: () => sectionElement.classList.remove('is-bike-travelling'),
-            onEnterBack: () => sectionElement.classList.add('is-bike-travelling'),
-            onLeaveBack: () => sectionElement.classList.remove('is-bike-travelling'),
-          },
+      // 3. CONTINUOUS SCROLL-LINKED MOTORCYCLE TRANSITION
+      // Smoothly animates Tracer 9 GT from Section 02 into Section 03's empty landing space
+      const measureCoordinates = () => {
+        const slotEl = centerSlotRef.current;
+        const sourceBike = document.querySelector('.yamaha02-bike-sequence img:last-child');
+        if (!sectionElement || !slotEl) return null;
+
+        const secRect = sectionElement.getBoundingClientRect();
+        const slotRect = slotEl.getBoundingClientRect();
+
+        // Destination landing position inside Section 03
+        const slotOffsetTop = slotRect.top - secRect.top;
+        const slotOffsetLeft = slotRect.left - secRect.left;
+        const landedTop = 74 + slotOffsetTop;
+        const landedLeft = secRect.left + slotOffsetLeft;
+        const landedWidth = slotRect.width || Math.min(window.innerWidth * 0.36, 440);
+        const landedHeight = slotRect.height || Math.min(window.innerHeight * 0.38, 380);
+
+        // Source position in Section 02
+        let sourceLeft = window.innerWidth * 0.18;
+        let sourceTop = 74 + (window.innerHeight - 74) * 0.05;
+        let sourceWidth = window.innerWidth * 0.64;
+        let sourceHeight = (window.innerHeight - 74) * 0.75;
+
+        if (sourceBike) {
+          const sRect = sourceBike.getBoundingClientRect();
+          if (sRect.width > 0 && sRect.height > 0) {
+            sourceLeft = sRect.left;
+            sourceTop = sRect.top;
+            sourceWidth = sRect.width;
+            sourceHeight = sRect.height;
+          }
         }
+
+        return {
+          source: { left: sourceLeft, top: sourceTop, width: sourceWidth, height: sourceHeight },
+          target: { left: landedLeft, top: landedTop, width: landedWidth, height: landedHeight },
+        };
+      };
+
+      let coords = measureCoordinates();
+
+      const updateFlight = (progress) => {
+        const flyer = flyerBike;
+        const landing = landingBike;
+        const sourceBike = document.querySelector('.yamaha02-bike-sequence img:last-child');
+        if (!flyer || !landing) return;
+
+        if (progress <= 0.02) {
+          // Inside Section 02: Show source bike, hide flyer, landing slot remains completely empty
+          gsap.set(flyer, { opacity: 0 });
+          landing.classList.remove('is-landed');
+          if (sourceBike) gsap.set(sourceBike, { opacity: 1 });
+        } else if (progress >= 0.98) {
+          // Fully arrived in Section 03: Hide flyer, show landing bike in center slot
+          gsap.set(flyer, { opacity: 0 });
+          landing.classList.add('is-landed');
+          if (sourceBike) gsap.set(sourceBike, { opacity: 0 });
+        } else {
+          // Transition flight between Section 02 and Section 03
+          if (sourceBike) gsap.set(sourceBike, { opacity: 0 });
+          landing.classList.remove('is-landed');
+
+          if (!coords) coords = measureCoordinates();
+          if (coords) {
+            const easeProgress = gsap.parseEase('power1.inOut')(progress);
+            const curLeft = coords.source.left + (coords.target.left - coords.source.left) * easeProgress;
+            const curTop = coords.source.top + (coords.target.top - coords.source.top) * easeProgress;
+            const curWidth = coords.source.width + (coords.target.width - coords.source.width) * easeProgress;
+            const curHeight = coords.source.height + (coords.target.height - coords.source.height) * easeProgress;
+
+            gsap.set(flyer, {
+              opacity: 1,
+              left: curLeft,
+              top: curTop,
+              width: curWidth,
+              height: curHeight,
+            });
+          }
+        }
+      };
+
+      ScrollTrigger.create({
+        trigger: sectionElement,
+        start: 'top bottom', // Begins when Section 03 enters bottom of screen
+        end: 'top top+=74',  // Settles when Section 03 reaches view below sticky header
+        scrub: 1.0,          // Continuous bi-directional smooth scroll tracking
+        invalidateOnRefresh: true,
+        onRefresh: () => {
+          coords = measureCoordinates();
+        },
+        onUpdate: (self) => {
+          updateFlight(self.progress);
+        },
+      });
+
+      // Initial check based on current scroll position
+      const initialProgress = Math.min(
+        1,
+        Math.max(
+          0,
+          (window.innerHeight - sectionElement.getBoundingClientRect().top) / (window.innerHeight - 74)
+        )
       );
+      updateFlight(initialProgress);
     }, sectionRef);
 
     return () => {
@@ -147,6 +207,15 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
 
   return (
     <section ref={sectionRef} className="yamaha-section03" aria-label="Yamaha motorcycle discovery">
+      {/* Flight Motorcycle: Active only during scroll transition between sections */}
+      <img
+        ref={flyerBikeRef}
+        src={tracerBike.src}
+        alt=""
+        aria-hidden="true"
+        className="yamaha-bike-scroll-flyer"
+      />
+
       <div className="yamaha03-shell">
         <div ref={showcaseRef} className="yamaha03-showcase">
           {/* Background 3-bike showcase lineup (YZF-R7, TRACER 9 GT destination, MT-09) */}
@@ -164,18 +233,18 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
               />
             </div>
 
-            {/* Center Destination Slot: Receives TRACER 9 GT from upper showcase */}
+            {/* Center Destination Slot: Reserved empty landing space for incoming TRACER 9 GT */}
             <div
               ref={centerSlotRef}
               className="yamaha03-bike-slot yamaha03-bike-slot--center"
             >
               <img
-                ref={travelBikeRef}
+                ref={landingBikeRef}
                 src={tracerBike.src}
                 alt={tracerBike.alt}
                 loading="eager"
                 decoding="async"
-                className="yamaha03-travel-bike"
+                className="yamaha03-landing-bike"
               />
             </div>
 

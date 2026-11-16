@@ -21,6 +21,9 @@ const YamahaBikeCatalog = lazy(() => import('./components/Yamaha/YamahaBikeCatal
 const YamahaBikeDetailsPage = lazy(() => import('./components/Yamaha/YamahaBikeDetailsPage.jsx'));
 const YamahaBookingPage = lazy(() => import('./components/Yamaha/YamahaBookingPage.jsx'));
 const YamahaAdmin = lazy(() => import('./components/Admin/YamahaAdmin.jsx'));
+const YamahaPrivacyPolicy = lazy(() => import('./components/Legal/YamahaPrivacyPolicy.jsx'));
+const YamahaTerms = lazy(() => import('./components/Legal/YamahaTerms.jsx'));
+const YamahaDataDeletion = lazy(() => import('./components/Legal/YamahaDataDeletion.jsx'));
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -31,6 +34,12 @@ function useReducedMotion() {
     return () => media.removeEventListener?.('change', update);
   }, []);
   return reduced;
+}
+
+function normalizePathname(pathname) {
+  if (!pathname || pathname === '/') return '/';
+  const clean = pathname.trim().toLowerCase().replace(/\/+$/, '');
+  return clean || '/';
 }
 
 function getCatalogBikeIdFromLocation(motorcycles) {
@@ -147,7 +156,7 @@ function App() {
     const published = getPublishedIndiaBikes(motorcycles);
     const motorcycle = findMotorcycleByIdOrSlug(published, bikeId) || getYamahaMotorcycle(bikeId);
     if (!motorcycle) return;
-    if (route === '/motorcycle-details') {
+    if (currentPath === '/motorcycle-details') {
       const path = `/motorcycle-details?bike=${encodeURIComponent(motorcycle.id)}`;
       window.history.pushState(window.history.state, '', path);
       setSelectedBikeId(motorcycle.id);
@@ -239,6 +248,33 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const navigateToLegal = (targetPath) => {
+    if (!targetPath) return;
+    if (targetPath === '/' || targetPath === '/#top') {
+      navigateToHome();
+      return;
+    }
+    if (targetPath === '/bikes') {
+      navigateToCatalog();
+      return;
+    }
+    if (targetPath === '/services') {
+      navigateToServices();
+      return;
+    }
+    if (targetPath === '/book-us' || targetPath === '/book-now') {
+      navigateToBooking(catalogBikeId || getPublishedIndiaBikes(motorcycles)[0]?.id);
+      return;
+    }
+    if (route === targetPath) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    window.history.pushState({ fromRoute: route }, '', targetPath);
+    setRoute(targetPath);
+    window.scrollTo(0, 0);
+  };
+
   const handleActiveBikeChange = useCallback((bikeId) => {
     setSelectedBikeId(bikeId);
     if (route === '/') {
@@ -259,11 +295,12 @@ function App() {
   };
 
   const catalogBikes = getPublishedIndiaBikes(motorcycles);
+  const currentPath = normalizePathname(route);
   const selectedCatalogBike = findMotorcycleByIdOrSlug(catalogBikes, catalogBikeId) ?? catalogBikes[0] ?? null;
-  const isCatalogDetailRoute = route === '/bike-details' || route.startsWith('/bike-details/');
-  const isBookingRoute = route === '/book-now' || route === '/book-us';
+  const isCatalogDetailRoute = currentPath === '/bike-details' || currentPath.startsWith('/bike-details/');
+  const isBookingRoute = currentPath === '/book-now' || currentPath === '/book-us';
 
-  if (route === '/admin' || route.startsWith('/admin/')) {
+  if (currentPath === '/admin' || currentPath.startsWith('/admin/')) {
     return (
       <Suspense fallback={<main className="yamaha-admin-loading" aria-label="Loading admin portal" />}>
         <YamahaAdmin />
@@ -292,10 +329,11 @@ function App() {
       onServices={navigateToServices}
       onBookNow={() => navigateToBooking(catalogBikeId || selectedBikeId || catalogBikes[0]?.id)}
       onContact={() => navigateToHome('#yamaha-footer')}
+      onLegal={navigateToLegal}
     />
   );
 
-  if (route === '/motorcycle-details') {
+  if (currentPath === '/motorcycle-details') {
     const params = new URLSearchParams(window.location.search);
     const bikeParam = params.get('bike') || params.get('slug') || params.get('model') || selectedBikeId;
     const allAvailableBikes = catalogBikes.length ? catalogBikes : yamahaAllMotorcycles;
@@ -319,7 +357,7 @@ function App() {
     );
   }
 
-  if (route === '/bikes') {
+  if (currentPath === '/bikes') {
     return (
       <>
         {header}
@@ -388,12 +426,48 @@ function App() {
     );
   }
 
-  if (route === '/services') {
+  if (currentPath === '/services') {
     return (
       <>
         {header}
         <Suspense fallback={<main style={{ height: '100svh', minHeight: 320, background: '#05080f' }} />}>
           <YamahaServices />
+        </Suspense>
+        {footer}
+      </>
+    );
+  }
+
+  if (currentPath === '/privacy-policy') {
+    return (
+      <>
+        {header}
+        <Suspense fallback={<main className="yamaha-legal-page" aria-label="Loading privacy policy" />}>
+          <YamahaPrivacyPolicy onNavigate={navigateToLegal} />
+        </Suspense>
+        {footer}
+      </>
+    );
+  }
+
+  if (currentPath === '/terms') {
+    return (
+      <>
+        {header}
+        <Suspense fallback={<main className="yamaha-legal-page" aria-label="Loading terms and conditions" />}>
+          <YamahaTerms onNavigate={navigateToLegal} />
+        </Suspense>
+        {footer}
+      </>
+    );
+  }
+
+  if (currentPath === '/data-deletion') {
+    return (
+      <>
+        {header}
+        <Suspense fallback={<main className="yamaha-legal-page" aria-label="Loading data deletion instructions" />}>
+          <YamahaDataDeletion onNavigate={navigateToLegal} />
         </Suspense>
         {footer}
       </>

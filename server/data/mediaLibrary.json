@@ -1,0 +1,62 @@
+[
+  {
+    "id": "med-1",
+    "fileName": "f1.png",
+    "originalName": "f1.png",
+    "filePath": "/imgs/f1.png",
+    "mediaType": "image",
+    "mimeType": "image/png",
+    "sizeBytes": 524288,
+    "category": "Hero",
+    "altText": "Yamaha R15M Hero Slide",
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "med-2",
+    "fileName": "f2.png",
+    "originalName": "f2.png",
+    "filePath": "/imgs/f2.png",
+    "mediaType": "image",
+    "mimeType": "image/png",
+    "sizeBytes": 480000,
+    "category": "Hero",
+    "altText": "Yamaha MT-15 Hero Slide",
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "med-3",
+    "fileName": "f3.png",
+    "originalName": "f3.png",
+    "filePath": "/imgs/f3.png",
+    "mediaType": "image",
+    "mimeType": "image/png",
+    "sizeBytes": 460000,
+    "category": "Hero",
+    "altText": "Yamaha FZ Hero Slide",
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "med-4",
+    "fileName": "f4.png",
+    "originalName": "f4.png",
+    "filePath": "/imgs/f4.png",
+    "mediaType": "image",
+    "mimeType": "image/png",
+    "sizeBytes": 510000,
+    "category": "Hero",
+    "altText": "Yamaha Aerox Hero Slide",
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "med-5",
+    "fileName": "s1.mp4",
+    "originalName": "s1.mp4",
+    "filePath": "/s1.mp4",
+    "mediaType": "video",
+    "mimeType": "video/mp4",
+    "sizeBytes": 3145728,
+    "category": "Service",
+    "altText": "Master Service Video 1",
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "soc-instagram",
+    "platform": "Instagram",
+    "profileUrl": "https://www.instagram.com/vathilaimotors/",
+    "handle": "@vathilaimotors",
+    "status": "connected",
+    "showInFooter": true,
+    "notes": "Official Vathilai Motors Instagram feed, new bike deliveries, and community updates.",
+    "displayOrder": 1,
+    "createdAt": "2026-10-01T00:00:00.000Z",
+    "updatedAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "soc-facebook",
+    "platform": "Facebook",
+    "profileUrl": "https://www.facebook.com/vathilaimotors",
+    "handle": "vathilaimotors",
+    "status": "connected",
+    "showInFooter": true,
+    "notes": "Dealership customer events, festive exchange offers, and service camp alerts.",
+    "displayOrder": 2,
+    "createdAt": "2026-10-01T00:00:00.000Z",
+    "updatedAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "soc-youtube",
+    "platform": "YouTube",
+    "profileUrl": "https://www.youtube.com/@YamahaMotorIndia",
+    "handle": "@YamahaMotorIndia",
+    "status": "connected",
+    "showInFooter": true,
+    "notes": "Motorcycle walkarounds, exhaust note tests, and maintenance masterclasses.",
+    "displayOrder": 3,
+    "createdAt": "2026-10-01T00:00:00.000Z",
+    "updatedAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "soc-x",
+    "platform": "X (Twitter)",
+    "profileUrl": "https://x.com/India_Yamaha",
+    "handle": "@India_Yamaha",
+    "status": "connected",
+    "showInFooter": true,
+    "notes": "Official updates, customer service announcements, and recall notices.",
+    "displayOrder": 4,
+    "createdAt": "2026-10-01T00:00:00.000Z",
+    "updatedAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "soc-whatsapp",
+    "platform": "WhatsApp",
+    "profileUrl": "https://wa.me/918144445566",
+    "handle": "081444 45566",
+    "status": "connected",
+    "showInFooter": true,
+    "notes": "Direct showroom customer enquiry line and test-ride coordination.",
+    "displayOrder": 5,
+    "createdAt": "2026-10-01T00:00:00.000Z",
+    "updatedAt": "2026-10-01T00:00:00.000Z"
+  },
+  {
+    "id": "soc-linkedin",
+    "platform": "LinkedIn",
+    "profileUrl": "https://www.linkedin.com/company/yamaha-motor-india",
+    "handle": "yamaha-motor-india",
+    "status": "hidden",
+    "showInFooter": false,
+    "notes": "Corporate announcements and dealership career openings.",
+    "displayOrder": 6,
+    "createdAt": "2026-10-01T00:00:00.000Z",
+    "updatedAt": "2026-10-01T00:00:00.000Z"
+  }
+]

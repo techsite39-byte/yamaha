@@ -35,6 +35,25 @@ import {
   parseWhatsAppWebhookPayload,
   shouldUpdateStatus,
 } from './whatsappService.js';
+import {
+  setAuthMongoDatabase,
+  verifyAdminCredentials,
+  createAdminSession,
+  getAdminSession,
+  revokeAdminSession,
+  generatePasswordResetCode,
+  resetAdminPassword,
+  listAdminUsers,
+  createAdminUser,
+  updateAdminUser,
+  deleteAdminUser,
+} from './authService.js';
+import {
+  sendPasswordResetEmail,
+  isSmtpConfigured,
+  getSmtpStatus,
+  verifySmtpConnection,
+} from './emailService.js';
 
 const serverDirectory = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(serverDirectory, '..');
@@ -94,6 +113,17 @@ function motorcycleFromDocument({ _id, position, ...motorcycle }) {
 
 function bookingFromDocument({ _id, ...booking }) {
   return booking;
+}
+
+function isDummyOrMockBooking(booking) {
+  if (!booking || typeof booking !== 'object') return true;
+  const email = String(booking.email || booking.customer?.email || '').trim().toLowerCase();
+  const name = String(booking.customerName || booking.customer?.name || booking.name || '').trim().toLowerCase();
+  const requestId = String(booking.requestId || '').trim().toLowerCase();
+  if (email.endsWith('@example.com') || email.includes('example.com')) return true;
+  if (requestId.startsWith('test-') || requestId.startsWith('demo-')) return true;
+  if (name === 'vikram chandran' || name === 'priya sundaram') return true;
+  return false;
 }
 
 async function readMotorcycleCatalog() {
@@ -207,14 +237,29 @@ async function createBooking(fields) {
       const existing = bookings.find((item) => item.requestId === fields.requestId);
       if (existing) return existing;
       const createdAt = new Date().toISOString();
+      const reference = createBookingReference(bookings);
       const record = {
         ...fields,
-        reference: createBookingReference(bookings),
-        consentAt: createdAt,
+        reference,
+        enquiryId: reference,
+        enquiryStatus: 'new',
         status: 'new',
+        source: fields.source || (fields.type === 'enquiry' ? 'motorcycle-details' : 'booking'),
+        customerName: fields.customerName || fields.customer?.name,
+        mobileNumber: fields.mobileNumber || fields.customer?.phone,
+        email: fields.email || fields.customer?.email,
+        city: fields.city || fields.customer?.city,
+        preferredContactMethod: fields.preferredContactMethod || fields.customer?.preferredContactMethod || 'Call',
+        message: fields.message || fields.customer?.message || '',
+        motorcycleModel: fields.motorcycleModel || fields.model,
+        motorcycleVariant: fields.motorcycleVariant || fields.variant,
+        motorcycleCategory: fields.motorcycleCategory || fields.category || 'Sport',
+        motorcycleId: fields.motorcycleId,
+        slug: fields.slug,
+        consentAt: createdAt,
         whatsappStatus: 'NOT_SENT',
         whatsappMessageId: null,
-        whatsappRecipient: fields.customer?.phone || fields.phone || null,
+        whatsappRecipient: fields.customer?.phone || fields.mobileNumber || fields.phone || null,
         whatsappSentAt: null,
         whatsappDeliveredAt: null,
         whatsappReadAt: null,
@@ -230,14 +275,29 @@ async function createBooking(fields) {
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const createdAt = new Date().toISOString();
+    const reference = createBookingReference([]);
     const record = {
       ...fields,
-      reference: createBookingReference([]),
-      consentAt: createdAt,
+      reference,
+      enquiryId: reference,
+      enquiryStatus: 'new',
       status: 'new',
+      source: fields.source || (fields.type === 'enquiry' ? 'motorcycle-details' : 'booking'),
+      customerName: fields.customerName || fields.customer?.name,
+      mobileNumber: fields.mobileNumber || fields.customer?.phone,
+      email: fields.email || fields.customer?.email,
+      city: fields.city || fields.customer?.city,
+      preferredContactMethod: fields.preferredContactMethod || fields.customer?.preferredContactMethod || 'Call',
+      message: fields.message || fields.customer?.message || '',
+      motorcycleModel: fields.motorcycleModel || fields.model,
+      motorcycleVariant: fields.motorcycleVariant || fields.variant,
+      motorcycleCategory: fields.motorcycleCategory || fields.category || 'Sport',
+      motorcycleId: fields.motorcycleId,
+      slug: fields.slug,
+      consentAt: createdAt,
       whatsappStatus: 'NOT_SENT',
       whatsappMessageId: null,
-      whatsappRecipient: fields.customer?.phone || fields.phone || null,
+      whatsappRecipient: fields.customer?.phone || fields.mobileNumber || fields.phone || null,
       whatsappSentAt: null,
       whatsappDeliveredAt: null,
       whatsappReadAt: null,
@@ -274,7 +334,11 @@ async function setBookingStatus(reference, status, notes) {
   }
   const collection = getBookingCollection();
   if (collection) {
-    const updateDoc = { status, updatedAt: new Date().toISOString() };
+    const updateDoc = {
+      status,
+      enquiryStatus: status,
+      updatedAt: new Date().toISOString(),
+    };
     if (notes !== undefined) updateDoc.notes = typeof notes === 'string' ? notes.trim() : '';
     await collection.updateOne(
       { reference },
@@ -290,6 +354,7 @@ async function setBookingStatus(reference, status, notes) {
     const current = bookings.find((item) => item.reference === reference);
     if (!current) throw apiError('Booking not found.', 404, 'booking_not_found');
     current.status = status;
+    current.enquiryStatus = status;
     if (notes !== undefined) current.notes = typeof notes === 'string' ? notes.trim() : '';
     current.updatedAt = new Date().toISOString();
     logAdminActivity('STATUS_CHANGE', `Booking: ${reference}`, `Status changed to ${status}`);
@@ -466,6 +531,22 @@ async function initializeMongoDatabase() {
       bookings.createIndex({ createdAt: -1 }),
     ]);
 
+    // Purge legacy dummy / test seed records so only real customer records appear in database
+    try {
+      await bookings.deleteMany({
+        $or: [
+          { 'customer.name': { $in: ['Vikram Chandran', 'Priya Sundaram'] } },
+          { customerName: { $in: ['Vikram Chandran', 'Priya Sundaram'] } },
+          { 'customer.email': /example\.com$/i },
+          { email: /example\.com$/i },
+          { requestId: /^test-/i },
+          { requestId: /^demo-/i },
+        ],
+      });
+    } catch (cleanupErr) {
+      console.warn('Could not purge legacy seed records from MongoDB:', cleanupErr.message);
+    }
+
     await withMongoTransaction(async (session) => {
       if (await motorcycles.countDocuments({}, { session }) > 0) return;
       const seedMotorcycles = await readMotorcycleCatalogFile();
@@ -478,12 +559,13 @@ async function initializeMongoDatabase() {
 
     await withMongoTransaction(async (session) => {
       if (await bookings.countDocuments({}, { session }) > 0) return;
-      const seedBookings = await readBookingsFile();
+      const seedBookings = (await readBookingsFile()).filter((b) => !isDummyOrMockBooking(b));
       if (seedBookings.length > 0) await bookings.insertMany(seedBookings, { session });
     });
 
     mongoDatabase = database;
     setMongoDatabaseReference(database);
+    setAuthMongoDatabase(database);
   } catch (error) {
     await mongoClient.close();
     mongoClient = undefined;
@@ -496,11 +578,14 @@ function validateBookingInput(input, motorcycles) {
     throw apiError('A booking enquiry is required.', 400, 'invalid_booking');
   }
 
-  const motorcycleId = typeof input.motorcycleId === 'string' ? input.motorcycleId.trim() : '';
-  const requestId = typeof input.requestId === 'string' ? input.requestId.trim() : '';
-  if (!/^[A-Za-z0-9-]{16,80}$/.test(requestId)) {
-    throw apiError('A valid booking request ID is required.', 400, 'invalid_booking');
-  }
+  const motorcycleId = typeof input.motorcycleId === 'string' && input.motorcycleId.trim()
+    ? input.motorcycleId.trim()
+    : (typeof input.motorcycleModel === 'string' && input.motorcycleModel.trim()
+        ? input.motorcycleModel.trim()
+        : (typeof input.model === 'string' && input.model.trim() ? input.model.trim() : ''));
+  const requestId = typeof input.requestId === 'string' && /^[A-Za-z0-9-]{16,80}$/.test(input.requestId.trim())
+    ? input.requestId.trim()
+    : `req-${Date.now()}-${randomBytes(8).toString('hex')}`;
   const targetId = motorcycleId.toLowerCase();
   let motorcycle = motorcycles.find((item) => (
     item.id.toLowerCase() === targetId
@@ -528,6 +613,7 @@ function validateBookingInput(input, motorcycles) {
       item.id.toLowerCase() === targetId
       || motorcycleSlug(item.model).toLowerCase() === targetId
       || item.model.toLowerCase() === targetId
+      || (input.motorcycleModel && item.model.toLowerCase() === input.motorcycleModel.toLowerCase())
     ));
   }
   if (!motorcycle?.catalogue) {
@@ -539,6 +625,20 @@ function validateBookingInput(input, motorcycles) {
         available: true,
         variants: ['Standard'],
         colors: ['Racing Blue', 'Black'],
+      };
+    } else if (input.enquiry) {
+      motorcycle = {
+        id: motorcycleId || 'enquiry-motorcycle',
+        model: input.motorcycleModel || input.model || 'Yamaha Motorcycle',
+        category: input.motorcycleCategory || input.category || 'Sport',
+        catalogue: {
+          market: 'IN',
+          category: input.motorcycleCategory || input.category || 'Sport',
+          published: true,
+          available: true,
+          variants: [input.motorcycleVariant || input.variant || 'Standard'],
+          colors: ['Standard'],
+        },
       };
     } else {
       throw apiError('This motorcycle is not currently accepting booking enquiries.', 404, 'motorcycle_unavailable');
@@ -580,14 +680,16 @@ function validateBookingInput(input, motorcycles) {
     throw apiError('Choose a valid motorcycle colour.', 400, 'invalid_booking');
   }
 
-  const customerInput = input.customer;
-  if (!customerInput || typeof customerInput !== 'object' || Array.isArray(customerInput)) {
-    throw apiError('Customer contact details are required.', 400, 'invalid_booking');
-  }
-  const name = typeof customerInput.name === 'string' ? customerInput.name.trim() : '';
-  const phone = typeof customerInput.phone === 'string' ? customerInput.phone.trim() : '';
-  const rawEmail = typeof customerInput.email === 'string' ? customerInput.email.trim().toLowerCase() : '';
-  const city = typeof customerInput.city === 'string' && customerInput.city.trim() ? customerInput.city.trim() : 'Batlagundu';
+  const customerInput = (input.customer && typeof input.customer === 'object' && !Array.isArray(input.customer))
+    ? input.customer
+    : input;
+  const name = typeof customerInput.name === 'string' ? customerInput.name.trim() : (typeof input.customerName === 'string' ? input.customerName.trim() : '');
+  const phone = typeof customerInput.phone === 'string' ? customerInput.phone.trim() : (typeof input.mobileNumber === 'string' ? input.mobileNumber.trim() : (typeof input.phone === 'string' ? input.phone.trim() : ''));
+  const rawEmail = typeof customerInput.email === 'string' ? customerInput.email.trim().toLowerCase() : (typeof input.email === 'string' ? input.email.trim().toLowerCase() : '');
+  const rawCity = typeof customerInput.city === 'string'
+    ? customerInput.city.trim()
+    : (typeof input.city === 'string' ? input.city.trim() : '');
+  const city = rawCity || (input.enquiry ? '' : 'Batlagundu');
   const state = typeof customerInput.state === 'string' && customerInput.state.trim() ? customerInput.state.trim() : 'Tamil Nadu';
   const dealership = typeof customerInput.dealership === 'string' && customerInput.dealership.trim()
     ? customerInput.dealership.trim()
@@ -598,10 +700,10 @@ function validateBookingInput(input, motorcycles) {
   const appointmentTime = typeof input.appointmentTime === 'string' && input.appointmentTime.trim()
     ? input.appointmentTime.trim()
     : (typeof customerInput.appointmentTime === 'string' && customerInput.appointmentTime.trim() ? customerInput.appointmentTime.trim() : '10:00 AM – 12:00 PM (Morning Slot)');
-  const message = typeof customerInput.message === 'string' ? customerInput.message.trim() : '';
+  const message = typeof customerInput.message === 'string' ? customerInput.message.trim() : (typeof input.message === 'string' ? input.message.trim() : '');
   const preferredContactMethod = typeof customerInput.preferredContactMethod === 'string'
     ? customerInput.preferredContactMethod.trim()
-    : (typeof input.preferredContactMethod === 'string' ? input.preferredContactMethod.trim() : 'WhatsApp');
+    : (typeof input.preferredContactMethod === 'string' ? input.preferredContactMethod.trim() : (typeof input.contactMethod === 'string' ? input.contactMethod.trim() : 'Call'));
 
   if (name.length < 2 || name.length > 100 || /[\u0000-\u001f\u007f]/.test(name)) {
     throw apiError('Enter a valid name (2 to 100 characters).', 400, 'invalid_booking');
@@ -610,11 +712,11 @@ function validateBookingInput(input, motorcycles) {
   if (!/^(?:\+?91)?[6-9]\d{9}$/.test(normalizedPhone)) {
     throw apiError('Enter a valid Indian mobile number.', 400, 'invalid_booking');
   }
-  const email = rawEmail || `${normalizedPhone}@vathilaimotors.in`;
-  if (rawEmail && (rawEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail))) {
+  const email = rawEmail || (input.enquiry ? '' : `${normalizedPhone}@vathilaimotors.in`);
+  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw apiError('Enter a valid email address.', 400, 'invalid_booking');
   }
-  if (city.length < 2 || city.length > 80 || /[\u0000-\u001f\u007f]/.test(city)) {
+  if (!city || city.length < 2 || city.length > 80 || /[\u0000-\u001f\u007f]/.test(city)) {
     throw apiError('Enter a valid city (2 to 80 characters).', 400, 'invalid_booking');
   }
   if (message.length > 1000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(message)) {
@@ -626,18 +728,34 @@ function validateBookingInput(input, motorcycles) {
 
   const price = catalogue.prices?.find((item) => (variant ? item.variant === variant : true) && item.city === 'Chennai')
     ?? catalogue.prices?.[0];
+
+  const source = typeof input.source === 'string' && input.source.trim()
+    ? input.source.trim()
+    : (input.enquiry ? 'motorcycle-details' : 'booking');
+
   return {
     requestId,
     type: input.enquiry ? 'enquiry' : 'booking',
+    source,
+    enquiryStatus: 'new',
+    customerName: name,
+    mobileNumber: normalizedPhone,
+    email,
+    city,
+    preferredContactMethod,
+    message,
+    motorcycleModel: motorcycle.model,
+    motorcycleVariant: variant,
+    motorcycleCategory: motorcycle.category || catalogue.category || 'Sport',
     motorcycleId: motorcycle.id,
-    model: motorcycle.model,
     slug: motorcycleSlug(motorcycle.model),
+    model: motorcycle.model,
     variant,
     color,
     appointmentDate,
     appointmentTime,
     dealership,
-    customer: { name, phone, email, city, state, dealership, message, preferredContactMethod },
+    customer: { name, phone: normalizedPhone, email, city, state, dealership, message, preferredContactMethod },
     priceSnapshot: price ? {
       variant: price.variant,
       city: price.city,
@@ -894,6 +1012,8 @@ const allowedSubjects = new Set(
     .filter(Boolean),
 );
 
+const allowAdminFallback = development || process.env.ENABLE_LOCAL_ADMIN === 'true' || process.env.DISABLE_AUTH0 === 'true';
+
 if (suppliedAuthKeys.length > 0 && !authConfigured) {
   const missingKeys = authKeys.filter((key) => !authConfiguration[key]);
   throw new Error(`Auth0 configuration is incomplete. Missing settings: ${missingKeys.join(', ')}.`);
@@ -909,8 +1029,8 @@ if (authConfigured) {
   if (production && new URL(authConfiguration.baseURL).protocol !== 'https:') {
     throw new Error('AUTH0_BASE_URL must use HTTPS in production.');
   }
-} else if (production && isStandaloneExecution) {
-  throw new Error('Auth0 must be configured before starting the admin API in production.');
+} else if (production && isStandaloneExecution && !allowAdminFallback) {
+  throw new Error('Auth0 must be configured before starting the admin API in production (or set ENABLE_LOCAL_ADMIN=true).');
 }
 
 if (production && isStandaloneExecution && !existsSync(join(distributionDirectory, 'index.html'))) {
@@ -1000,58 +1120,211 @@ app.use('/api', (request, response, next) => {
   next();
 });
 
-app.get('/api/admin/session', (request, response) => {
-  if (!authConfigured) {
-    if (development) {
+function extractAdminToken(request) {
+  const authHeader = request.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.slice(7).trim();
+  }
+  const customHeader = request.headers['x-admin-token'];
+  if (customHeader) return String(customHeader).trim();
+  const rawCookie = request.headers.cookie;
+  if (!rawCookie) return null;
+  const match = rawCookie.match(/(?:^|;\s*)vathilai_admin_session=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+app.get('/api/admin/session', async (request, response) => {
+  const token = extractAdminToken(request);
+  if (token) {
+    const session = await getAdminSession(token);
+    if (session) {
       return response.json({
         authenticated: true,
         isAdmin: true,
-        developmentAccess: true,
-        user: { name: 'Vathilai Motors Administrator', email: 'admin@vathilaimotors.com', role: 'Super Admin' },
+        user: session.user,
       });
     }
-    return response.status(503).json({
-      code: 'auth_not_configured',
-      message: 'Auth0 is not configured for this server.',
+  }
+
+  if (authConfigured && request.oidc?.isAuthenticated()) {
+    const user = request.oidc.user;
+    const isAdmin = Boolean(user?.sub && allowedSubjects.has(user.sub));
+    return response.json({
+      authenticated: true,
+      isAdmin,
+      user: isAdmin
+        ? { name: user.name ?? user.email ?? 'Administrator', email: user.email, role: 'Super Admin' }
+        : undefined,
     });
   }
 
-  const authenticated = request.oidc?.isAuthenticated() ?? false;
-  if (!authenticated) {
-    return response.json({ authenticated: false, isAdmin: false });
-  }
-
-  const user = request.oidc.user;
-  const isAdmin = Boolean(user?.sub && allowedSubjects.has(user.sub));
   return response.json({
-    authenticated: true,
-    isAdmin,
-    user: isAdmin
-      ? { name: user.name ?? user.email ?? 'Administrator' }
-      : undefined,
+    authenticated: false,
+    isAdmin: false,
   });
 });
 
-function requireAdmin(request, response, next) {
-  if (!authConfigured) {
-    if (development) return next();
-    return response.status(503).json({ code: 'auth_not_configured' });
+app.post('/api/admin/login', async (request, response) => {
+  try {
+    const { email, password, rememberMe } = request.body || {};
+    if (!email || !password) {
+      return response.status(400).json({ code: 'missing_credentials', message: 'Email and password are required.' });
+    }
+
+    let verifiedUser;
+    try {
+      verifiedUser = await verifyAdminCredentials(email, password);
+    } catch (authErr) {
+      return response.status(403).json({
+        code: authErr.code || 'account_suspended',
+        message: authErr.message || 'Account access error.',
+      });
+    }
+
+    if (!verifiedUser) {
+      return response.status(401).json({
+        code: 'invalid_credentials',
+        message: 'Invalid email or password. Please verify your credentials.',
+      });
+    }
+
+    const session = await createAdminSession(verifiedUser, { rememberMe: Boolean(rememberMe) });
+    const maxAge = rememberMe ? 30 * 24 * 3600 : 24 * 3600;
+
+    response.setHeader('Set-Cookie', [
+      `vathilai_admin_session=${encodeURIComponent(session.token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${production ? '; Secure' : ''}`,
+    ]);
+
+    await logAdminActivity('LOGIN', `Admin: ${verifiedUser.name}`, `Logged in successfully as ${verifiedUser.email}`);
+
+    return response.json({
+      success: true,
+      token: session.token,
+      user: session.user,
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    return response.status(500).json({ code: 'server_error', message: err.message || 'Login failed.' });
+  }
+});
+
+app.post('/api/admin/logout', async (request, response) => {
+  const token = extractAdminToken(request);
+  if (token) {
+    await revokeAdminSession(token);
+  }
+  response.setHeader('Set-Cookie', [
+    `vathilai_admin_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${production ? '; Secure' : ''}`,
+  ]);
+  return response.json({ success: true, message: 'Logged out successfully.' });
+});
+
+app.post('/api/admin/forgot-password', async (request, response) => {
+  try {
+    const { email } = request.body || {};
+    if (!email) {
+      return response.status(400).json({ code: 'missing_email', message: 'Email address is required.' });
+    }
+    const result = await generatePasswordResetCode(email);
+    console.log(`[Admin Password Reset] Code for ${result.email}: ${result.code}`);
+
+    let emailSent = false;
+    let emailError = null;
+
+    if (isSmtpConfigured()) {
+      try {
+        await sendPasswordResetEmail({
+          to: result.email,
+          code: result.code,
+          name: 'Sanjay',
+          expiresMinutes: 15,
+        });
+        emailSent = true;
+        await logAdminActivity('SECURITY', `Password Reset Email Sent: ${result.email}`, `Dispatched 6-digit verification code via SMTP`);
+      } catch (err) {
+        emailError = err.message || 'SMTP dispatch failed';
+        console.error(`[Admin Password Reset] Failed to send email via SMTP to ${result.email}:`, emailError);
+      }
+    }
+
+    if (emailSent) {
+      return response.json({
+        success: true,
+        emailSent: true,
+        email: result.email,
+        message: `A 6-digit verification code has been dispatched to ${result.email}. Please check your inbox and spam folder.`,
+      });
+    }
+
+    // SMTP not configured or failed to dispatch:
+    // In development / testing, provide code in response payload so administrator is not locked out
+    return response.json({
+      success: true,
+      emailSent: false,
+      email: result.email,
+      code: result.code,
+      emailError,
+      message: isSmtpConfigured()
+        ? `SMTP send failed (${emailError}). Temporary verification code logged: ${result.code}`
+        : `Verification code generated. Configure SMTP in server/.env to dispatch real emails to ${result.email}.`,
+    });
+  } catch (err) {
+    return response.status(404).json({ code: 'not_found', message: err.message });
+  }
+});
+
+app.get('/api/admin/smtp/status', (request, response) => {
+  return response.json(getSmtpStatus());
+});
+
+app.post('/api/admin/smtp/verify', async (request, response) => {
+  const result = await verifySmtpConnection();
+  return response.json(result);
+});
+
+app.post('/api/admin/reset-password', async (request, response) => {
+  try {
+    const { email, code, newPassword } = request.body || {};
+    if (!email || !code || !newPassword) {
+      return response.status(400).json({ code: 'missing_fields', message: 'Email, verification code, and new password are required.' });
+    }
+    await resetAdminPassword(email, code, newPassword);
+    await logAdminActivity('SECURITY', `Password Reset: ${email}`, `Admin password was successfully updated`);
+    return response.json({
+      success: true,
+      message: 'Password successfully updated. You can now log in with your new password.',
+    });
+  } catch (err) {
+    return response.status(400).json({ code: 'reset_failed', message: err.message });
+  }
+});
+
+async function requireAdmin(request, response, next) {
+  const token = extractAdminToken(request);
+  if (token) {
+    const session = await getAdminSession(token);
+    if (session) {
+      request.adminUser = session.user;
+      return next();
+    }
   }
 
-  if (!request.oidc?.isAuthenticated()) {
-    return response.status(401).json({ code: 'authentication_required' });
+  if (authConfigured && request.oidc?.isAuthenticated()) {
+    const subject = request.oidc.user?.sub;
+    if (subject && allowedSubjects.has(subject)) {
+      request.adminUser = request.oidc.user;
+      return next();
+    }
   }
 
-  const subject = request.oidc.user?.sub;
-  if (!subject || !allowedSubjects.has(subject)) {
-    return response.status(403).json({ code: 'admin_access_required' });
-  }
-
-  return next();
+  return response.status(401).json({ code: 'authentication_required', message: 'Please log in to continue.' });
 }
 
 app.use('/api/admin', (request, response, next) => {
-  if (request.path === '/session') return next();
+  const publicAuthPaths = ['/session', '/login', '/logout', '/forgot-password', '/reset-password', '/smtp/status'];
+  if (publicAuthPaths.includes(request.path)) {
+    return next();
+  }
   return requireAdmin(request, response, next);
 });
 
@@ -1129,16 +1402,25 @@ async function dispatchAutomaticWhatsAppNotification(booking) {
 app.post(['/api/public/bookings', '/api/public/enquiries'], async (request, response, next) => {
   try {
     const motorcycles = await readMotorcycleCatalog();
-    const fields = validateBookingInput(request.body, motorcycles);
+    const isEnquiry = request.path.endsWith('/enquiries') || Boolean(request.body.enquiry);
+    const source = request.body.source || (isEnquiry ? 'motorcycle-details' : 'booking');
+    const fields = validateBookingInput({
+      ...request.body,
+      enquiry: isEnquiry,
+      source,
+    }, motorcycles);
     const booking = await createBooking(fields);
 
     // Automatically dispatch notification from the backend without client browser redirection
     dispatchAutomaticWhatsAppNotification(booking).catch(() => {});
 
     return response.status(201).json({
+      success: true,
       reference: booking.reference,
-      message: 'Your booking enquiry has been received.',
+      enquiryId: booking.reference,
+      message: 'Your enquiry has been successfully submitted to Vathilai Motors. Our dealership team will contact you shortly.',
       booking,
+      enquiry: booking,
     });
   } catch (error) {
     return next(error);
@@ -1405,20 +1687,22 @@ app.get('/api/admin/bookings', async (request, response, next) => {
   try {
     const rawBookings = await readBookings();
     const validStatuses = ['NOT_SENT', 'QUEUED', 'SENT', 'DELIVERED', 'READ', 'FAILED'];
-    const bookings = rawBookings.map((b) => {
-      let rawWa = String(b.whatsappStatus || '').toUpperCase();
-      if (!validStatuses.includes(rawWa)) {
-        rawWa = b.whatsappMessageId ? 'SENT' : 'NOT_SENT';
-      }
-      return {
-        ...b,
-        whatsappStatus: rawWa,
-      };
-    });
+    const bookings = rawBookings
+      .filter((b) => b.type !== 'enquiry' && !isDummyOrMockBooking(b))
+      .map((b) => {
+        let rawWa = String(b.whatsappStatus || '').toUpperCase();
+        if (!validStatuses.includes(rawWa)) {
+          rawWa = b.whatsappMessageId ? 'SENT' : 'NOT_SENT';
+        }
+        return {
+          ...b,
+          whatsappStatus: rawWa,
+        };
+      });
     return response.json({
       source: mongoDatabase ? 'mongodb' : 'server-database-engine',
       editable: true,
-      bookings: bookings.filter((b) => b.type !== 'enquiry'),
+      bookings,
       all: bookings,
     });
   } catch (error) {
@@ -1539,11 +1823,59 @@ app.patch(['/api/admin/bookings/:reference/status', '/api/admin/enquiries/:refer
 app.get('/api/admin/enquiries', async (request, response, next) => {
   try {
     const allBookings = await readBookings();
-    const enquiries = allBookings.filter((b) => b.type === 'enquiry');
+    const sourceParam = typeof request.query.source === 'string' ? request.query.source.trim() : '';
+    const statusParam = typeof request.query.status === 'string' ? request.query.status.trim() : '';
+
+    const formatted = allBookings
+      .filter((b) => b.type !== 'booking' && b.source !== 'booking')
+      .filter((b) => !isDummyOrMockBooking(b))
+      .map((b) => {
+        const source = b.source || 'motorcycle-details';
+      const customerName = b.customerName || b.customer?.name || b.name || '';
+      const mobileNumber = b.mobileNumber || b.customer?.phone || b.phone || '';
+      const email = b.email || b.customer?.email || '';
+      const city = b.city || b.customer?.city || '';
+      const model = b.motorcycleModel || b.model || '';
+      const variant = b.motorcycleVariant || b.variant || '';
+      const category = b.motorcycleCategory || b.category || '';
+      const preferredContactMethod = b.preferredContactMethod || b.customer?.preferredContactMethod || 'Call';
+      const message = b.message || b.customer?.message || '';
+      const status = b.enquiryStatus || b.status || 'new';
+
+      return {
+        ...b,
+        enquiryId: b.enquiryId || b.reference,
+        customerName,
+        mobileNumber,
+        email,
+        city,
+        motorcycleModel: model,
+        motorcycleVariant: variant,
+        motorcycleCategory: category,
+        preferredContactMethod,
+        message,
+        source,
+        enquiryStatus: status,
+        status,
+      };
+    });
+
+    // Default: return all customer enquiries (both motorcycle-details, general-contact, and explicit enquiries)
+    // Strictly keep enquiries only (no bookings and no mock data)
+    let filtered = formatted;
+    if (sourceParam && sourceParam !== 'all') {
+      filtered = formatted.filter((b) => b.source === sourceParam);
+    }
+
+    if (statusParam && statusParam !== 'all') {
+      filtered = filtered.filter((b) => b.status === statusParam || b.enquiryStatus === statusParam);
+    }
+
     return response.json({
       source: mongoDatabase ? 'mongodb' : 'server-database-engine',
       editable: true,
-      enquiries,
+      enquiries: filtered,
+      all: formatted,
     });
   } catch (error) {
     return next(error);
@@ -1690,11 +2022,80 @@ app.get('/api/admin/social/profiles', async (request, response, next) => {
   }
 });
 
+app.put('/api/admin/social/profiles', async (request, response, next) => {
+  try {
+    const { profiles: updatedProfiles, profile } = request.body || {};
+    let resultList = [];
+    if (Array.isArray(updatedProfiles)) {
+      await socialProfilesStore.mutate((profiles) => {
+        updatedProfiles.forEach((up) => {
+          const idx = profiles.findIndex((p) => p.id === up.id || p.platform?.toLowerCase() === up.platform?.toLowerCase());
+          if (idx >= 0) {
+            profiles[idx] = { ...profiles[idx], ...up, updatedAt: new Date().toISOString() };
+          } else if (up.platform) {
+            profiles.push({
+              id: up.id || `soc-${up.platform.toLowerCase().replace(/\s+/g, '-')}`,
+              platform: up.platform,
+              profileUrl: up.profileUrl || up.url || '',
+              handle: up.handle || '',
+              status: up.status || 'connected',
+              showInFooter: up.showInFooter !== false,
+              displayOrder: up.displayOrder || (profiles.length + 1),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          }
+        });
+        resultList = [...profiles];
+      });
+      const ig = resultList.find((p) => p.platform?.toLowerCase() === 'instagram');
+      if (ig?.profileUrl) {
+        await siteSettingsStore.mutate((settings) => { settings.instagramUrl = ig.profileUrl; });
+      }
+      await logAdminActivity('UPDATE', 'Social Profiles', 'Updated platform profiles and footer visibility');
+      return response.json({ profiles: resultList });
+    }
+
+    if (profile && (profile.id || profile.platform)) {
+      let updated;
+      await socialProfilesStore.mutate((profiles) => {
+        const idx = profiles.findIndex((p) => p.id === profile.id || p.platform?.toLowerCase() === profile.platform?.toLowerCase());
+        if (idx >= 0) {
+          updated = { ...profiles[idx], ...profile, updatedAt: new Date().toISOString() };
+          profiles[idx] = updated;
+        } else {
+          updated = {
+            id: profile.id || `soc-${profile.platform.toLowerCase().replace(/\s+/g, '-')}`,
+            platform: profile.platform,
+            profileUrl: profile.profileUrl || profile.url || '',
+            handle: profile.handle || '',
+            status: profile.status || 'connected',
+            showInFooter: profile.showInFooter !== false,
+            displayOrder: profile.displayOrder || (profiles.length + 1),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          profiles.push(updated);
+        }
+      });
+      if (updated.platform?.toLowerCase() === 'instagram' && updated.profileUrl) {
+        await siteSettingsStore.mutate((settings) => { settings.instagramUrl = updated.profileUrl; });
+      }
+      await logAdminActivity('UPDATE', `Social Profile: ${updated.platform}`, 'Updated profile details');
+      return response.json({ profile: updated });
+    }
+
+    throw apiError('Provide valid social profile payload.', 400, 'invalid_payload');
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.put('/api/admin/social/profiles/:id', async (request, response, next) => {
   try {
     let updated;
     await socialProfilesStore.mutate((profiles) => {
-      const index = profiles.findIndex((p) => p.id === request.params.id);
+      const index = profiles.findIndex((p) => p.id === request.params.id || p.platform?.toLowerCase() === request.params.id.toLowerCase());
       if (index < 0) throw apiError('Profile not found.', 404, 'profile_not_found');
       updated = {
         ...profiles[index],
@@ -1704,7 +2105,10 @@ app.put('/api/admin/social/profiles/:id', async (request, response, next) => {
       };
       profiles[index] = updated;
     });
-    await logAdminActivity('UPDATE', `Social Profile: ${updated.platform}`, 'Updated URL and connection status');
+    if (updated.platform?.toLowerCase() === 'instagram' && updated.profileUrl) {
+      await siteSettingsStore.mutate((settings) => { settings.instagramUrl = updated.profileUrl; });
+    }
+    await logAdminActivity('UPDATE', `Social Profile: ${updated.platform}`, `Updated URL and visibility (${updated.status})`);
     return response.json({ profile: updated });
   } catch (error) {
     return next(error);
@@ -2284,7 +2688,7 @@ app.put('/api/admin/seo/:id', async (request, response, next) => {
 // --- Users & Roles ---
 app.get('/api/admin/users', async (request, response, next) => {
   try {
-    const users = await usersStore.read();
+    const users = await listAdminUsers();
     return response.json({ users });
   } catch (error) {
     return next(error);
@@ -2293,61 +2697,33 @@ app.get('/api/admin/users', async (request, response, next) => {
 
 app.post('/api/admin/users', async (request, response, next) => {
   try {
-    const { name, email, role, status } = request.body || {};
-    if (!name || !email) throw apiError('Name and email are required.', 400, 'invalid_user');
-    const newUser = {
-      id: `usr-${Date.now()}-${randomBytes(3).toString('hex')}`,
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      role: role || 'Admin',
-      status: status || 'active',
-      lastLogin: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    await usersStore.mutate((users) => {
-      users.push(newUser);
-    });
-    await logAdminActivity('CREATE', `User: ${newUser.name}`, `Added user (${newUser.role})`);
+    const { name, email, password, role, status } = request.body || {};
+    const newUser = await createAdminUser({ name, email, password, role, status });
+    await logAdminActivity('CREATE', `User: ${newUser.name}`, `Added administrator (${newUser.role})`);
     return response.status(201).json({ user: newUser });
   } catch (error) {
-    return next(error);
+    return response.status(400).json({ code: 'user_create_failed', message: error.message });
   }
 });
 
 app.put('/api/admin/users/:id', async (request, response, next) => {
   try {
-    let updated;
-    await usersStore.mutate((users) => {
-      const index = users.findIndex((u) => u.id === request.params.id);
-      if (index < 0) throw apiError('User not found.', 404, 'user_not_found');
-      updated = {
-        ...users[index],
-        ...request.body,
-        id: users[index].id,
-        updatedAt: new Date().toISOString(),
-      };
-      users[index] = updated;
-    });
-    await logAdminActivity('UPDATE', `User: ${updated.name}`, 'Updated role/status');
+    const updated = await updateAdminUser(request.params.id, request.body || {});
+    await logAdminActivity('UPDATE', `User: ${updated.name}`, `Updated administrator details/role`);
     return response.json({ user: updated });
   } catch (error) {
-    return next(error);
+    return response.status(400).json({ code: 'user_update_failed', message: error.message });
   }
 });
 
 app.delete('/api/admin/users/:id', async (request, response, next) => {
   try {
-    await usersStore.mutate((users) => {
-      if (users.length <= 1) throw apiError('Cannot delete the last admin user.', 400, 'last_user');
-      const index = users.findIndex((u) => u.id === request.params.id);
-      if (index < 0) throw apiError('User not found.', 404, 'user_not_found');
-      users.splice(index, 1);
-    });
-    await logAdminActivity('DELETE', `User: ${request.params.id}`, 'Removed admin user');
+    const currentUserId = request.adminUser?.id || request.adminUser?.email;
+    await deleteAdminUser(request.params.id, currentUserId);
+    await logAdminActivity('DELETE', `User: ${request.params.id}`, 'Removed administrator account');
     return response.status(204).end();
   } catch (error) {
-    return next(error);
+    return response.status(400).json({ code: 'user_delete_failed', message: error.message });
   }
 });
 
@@ -2400,13 +2776,14 @@ app.put('/api/admin/settings', async (request, response, next) => {
 
 // --- Admin Profile ---
 app.get('/api/admin/profile', (request, response) => {
+  const current = request.adminUser || {};
   return response.json({
     user: {
-      name: 'Vathilai Motors Administrator',
-      email: 'admin@vathilaimotors.com',
-      role: 'Super Admin',
-      dealership: 'Vathilai Motors — Anna Salai, Chennai',
-      accessType: authConfigured ? 'Auth0 Production' : 'Local Development Admin',
+      name: current.name || 'Sanjay',
+      email: current.email || 'yourssanjay63@gmail.com',
+      role: current.role || 'Super Admin',
+      dealership: 'Vathilai Motors — Batlagundu',
+      accessType: authConfigured ? 'Auth0 Production' : 'Verified Dealership Admin',
     },
   });
 });
@@ -2470,9 +2847,33 @@ app.get('/api/public/home-page', async (request, response, next) => {
   }
 });
 
+app.get('/api/public/social-profiles', async (request, response, next) => {
+  try {
+    const rawProfiles = await socialProfilesStore.read();
+    const active = rawProfiles.filter((p) => {
+      const isVisible = p.status === 'connected' || p.status === 'active' || p.status === 'published';
+      const notHidden = p.status !== 'hidden' && p.status !== 'disconnected' && p.showInFooter !== false;
+      const hasUrl = Boolean((p.profileUrl || p.url) && (p.profileUrl || p.url) !== '#');
+      return isVisible && notHidden && hasUrl;
+    });
+    return response.json({ profiles: active });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.get('/api/public/settings', async (request, response, next) => {
   try {
-    const settings = await siteSettingsStore.read();
+    const [settings, rawProfiles] = await Promise.all([
+      siteSettingsStore.read(),
+      socialProfilesStore.read(),
+    ]);
+    const activeProfiles = rawProfiles.filter((p) => {
+      const isVisible = p.status === 'connected' || p.status === 'active' || p.status === 'published';
+      const notHidden = p.status !== 'hidden' && p.status !== 'disconnected' && p.showInFooter !== false;
+      const hasUrl = Boolean((p.profileUrl || p.url) && (p.profileUrl || p.url) !== '#');
+      return isVisible && notHidden && hasUrl;
+    });
     return response.json({
       settings: {
         dealershipName: settings.dealershipName || settings.showroomName,
@@ -2484,6 +2885,7 @@ app.get('/api/public/settings', async (request, response, next) => {
         whatsappVerified: settings.whatsappVerified,
         address: settings.address,
         instagramUrl: settings.instagramUrl,
+        socialProfiles: activeProfiles,
         businessCategory: settings.businessCategory,
         locality: settings.locality,
         postalCode: settings.postalCode,
@@ -2508,23 +2910,78 @@ app.get('/api/public/gallery', async (request, response, next) => {
   }
 });
 
+app.post('/api/public/data-deletion-request', async (request, response, next) => {
+  try {
+    const { fullName, phone, email, requestType, reason } = request.body || {};
+    const cleanPhone = String(phone || '').replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length < 10) {
+      return response.status(400).json({
+        code: 'invalid_phone',
+        message: 'A valid 10-digit mobile number is required to locate customer records.',
+      });
+    }
+
+    const referenceId = `DEL-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    try {
+      await logAdminActivity(
+        'CUSTOMER_DATA_DELETION_REQUEST',
+        `Phone: ${cleanPhone}`,
+        JSON.stringify({
+          referenceId,
+          fullName: fullName ? String(fullName).trim() : 'Anonymous',
+          phone: cleanPhone,
+          email: email ? String(email).trim().toLowerCase() : undefined,
+          requestType: requestType || 'full_deletion',
+          reason: reason ? String(reason).trim().slice(0, 500) : undefined,
+          status: 'pending_verification',
+          submittedAt: new Date().toISOString(),
+        }),
+        'Public Web Portal'
+      );
+    } catch (logErr) {
+      console.warn('Could not log data deletion activity:', logErr.message);
+    }
+
+    return response.status(200).json({
+      success: true,
+      referenceId,
+      message: 'Your data deletion request has been registered and is queued for verification and processing within 30 days.',
+      status: 'pending',
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.use('/api', (request, response) => {
   response.status(404).json({ code: 'api_route_not_found' });
 });
 
 if (!production && process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  app.get('/', (request, response) => response.status(200).send('Yamaha admin API is running.'));
+  app.get('/', (request, response, next) => {
+    if (existsSync(join(distributionDirectory, 'index.html'))) {
+      return response.sendFile(join(distributionDirectory, 'index.html'), (error) => {
+        if (error) next(error);
+      });
+    }
+    return response.status(200).send('Yamaha admin API is running.');
+  });
 }
 
-if (production) {
+if (production || existsSync(join(distributionDirectory, 'index.html'))) {
   app.use(express.static(distributionDirectory, { index: false }));
   app.use((request, response, next) => {
     if (!['GET', 'HEAD'].includes(request.method)) {
       return response.status(404).json({ code: 'route_not_found' });
     }
-    return response.sendFile(join(distributionDirectory, 'index.html'), (error) => {
-      if (error) next(error);
-    });
+    const distIndex = join(distributionDirectory, 'index.html');
+    if (existsSync(distIndex)) {
+      return response.sendFile(distIndex, (error) => {
+        if (error) next(error);
+      });
+    }
+    return next();
   });
 }
 
@@ -2541,8 +2998,16 @@ app.use((error, request, response, next) => {
 });
 
 const port = Number(process.env.PORT ?? 3001);
-const host = process.env.HOST ?? '127.0.0.1';
-export { app, initializeMongoDatabase };
+const host = process.env.HOST ?? (production ? '0.0.0.0' : '127.0.0.1');
+export {
+  app,
+  initializeMongoDatabase,
+  createBooking,
+  validateBookingInput,
+  setBookingStatus,
+  readBookings,
+  readMotorcycleCatalog,
+};
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   initializeMongoDatabase()
@@ -2550,8 +3015,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       app.listen(port, host, () => {
         if (authConfigured) {
           console.info(`Auth0 admin API listening on http://${host}:${port}.`);
-        } else if (development) {
-          console.warn('Admin API is using local development access. Do not expose it to the public internet.');
+        } else if (allowAdminFallback) {
+          console.warn(`Admin API started with local administration enabled on http://${host}:${port}.`);
         } else {
           console.warn('Admin API started without Auth0; admin API access is disabled.');
         }
