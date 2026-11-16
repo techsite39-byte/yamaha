@@ -29,14 +29,23 @@ async function runVerification() {
 
   try {
     // 3 & 4. Verify Health Endpoint
-    console.log('\n[2/8] Testing /health and /api/health endpoints...');
+    console.log('\n[2/8] Testing /health, /api/health, and root / endpoints...');
+    const rootRes = await fetch(`${baseUrl}/`);
+    assert.equal(rootRes.status, 200, `Root endpoint returned status ${rootRes.status}`);
     const healthRes = await fetch(`${baseUrl}/health`);
     assert.equal(healthRes.status, 200, `Health check returned status ${healthRes.status}`);
     const healthData = await healthRes.json();
     console.log('Health Response:', healthData);
     assert.equal(healthData.status, 'ok');
     assert.equal(healthData.database, 'connected');
-    console.log('✓ Health check passed with database: connected.');
+    console.log('✓ Health check and root endpoint passed with status 200.');
+
+    // Verify public catalog endpoint
+    const catalogRes = await fetch(`${baseUrl}/api/public/motorcycles`);
+    assert.equal(catalogRes.status, 200);
+    const catalogData = await catalogRes.json();
+    assert.ok(Array.isArray(catalogData.motorcycles) && catalogData.motorcycles.length > 0);
+    console.log(`✓ /api/public/motorcycles verified (${catalogData.motorcycles.length} models).`);
 
     // 8. Verify CORS from https://www.vathilaimotors.com
     console.log('\n[3/8] Testing CORS preflight and headers from https://www.vathilaimotors.com...');

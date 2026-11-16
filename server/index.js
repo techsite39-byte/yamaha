@@ -59,6 +59,7 @@ const serverDirectory = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(serverDirectory, '..');
 const publicDirectory = join(projectRoot, 'public');
 const distributionDirectory = join(projectRoot, 'dist');
+const hasStaticBuild = existsSync(join(distributionDirectory, 'index.html'));
 const motorcycleCatalogPath = join(serverDirectory, 'data', 'motorcycles.json');
 const bookingsPath = join(serverDirectory, 'data', 'bookings.json');
 let motorcycleMutationQueue = Promise.resolve();
@@ -513,7 +514,10 @@ async function withMongoTransaction(operation) {
 
 async function initializeMongoDatabase() {
   if (!mongoUri) {
-    if (production && isStandaloneExecution) throw new Error('MONGODB_URI must be configured before starting in production.');
+    if (production && isStandaloneExecution) {
+      console.warn('[Database] MONGODB_URI is not set in environment. Running in persistent file storage mode.');
+      return;
+    }
     console.warn('MongoDB is not configured; local development is using JSON-file storage.');
     return;
   }
@@ -566,10 +570,12 @@ async function initializeMongoDatabase() {
     mongoDatabase = database;
     setMongoDatabaseReference(database);
     setAuthMongoDatabase(database);
+    console.info(`[Database] MongoDB Atlas connected successfully (database: ${mongoDatabaseName}).`);
   } catch (error) {
-    await mongoClient.close();
+    console.error(`[Database] MongoDB connection failed: ${error.message}. Continuing in persistent file storage mode.`);
+    await mongoClient?.close();
     mongoClient = undefined;
-    throw error;
+    mongoDatabase = null;
   }
 }
 
@@ -1033,8 +1039,10 @@ if (authConfigured) {
   console.info('[Security] Native database-backed admin authentication active. All admin endpoints are strictly protected by requireAdmin.');
 }
 
-if (production && isStandaloneExecution && !existsSync(join(distributionDirectory, 'index.html'))) {
-  throw new Error('Production build is missing. Run the Vite build before starting the server.');
+if (hasStaticBuild) {
+  console.info(`[Server] Production static build detected. Serving frontend from ${distributionDirectory}.`);
+} else {
+  console.info('[Server] Operating in API-only backend mode (Vite frontend is hosted externally, e.g. on Vercel).');
 }
 
 const app = express();
@@ -2995,18 +3003,7 @@ app.use('/api', (request, response) => {
   response.status(404).json({ code: 'api_route_not_found' });
 });
 
-if (!production && process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  app.get('/', (request, response, next) => {
-    if (existsSync(join(distributionDirectory, 'index.html'))) {
-      return response.sendFile(join(distributionDirectory, 'index.html'), (error) => {
-        if (error) next(error);
-      });
-    }
-    return response.status(200).send('Yamaha admin API is running.');
-  });
-}
-
-if (production || existsSync(join(distributionDirectory, 'index.html'))) {
+if (hasStaticBuild) {
   app.use(express.static(distributionDirectory, { index: false }));
   app.use((request, response, next) => {
     if (!['GET', 'HEAD'].includes(request.method)) {
@@ -3019,6 +3016,17 @@ if (production || existsSync(join(distributionDirectory, 'index.html'))) {
       });
     }
     return next();
+  });
+} else {
+  // In API-only mode, respond to GET / with API service details so root health checks return 200
+  app.get('/', (request, response) => {
+    return response.status(200).json({
+      status: 'ok',
+      service: 'Vathilai Motors Yamaha Dealership API',
+      frontend: 'https://www.vathilaimotors.com',
+      health: '/health',
+      timestamp: new Date().toISOString(),
+    });
   });
 }
 
@@ -3048,20 +3056,17 @@ export {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   initializeMongoDatabase()
-    .then(() => {
-      app.listen(port, host, () => {
-        if (authConfigured) {
-          console.info(`Auth0 admin API listening on http://${host}:${port}.`);
-        } else if (allowAdminFallback) {
-          console.warn(`Admin API started with local administration enabled on http://${host}:${port}.`);
-        } else {
-          console.warn('Admin API started without Auth0; admin API access is disabled.');
-        }
-      });
+    .catch((err) => {
+      console.error('[Database] Unexpected initialization warning:', err?.message || err);
     })
-    .catch(async () => {
-      console.error('MongoDB initialization failed. Check MONGODB_URI, database access, and network settings.');
-      await mongoClient?.close();
-      process.exitCode = 1;
+    .finally(() => {
+      const server = app.listen(port, host, () => {
+        console.info(`[Server] Vathilai Motors backend API listening on http://${host}:${port}`);
+        console.info(`[Database] Storage: ${mongoDatabase ? 'MongoDB Atlas' : 'Persistent File Storage'}`);
+        console.info(`[Security] Auth: ${authConfigured ? 'Auth0' : 'Database-backed Admin Session Auth'}`);
+      });
+      server.on('error', (err) => {
+        console.error('[Server] Fatal listener error:', err);
+      });
     });
 }
