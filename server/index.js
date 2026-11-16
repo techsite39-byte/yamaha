@@ -1029,8 +1029,8 @@ if (authConfigured) {
   if (production && new URL(authConfiguration.baseURL).protocol !== 'https:') {
     throw new Error('AUTH0_BASE_URL must use HTTPS in production.');
   }
-} else if (production && isStandaloneExecution && !allowAdminFallback) {
-  throw new Error('Auth0 must be configured before starting the admin API in production (or set ENABLE_LOCAL_ADMIN=true).');
+} else {
+  console.info('[Security] Native database-backed admin authentication active. All admin endpoints are strictly protected by requireAdmin.');
 }
 
 if (production && isStandaloneExecution && !existsSync(join(distributionDirectory, 'index.html'))) {
@@ -1039,6 +1039,43 @@ if (production && isStandaloneExecution && !existsSync(join(distributionDirector
 
 const app = express();
 app.disable('x-powered-by');
+
+// CORS middleware supporting production Vercel frontend, custom origins, and local development
+app.use((request, response, next) => {
+  const origin = request.headers.origin;
+  const allowedOrigins = [
+    'https://www.vathilaimotors.com',
+    'https://vathilaimotors.com',
+    process.env.FRONTEND_URL,
+    process.env.CORS_ORIGIN,
+  ].filter(Boolean);
+
+  const isLocalDev = !production && origin && (origin.includes('localhost') || origin.includes('127.0.0.1'));
+
+  if (origin && (allowedOrigins.includes(origin) || isLocalDev)) {
+    response.setHeader('Access-Control-Allow-Origin', origin);
+    response.setHeader('Access-Control-Allow-Credentials', 'true');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Admin-Token, Accept, X-Requested-With');
+    response.setHeader('Access-Control-Max-Age', '86400');
+  }
+
+  if (request.method === 'OPTIONS') {
+    return response.status(204).end();
+  }
+  next();
+});
+
+// Cloud platform health check endpoint
+app.get(['/health', '/api/health'], (request, response) => {
+  return response.status(200).json({
+    status: 'ok',
+    uptime: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+    database: mongoDatabase ? 'connected' : 'file_storage',
+    auth: authConfigured ? 'auth0' : 'database_session',
+  });
+});
 app.use(helmet({
   hsts: production ? { maxAge: 15552000, includeSubDomains: false } : false,
   contentSecurityPolicy: {

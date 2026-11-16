@@ -5,14 +5,16 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: ENABLE_LOCAL_ADMIN
-        value: "true"
+      - key: FRONTEND_URL
+        value: https://www.vathilaimotors.com
       - key: MONGODB_URI
         sync: false
+      - key: MONGODB_DATABASE
+        value: yamaha
       - key: WHATSAPP_PHONE_NUMBER_ID
         sync: false
       - key: WHATSAPP_ACCESS_TOKEN
