@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {
   normalizeWhatsAppNumber,
@@ -234,4 +235,23 @@ test('WhatsApp Service: shouldUpdateStatus precedence', () => {
 
   // Failure always recorded
   assert.equal(shouldUpdateStatus('SENT', 'FAILED'), true);
+});
+
+test('WhatsApp Cloud API configuration declares five externally supplied secret identifiers', async () => {
+  const example = await readFile(new URL('./.env.example', import.meta.url), 'utf8');
+  const render = await readFile(new URL('../render.yaml', import.meta.url), 'utf8');
+  const keys = [
+    'WHATSAPP_VERIFY_TOKEN',
+    'WHATSAPP_APP_SECRET',
+    'WHATSAPP_ACCESS_TOKEN',
+    'WHATSAPP_PHONE_NUMBER_ID',
+    'WHATSAPP_BUSINESS_ACCOUNT_ID',
+  ];
+
+  for (const key of keys) {
+    assert.match(example, new RegExp(`^${key}=replace_with_[a-z0-9_]+$`, 'm'));
+    assert.match(render, new RegExp(`key: ${key}\\n\\s+sync: false`, 'm'));
+  }
+  assert.equal(example.includes('WHATSAPP_WEBHOOK_VERIFY_TOKEN'), false);
+  assert.equal(render.includes('WHATSAPP_WEBHOOK_VERIFY_TOKEN'), false);
 });

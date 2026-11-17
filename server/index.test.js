@@ -5,6 +5,9 @@ import { resolve } from 'node:path';
 import { test } from 'node:test';
 
 process.env.NODE_ENV = 'development';
+process.env.MONGODB_URI = '';
+process.env.WHATSAPP_VERIFY_TOKEN = 'test-only-whatsapp-verify-token';
+delete process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;
 for (const key of [
   'AUTH0_BASE_URL',
   'AUTH0_ISSUER_BASE_URL',
@@ -39,6 +42,41 @@ test('public business settings expose the current dealership details', async () 
     assert.equal(settings.whatsapp, '');
     assert.equal(settings.email, '');
   } finally {
+    await closeServer(server);
+  }
+});
+
+test('WhatsApp webhook aliases return the challenge and reject invalid tokens', async () => {
+  const server = app.listen(0, '127.0.0.1');
+  await new Promise((resolveListen) => server.once('listening', resolveListen));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const query = new URLSearchParams({
+    'hub.mode': 'subscribe',
+    'hub.verify_token': 'test-only-whatsapp-verify-token',
+    'hub.challenge': 'read-only-test-challenge',
+  });
+
+  try {
+    for (const alias of ['/api/public/whatsapp/webhook', '/api/whatsapp/webhook']) {
+      const valid = await fetch(`${base}${alias}?${query}`);
+      assert.equal(valid.status, 200);
+      assert.equal(await valid.text(), 'read-only-test-challenge');
+
+      const invalid = await fetch(`${base}${alias}?${new URLSearchParams({
+        'hub.mode': 'subscribe',
+        'hub.verify_token': 'wrong-test-token',
+        'hub.challenge': 'unused',
+      })}`);
+      assert.equal(invalid.status, 403);
+    }
+
+    delete process.env.WHATSAPP_VERIFY_TOKEN;
+    process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN = 'test-only-whatsapp-verify-token';
+    const legacyOnly = await fetch(`${base}/api/whatsapp/webhook?${query}`);
+    assert.equal(legacyOnly.status, 403);
+  } finally {
+    delete process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;
+    process.env.WHATSAPP_VERIFY_TOKEN = 'test-only-whatsapp-verify-token';
     await closeServer(server);
   }
 });
