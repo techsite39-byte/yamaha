@@ -20,7 +20,11 @@ services:
         sync: false
       - key: WHATSAPP_ACCESS_TOKEN
         sync: false
-      - key: WHATSAPP_WEBHOOK_VERIFY_TOKEN
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: WHATSAPP_BUSINESS_ACCOUNT_ID
         sync: false
       - key: WHATSAPP_API_VERSION
         value: v21.0

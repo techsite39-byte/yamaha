@@ -4,7 +4,7 @@ import { readFile, unlink } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { test } from 'node:test';
 
-process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'test';
 process.env.MONGODB_URI = '';
 process.env.WHATSAPP_VERIFY_TOKEN = 'test-only-whatsapp-verify-token';
 delete process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;

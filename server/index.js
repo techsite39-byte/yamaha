@@ -65,8 +65,10 @@ const motorcycleCatalogPath = join(serverDirectory, 'data', 'motorcycles.json');
 const bookingsPath = join(serverDirectory, 'data', 'bookings.json');
 let motorcycleMutationQueue = Promise.resolve();
 let bookingMutationQueue = Promise.resolve();
-dotenv.config({ path: join(serverDirectory, '.env') });
-dotenv.config({ path: join(serverDirectory, 'data', '.env') });
+if (process.env.NODE_ENV !== 'test' && !process.env.NODE_TEST_CONTEXT) {
+  dotenv.config({ path: join(serverDirectory, '.env') });
+  dotenv.config({ path: join(serverDirectory, 'data', '.env') });
+}
 const mongoUri = process.env.MONGODB_URI?.trim();
 const mongoDatabaseName = process.env.MONGODB_DATABASE?.trim() || 'yamaha';
 let mongoClient;

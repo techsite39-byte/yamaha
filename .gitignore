@@ -4,5 +4,6 @@ dist/
 *.zip
 .env
 .env.*
+!server/.env.example
 server/data/motorcycles.json
 server/data/bookings.json
