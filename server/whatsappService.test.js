@@ -99,7 +99,8 @@ test('WhatsApp Service: sendWhatsAppMessage with unconfigured provider', async (
 });
 
 test('WhatsApp Service: verifyWhatsAppWebhookChallenge', () => {
-  process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN = 'test_secret_token_123';
+  process.env.WHATSAPP_VERIFY_TOKEN = 'test_secret_token_123';
+  delete process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;
 
   // Successful challenge
   const valid = verifyWhatsAppWebhookChallenge({
@@ -117,6 +118,16 @@ test('WhatsApp Service: verifyWhatsAppWebhookChallenge', () => {
     'hub.challenge': 'CHALLENGE_STRING_XYZ',
   });
   assert.equal(invalid.verified, false);
+
+  delete process.env.WHATSAPP_VERIFY_TOKEN;
+  process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN = 'test_secret_token_123';
+  const legacyOnly = verifyWhatsAppWebhookChallenge({
+    'hub.mode': 'subscribe',
+    'hub.verify_token': 'test_secret_token_123',
+    'hub.challenge': 'CHALLENGE_STRING_XYZ',
+  });
+  assert.equal(legacyOnly.verified, false);
+  delete process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;
 });
 
 test('WhatsApp Service: parseWhatsAppWebhookPayload Meta format', () => {
@@ -150,7 +161,10 @@ test('WhatsApp Service: parseWhatsAppWebhookPayload Meta format', () => {
   assert.equal(parsed.length, 1);
   assert.equal(parsed[0].status, 'DELIVERED');
   assert.equal(parsed[0].messageId, 'wamid.HBgMOTE5MDI1MzM1NzIwFQIAERgSRDMzRjBCRDk1RkU0NDg5');
-  assert.equal(parsed[0].recipient, '919025335720');
+  assert.equal(parsed[0].customerPhone, '919025335720');
+  assert.equal(parsed[0].direction, 'outbound');
+  assert.equal(parsed[0].type, 'status');
+  assert.equal('raw' in parsed[0], false);
   assert.ok(parsed[0].timestamp);
 });
 
@@ -201,7 +215,9 @@ test('WhatsApp Service: parseWhatsAppWebhookPayload read & failed status', () =>
   };
   const parsedFailed = parseWhatsAppWebhookPayload(payloadFailed);
   assert.equal(parsedFailed[0].status, 'FAILED');
-  assert.match(parsedFailed[0].error, /Recipient phone number not valid/);
+  assert.equal(parsedFailed[0].customerPhone, '919025335720');
+  assert.equal('error' in parsedFailed[0], false);
+  assert.equal('raw' in parsedFailed[0], false);
 });
 
 test('WhatsApp Service: shouldUpdateStatus precedence', () => {

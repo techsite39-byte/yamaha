@@ -476,7 +476,8 @@ export function parseWhatsAppWebhookPayload(body, { businessAccountId } = {}) {
  * @returns {boolean}
  */
 export function shouldUpdateStatus(currentStatus, newStatus) {
-  if (!currentStatus || currentStatus === 'NOT_SENT') return true;
+  if (!currentStatus) return newStatus !== 'FAILED';
+  if (currentStatus === 'NOT_SENT') return true;
   if (currentStatus === newStatus) return true; // Safe idempotent update for timestamp/audit
   if (currentStatus === 'FAILED') return false;
   if (newStatus === 'FAILED') return ['QUEUED', 'SENT'].includes(currentStatus);

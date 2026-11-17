@@ -62,7 +62,7 @@ export function createWhatsAppWebhookRouter({
   });
 
   router.use((error, request, response, next) => {
-    if (response.headersSent) return next(error);
+    if (response.headersSent) return response.end();
     if (error?.type === 'entity.too.large') {
       return response.status(413).json({ error: 'Webhook payload is too large.' });
     }

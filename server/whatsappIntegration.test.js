@@ -145,7 +145,7 @@ test('WhatsApp Integration: Full delivery lifecycle and status transitions', asy
   assert.equal(booking.whatsappStatus, 'READ');
 
   // 6. Webhook Challenge Verification Test
-  process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN = 'vathilai_yamaha_secure_token';
+  process.env.WHATSAPP_VERIFY_TOKEN = 'vathilai_yamaha_secure_token';
   const challengeCheck = verifyWhatsAppWebhookChallenge({
     'hub.mode': 'subscribe',
     'hub.verify_token': 'vathilai_yamaha_secure_token',
