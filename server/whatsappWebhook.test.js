@@ -176,8 +176,21 @@ test('temporary JSON storage deduplicates messages and stores only metadata', as
 
   await store.persist(event);
   await store.persist(event);
+  const outboundEvent = (status, seconds) => ({
+    messageId: 'wamid.json-status-contract',
+    customerPhone: '919876543210',
+    type: 'status',
+    timestamp: new Date(seconds * 1000).toISOString(),
+    status,
+    direction: 'outbound',
+    processingStatus: 'processed',
+  });
+  await store.persist(outboundEvent('SENT', 1731672000));
+  await store.persist(outboundEvent('FAILED', 1731672001));
+  await store.persist(outboundEvent('DELIVERED', 1731672002));
   const saved = JSON.parse(await readFile(filePath, 'utf8'));
-  assert.equal(saved.length, 1);
+  assert.equal(saved.length, 2);
+  assert.equal(saved.find((item) => item.messageId === 'wamid.json-status-contract').status, 'FAILED');
   assert.deepEqual(Object.keys(saved[0]), [
     'messageId',
     'customerPhone',
