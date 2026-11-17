@@ -1,3 +1,5 @@
+import { buildApiUrl } from '../../config/api.js';
+
 export async function requestJson(path, { method = 'GET', body, headers: customHeaders } = {}) {
   const headers = { Accept: 'application/json', ...customHeaders };
   if (body !== undefined && !(body instanceof FormData)) {
@@ -12,12 +14,13 @@ export async function requestJson(path, { method = 'GET', body, headers: customH
     }
   }
 
-  const response = await fetch(path, {
+  const url = buildApiUrl(path);
+  const response = await fetch(url, {
     method,
     headers,
     body: body === undefined ? undefined : (body instanceof FormData ? body : JSON.stringify(body)),
     cache: 'no-store',
-    credentials: 'same-origin',
+    credentials: 'include',
   });
 
   const result = response.status === 204 ? {} : await response.json().catch(() => ({}));
@@ -50,12 +53,13 @@ export async function uploadMediaBinary(file) {
     }
   }
 
-  const response = await fetch(`/api/admin/media/upload?${query.toString()}`, {
+  const url = buildApiUrl(`/api/admin/media/upload?${query.toString()}`);
+  const response = await fetch(url, {
     method: 'POST',
     headers,
     body: file,
     cache: 'no-store',
-    credentials: 'same-origin',
+    credentials: 'include',
   });
 
   const result = response.status === 204 ? {} : await response.json().catch(() => ({}));

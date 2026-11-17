@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { buildApiUrl } from '../../config/api.js';
 import './YamahaHeroSlider.css';
 
 const SLIDES = [
@@ -68,7 +69,7 @@ function YamahaHeroSlider({ onExplore }) {
 
   useEffect(() => {
     let active = true;
-    fetch('/api/public/home-page')
+    fetch(buildApiUrl('/api/public/home-page'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!active || !data?.homePage?.slides?.length) return;

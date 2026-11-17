@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { buildApiUrl } from './config/api.js';
 import YamahaHeader from './components/Yamaha/YamahaHeader.jsx';
 import YamahaFooter from './components/Yamaha/YamahaFooter.jsx';
 import {
@@ -83,7 +84,7 @@ function App() {
 
   useEffect(() => {
     let active = true;
-    fetch('/api/public/motorcycles')
+    fetch(buildApiUrl('/api/public/motorcycles'))
       .then((response) => {
         if (!response.ok) throw new Error(`Catalogue request failed with status ${response.status}.`);
         return response.json();

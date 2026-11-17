@@ -8,6 +8,7 @@ import {
 } from './yamahaCatalogueUtils.js';
 import { getPhoneHref } from './businessConfig.js';
 import { useBusinessSettings } from './useBusinessSettings.js';
+import { buildApiUrl } from '../../config/api.js';
 import './YamahaBookingPage.css';
 
 const DEALERSHIPS = [
@@ -298,7 +299,7 @@ function YamahaBookingPage({
           ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       }
 
-      const response = await fetch('/api/public/bookings', {
+      const response = await fetch(buildApiUrl('/api/public/bookings'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

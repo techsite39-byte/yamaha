@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { defaultBusinessSettings } from './businessConfig.js';
+import { buildApiUrl } from '../../config/api.js';
 
 export function useBusinessSettings() {
   const [business, setBusiness] = useState(defaultBusinessSettings);
@@ -8,7 +9,7 @@ export function useBusinessSettings() {
   useEffect(() => {
     let active = true;
 
-    fetch('/api/public/settings')
+    fetch(buildApiUrl('/api/public/settings'))
       .then((response) => {
         if (!response.ok) throw new Error(`Business settings request failed with status ${response.status}.`);
         return response.json();

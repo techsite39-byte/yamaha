@@ -32,6 +32,25 @@ async function generateStaticRoutes() {
     { slug: 'book-now' },
     { slug: 'book-us' },
     { slug: 'motorcycle-details' },
+    {
+      slug: 'admin',
+      title: 'Admin Portal | Vathilai Motors Dealership Management',
+      desc: 'Authorised Dealership Administration Portal for Vathilai Motors Yamaha.',
+    },
+    { slug: 'admin/bookings' },
+    { slug: 'admin/enquiries' },
+    { slug: 'admin/motorcycles' },
+    { slug: 'admin/service-videos' },
+    { slug: 'admin/social' },
+    { slug: 'admin/reviews' },
+    { slug: 'admin/home-page' },
+    { slug: 'admin/media' },
+    { slug: 'admin/analytics' },
+    { slug: 'admin/profile' },
+    { slug: 'admin/seo' },
+    { slug: 'admin/users' },
+    { slug: 'admin/activity' },
+    { slug: 'admin/settings' },
   ];
 
   for (const item of routeConfigs) {

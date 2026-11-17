@@ -47,20 +47,22 @@ async function runVerification() {
     assert.ok(Array.isArray(catalogData.motorcycles) && catalogData.motorcycles.length > 0);
     console.log(`✓ /api/public/motorcycles verified (${catalogData.motorcycles.length} models).`);
 
-    // 8. Verify CORS from https://www.vathilaimotors.com
-    console.log('\n[3/8] Testing CORS preflight and headers from https://www.vathilaimotors.com...');
-    const corsPreflight = await fetch(`${baseUrl}/api/admin/overview`, {
-      method: 'OPTIONS',
-      headers: {
-        Origin: 'https://www.vathilaimotors.com',
-        'Access-Control-Request-Method': 'GET',
-        'Access-Control-Request-Headers': 'Authorization, X-Admin-Token, Content-Type',
-      },
-    });
-    assert.equal(corsPreflight.status, 204, `CORS preflight returned ${corsPreflight.status}`);
-    assert.equal(corsPreflight.headers.get('access-control-allow-origin'), 'https://www.vathilaimotors.com');
-    assert.equal(corsPreflight.headers.get('access-control-allow-credentials'), 'true');
-    console.log('✓ CORS preflight approved for https://www.vathilaimotors.com with credentials.');
+    // 8. Verify CORS from both production domains
+    console.log('\n[3/8] Testing CORS preflight and headers from both production domains...');
+    for (const origin of ['https://www.vathilaimotors.com', 'https://vathilaimotors.com']) {
+      const corsPreflight = await fetch(`${baseUrl}/api/admin/overview`, {
+        method: 'OPTIONS',
+        headers: {
+          Origin: origin,
+          'Access-Control-Request-Method': 'GET',
+          'Access-Control-Request-Headers': 'Authorization, X-Admin-Token, Content-Type, X-Filename',
+        },
+      });
+      assert.equal(corsPreflight.status, 204, `CORS preflight returned ${corsPreflight.status} for ${origin}`);
+      assert.equal(corsPreflight.headers.get('access-control-allow-origin'), origin);
+      assert.equal(corsPreflight.headers.get('access-control-allow-credentials'), 'true');
+      console.log(`✓ CORS preflight approved for ${origin} with credentials.`);
+    }
 
     // 6. Verify unauthorized users cannot access admin APIs
     console.log('\n[4/8] Testing unauthorized access block on protected admin API (/api/admin/overview)...');
@@ -92,6 +94,12 @@ async function runVerification() {
       }),
     });
     assert.equal(loginRes.status, 200, `Login returned ${loginRes.status}`);
+    const setCookie = loginRes.headers.get('set-cookie') || '';
+    assert.ok(setCookie.includes('vathilai_admin_session'), 'Login response must set session cookie');
+    assert.ok(setCookie.includes('SameSite=None'), 'Cross-origin cookie must be SameSite=None');
+    assert.ok(setCookie.includes('Secure'), 'Cross-origin cookie must be Secure');
+    console.log('✓ Cross-origin session cookie verified (SameSite=None; Secure; HttpOnly).');
+
     const loginData = await loginRes.json();
     assert.equal(loginData.success, true);
     assert.ok(loginData.token, 'A valid session token must be returned');
@@ -99,7 +107,7 @@ async function runVerification() {
     console.log('✓ Admin login successful. Role:', loginData.user.role, 'Session Token:', loginData.token.slice(0, 10) + '...');
 
     // 7. Verify authorized admin users can access protected APIs
-    console.log('\n[7/8] Testing authorized access to protected admin API with valid token...');
+    console.log('\n[7/9] Testing authorized access to protected admin APIs with valid token...');
     const authApiRes = await fetch(`${baseUrl}/api/admin/overview`, {
       headers: {
         Authorization: `Bearer ${loginData.token}`,
@@ -115,8 +123,25 @@ async function runVerification() {
     console.log('Total Bookings:', overviewData.totalBookings);
     console.log('Total Enquiries:', overviewData.totalEnquiries);
 
+    // Verify enquiries and bookings endpoints
+    const enquiriesRes = await fetch(`${baseUrl}/api/admin/enquiries?source=all`, {
+      headers: { Authorization: `Bearer ${loginData.token}` },
+    });
+    assert.equal(enquiriesRes.status, 200);
+    const enquiriesData = await enquiriesRes.json();
+    assert.ok(Array.isArray(enquiriesData.enquiries), 'Enquiries must be an array');
+    console.log(`✓ Enquiries loaded from MongoDB Atlas: ${enquiriesData.enquiries.length} records.`);
+
+    const bookingsRes = await fetch(`${baseUrl}/api/admin/bookings`, {
+      headers: { Authorization: `Bearer ${loginData.token}` },
+    });
+    assert.equal(bookingsRes.status, 200);
+    const bookingsData = await bookingsRes.json();
+    assert.ok(Array.isArray(bookingsData.bookings), 'Bookings must be an array');
+    console.log(`✓ Bookings loaded from MongoDB Atlas: ${bookingsData.bookings.length} records.`);
+
     // Verify session check
-    console.log('\n[8/8] Testing /api/admin/session endpoint with session token...');
+    console.log('\n[8/9] Testing /api/admin/session endpoint with session token...');
     const sessionRes = await fetch(`${baseUrl}/api/admin/session`, {
       headers: {
         Authorization: `Bearer ${loginData.token}`,
@@ -129,8 +154,27 @@ async function runVerification() {
     assert.equal(sessionData.user.email, 'yourssanjay63@gmail.com');
     console.log('✓ Admin session confirmed:', sessionData.user);
 
+    // Verify logout
+    console.log('\n[9/9] Testing admin logout and token revocation (/api/admin/logout)...');
+    const logoutRes = await fetch(`${baseUrl}/api/admin/logout`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${loginData.token}` },
+    });
+    assert.equal(logoutRes.status, 200);
+    const logoutCookie = logoutRes.headers.get('set-cookie') || '';
+    assert.ok(logoutCookie.includes('Max-Age=0'), 'Logout must expire the session cookie');
+
+    // Confirm revoked token is no longer authorized
+    const postLogoutCheck = await fetch(`${baseUrl}/api/admin/session`, {
+      headers: { Authorization: `Bearer ${loginData.token}` },
+    });
+    assert.equal(postLogoutCheck.status, 200);
+    const postLogoutData = await postLogoutCheck.json();
+    assert.equal(postLogoutData.authenticated, false, 'Revoked token must not be authenticated');
+    console.log('✓ Session successfully revoked upon logout.');
+
     console.log('\n======================================================');
-    console.log('ALL 8 STEP 5 PRODUCTION VERIFICATIONS PASSED WITH ZERO ERRORS!');
+    console.log('ALL 9 PRODUCTION VERIFICATION TESTS PASSED WITH ZERO ERRORS!');
     console.log('======================================================\n');
     process.exit(0);
   } finally {

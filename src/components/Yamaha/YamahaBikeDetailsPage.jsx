@@ -7,6 +7,7 @@ import {
 } from './yamahaCatalogueUtils.js';
 import { getDirectionsUrl, getPhoneHref } from './businessConfig.js';
 import { useBusinessSettings } from './useBusinessSettings.js';
+import { buildApiUrl } from '../../config/api.js';
 import './YamahaBikeDetailsPage.css';
 
 const CONTACT_METHODS = [
@@ -276,7 +277,7 @@ export function YamahaBikeDetailsPage({
         consent: true,
       };
 
-      const response = await fetch('/api/public/enquiries', {
+      const response = await fetch(buildApiUrl('/api/public/enquiries'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

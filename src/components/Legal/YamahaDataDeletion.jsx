@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { buildApiUrl } from '../../config/api.js';
 import './YamahaLegalPage.css';
 
 function YamahaDataDeletion({ onNavigate }) {
@@ -37,7 +38,7 @@ function YamahaDataDeletion({ onNavigate }) {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/public/data-deletion-request', {
+      const response = await fetch(buildApiUrl('/api/public/data-deletion-request'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getDirectionsUrl, getPhoneHref } from './businessConfig.js';
 import { useBusinessSettings } from './useBusinessSettings.js';
+import { buildApiUrl } from '../../config/api.js';
 import './YamahaFooter.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -88,7 +89,7 @@ function YamahaFooter({
 
   useEffect(() => {
     let active = true;
-    fetch('/api/public/social-profiles')
+    fetch(buildApiUrl('/api/public/social-profiles'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (active && Array.isArray(data?.profiles)) {

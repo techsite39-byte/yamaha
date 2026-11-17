@@ -1058,13 +1058,15 @@ app.use((request, response, next) => {
     process.env.CORS_ORIGIN,
   ].filter(Boolean);
 
+  const isVercelPreview = origin && origin.endsWith('.vercel.app');
   const isLocalDev = !production && origin && (origin.includes('localhost') || origin.includes('127.0.0.1'));
 
-  if (origin && (allowedOrigins.includes(origin) || isLocalDev)) {
+  if (origin && (allowedOrigins.includes(origin) || isVercelPreview || isLocalDev)) {
     response.setHeader('Access-Control-Allow-Origin', origin);
     response.setHeader('Access-Control-Allow-Credentials', 'true');
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Admin-Token, Accept, X-Requested-With');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Admin-Token, Accept, X-Requested-With, X-Filename');
+    response.setHeader('Access-Control-Expose-Headers', 'Authorization, X-Admin-Token, Set-Cookie');
     response.setHeader('Access-Control-Max-Age', '86400');
   }
 
@@ -1236,8 +1238,9 @@ app.post('/api/admin/login', async (request, response) => {
     const session = await createAdminSession(verifiedUser, { rememberMe: Boolean(rememberMe) });
     const maxAge = rememberMe ? 30 * 24 * 3600 : 24 * 3600;
 
+    const cookieSameSite = production ? 'SameSite=None; Secure' : 'SameSite=Lax';
     response.setHeader('Set-Cookie', [
-      `vathilai_admin_session=${encodeURIComponent(session.token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${production ? '; Secure' : ''}`,
+      `vathilai_admin_session=${encodeURIComponent(session.token)}; Path=/; HttpOnly; ${cookieSameSite}; Max-Age=${maxAge}`,
     ]);
 
     await logAdminActivity('LOGIN', `Admin: ${verifiedUser.name}`, `Logged in successfully as ${verifiedUser.email}`);
@@ -1258,8 +1261,9 @@ app.post('/api/admin/logout', async (request, response) => {
   if (token) {
     await revokeAdminSession(token);
   }
+  const cookieSameSite = production ? 'SameSite=None; Secure' : 'SameSite=Lax';
   response.setHeader('Set-Cookie', [
-    `vathilai_admin_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${production ? '; Secure' : ''}`,
+    `vathilai_admin_session=; Path=/; HttpOnly; ${cookieSameSite}; Max-Age=0`,
   ]);
   return response.json({ success: true, message: 'Logged out successfully.' });
 });
