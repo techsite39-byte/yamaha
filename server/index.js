@@ -453,14 +453,17 @@ async function updateBookingWhatsAppDelivery({ messageId, status, timestamp }) {
       if (!existing) return null;
       if (!shouldUpdateStatus(existing.whatsappStatus, status)) return bookingFromDocument(existing);
 
-      const updatedBooking = { ...existing };
-      if (!applyWhatsAppDeliveryToBooking(updatedBooking, { status, timestamp: eventTime }, now)) {
-        return bookingFromDocument(existing);
+      const setDoc = { whatsappStatus: status, updatedAt: now };
+      if (status === 'SENT') setDoc.whatsappSentAt = eventTime;
+      else if (status === 'DELIVERED') setDoc.whatsappDeliveredAt = eventTime;
+      else if (status === 'READ') setDoc.whatsappReadAt = eventTime;
+      else if (status === 'FAILED') {
+        setDoc.whatsappFailedAt = eventTime;
+        setDoc.whatsappError = 'Delivery failed.';
       }
       const observedStatus = existing.whatsappStatus === undefined
         ? { whatsappStatus: { $exists: false } }
         : { whatsappStatus: existing.whatsappStatus };
-      const { _id, ...setDoc } = updatedBooking;
       const result = await collection.updateOne(
         { whatsappMessageId: messageId, ...observedStatus },
         { $set: setDoc },
