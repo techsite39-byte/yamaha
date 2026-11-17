@@ -1,3 +1,5 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
 /**
  * WhatsApp Messaging & Webhook Delivery Service
  * Vathilai Motors — Authorised Yamaha Dealer
@@ -341,47 +343,85 @@ export function verifyWhatsAppWebhookChallenge(query) {
   const mode = query['hub.mode'];
   const token = query['hub.verify_token'];
   const challenge = query['hub.challenge'];
+  const expectedToken = process.env.WHATSAPP_VERIFY_TOKEN;
 
-  const expectedToken =
-    process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN ||
-    process.env.WHATSAPP_VERIFY_TOKEN ||
-    'vathilai_yamaha_webhook_secret';
-
-  if (mode === 'subscribe' && token === expectedToken) {
+  if (expectedToken && mode === 'subscribe' && token === expectedToken) {
     return { verified: true, challenge };
   }
 
   return {
     verified: false,
-    error: 'Webhook verification token mismatch or invalid mode.',
+    error: 'Webhook verification failed.',
   };
 }
 
+export function verifyWhatsAppWebhookSignature(rawBody, signature, secret) {
+  if (!Buffer.isBuffer(rawBody) || typeof signature !== 'string' || typeof secret !== 'string' || !secret) {
+    return false;
+  }
+
+  const match = /^sha256=([a-f0-9]{64})$/i.exec(signature);
+  if (!match) return false;
+
+  const expected = createHmac('sha256', secret).update(rawBody).digest();
+  const supplied = Buffer.from(match[1], 'hex');
+  return supplied.length === expected.length && timingSafeEqual(supplied, expected);
+}
+
+function normalizeWebhookTimestamp(value) {
+  if (typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value)) {
+    const date = new Date(Number(value) * 1000);
+    if (Number.isFinite(date.getTime())) return date.toISOString();
+  }
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const date = new Date(value * 1000);
+    if (Number.isFinite(date.getTime())) return date.toISOString();
+  }
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    if (Number.isFinite(date.getTime())) return date.toISOString();
+  }
+  return new Date().toISOString();
+}
+
 /**
- * Parses incoming webhook body into standardized status event objects.
- * Handles Meta Cloud API format (entry[].changes[].value.statuses[])
- * and generic status callbacks.
+ * Extracts allowlisted message metadata without retaining source payload objects.
  *
- * @param {object} body - req.body
- * @returns {Array<{ messageId: string, status: 'SENT'|'DELIVERED'|'READ'|'FAILED', recipient?: string, timestamp: string, error?: string, raw?: any }>}
+ * @param {object} body - Parsed Meta webhook payload.
+ * @param {{ businessAccountId?: string }} options
+ * @returns {Array<{ messageId: string, customerPhone: string, type: string, timestamp: string, status: string, direction: string, processingStatus: string }>}
  */
-export function parseWhatsAppWebhookPayload(body) {
+export function parseWhatsAppWebhookPayload(body, { businessAccountId } = {}) {
   const events = [];
 
   if (!body || typeof body !== 'object') {
     return events;
   }
 
-  // Meta Cloud API Webhook Format
   if (Array.isArray(body.entry)) {
     for (const entry of body.entry) {
+      if (businessAccountId && entry?.id !== businessAccountId) continue;
       if (!Array.isArray(entry.changes)) continue;
 
       for (const change of entry.changes) {
         const value = change.value;
         if (!value) continue;
 
-        // Message status updates
+        if (Array.isArray(value.messages)) {
+          for (const message of value.messages) {
+            if (!['text', 'image', 'document'].includes(message?.type) || !message.id) continue;
+            events.push({
+              messageId: String(message.id),
+              customerPhone: typeof message.from === 'string' ? message.from : '',
+              type: message.type,
+              timestamp: normalizeWebhookTimestamp(message.timestamp),
+              status: 'RECEIVED',
+              direction: 'inbound',
+              processingStatus: 'processed',
+            });
+          }
+        }
+
         if (Array.isArray(value.statuses)) {
           for (const statusObj of value.statuses) {
             const rawStatus = String(statusObj.status || '').toLowerCase();
@@ -393,22 +433,14 @@ export function parseWhatsAppWebhookPayload(body) {
             else if (rawStatus === 'failed') mappedStatus = 'FAILED';
 
             if (mappedStatus && statusObj.id) {
-              const timestamp = statusObj.timestamp
-                ? new Date(Number(statusObj.timestamp) * 1000).toISOString()
-                : new Date().toISOString();
-
-              let errorText = null;
-              if (Array.isArray(statusObj.errors) && statusObj.errors.length > 0) {
-                errorText = statusObj.errors.map((e) => e.title || e.message || JSON.stringify(e)).join('; ');
-              }
-
               events.push({
-                messageId: statusObj.id,
+                messageId: String(statusObj.id),
+                customerPhone: typeof statusObj.recipient_id === 'string' ? statusObj.recipient_id : '',
+                type: 'status',
+                timestamp: normalizeWebhookTimestamp(statusObj.timestamp),
                 status: mappedStatus,
-                recipient: statusObj.recipient_id,
-                timestamp,
-                error: errorText,
-                raw: statusObj,
+                direction: 'outbound',
+                processingStatus: 'processed',
               });
             }
           }
@@ -417,17 +449,17 @@ export function parseWhatsAppWebhookPayload(body) {
     }
   }
 
-  // Generic flat payload support (e.g. { messageId: '...', status: 'DELIVERED', timestamp: '...' })
   if (events.length === 0 && (body.messageId || body.id)) {
     const rawStatus = String(body.status || '').toUpperCase();
     if (['SENT', 'DELIVERED', 'READ', 'FAILED'].includes(rawStatus)) {
       events.push({
-        messageId: body.messageId || body.id,
+        messageId: String(body.messageId || body.id),
+        customerPhone: typeof (body.recipient || body.phone) === 'string' ? (body.recipient || body.phone) : '',
+        type: 'status',
+        timestamp: normalizeWebhookTimestamp(body.timestamp),
         status: rawStatus,
-        recipient: body.recipient || body.phone,
-        timestamp: body.timestamp || new Date().toISOString(),
-        error: body.error || null,
-        raw: body,
+        direction: 'outbound',
+        processingStatus: 'processed',
       });
     }
   }
@@ -446,11 +478,27 @@ export function parseWhatsAppWebhookPayload(body) {
 export function shouldUpdateStatus(currentStatus, newStatus) {
   if (!currentStatus || currentStatus === 'NOT_SENT') return true;
   if (currentStatus === newStatus) return true; // Safe idempotent update for timestamp/audit
-  if (newStatus === 'FAILED') return true; // Failures are always recorded
+  if (currentStatus === 'FAILED') return false;
+  if (newStatus === 'FAILED') return ['QUEUED', 'SENT'].includes(currentStatus);
 
   const currentLevel = STATUS_PRECEDENCE[currentStatus] ?? 0;
   const newLevel = STATUS_PRECEDENCE[newStatus] ?? 0;
 
   // Only allow forward progression (e.g. SENT -> DELIVERED -> READ)
   return newLevel > currentLevel;
+}
+
+export function applyWhatsAppDeliveryToBooking(booking, { status, timestamp }, now = new Date().toISOString()) {
+  if (!booking || !shouldUpdateStatus(booking.whatsappStatus, status)) return false;
+
+  booking.whatsappStatus = status;
+  booking.updatedAt = now;
+  if (status === 'SENT') booking.whatsappSentAt = timestamp;
+  else if (status === 'DELIVERED') booking.whatsappDeliveredAt = timestamp;
+  else if (status === 'READ') booking.whatsappReadAt = timestamp;
+  else if (status === 'FAILED') {
+    booking.whatsappFailedAt = timestamp;
+    booking.whatsappError = 'Delivery failed.';
+  }
+  return true;
 }

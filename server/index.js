@@ -31,10 +31,11 @@ import {
   normalizeWhatsAppNumber,
   formatBookingWhatsAppText,
   sendWhatsAppMessage,
-  verifyWhatsAppWebhookChallenge,
-  parseWhatsAppWebhookPayload,
+  applyWhatsAppDeliveryToBooking,
   shouldUpdateStatus,
 } from './whatsappService.js';
+import { createWhatsAppWebhookRouter } from './whatsappWebhookRoutes.js';
+import { createWhatsAppWebhookStore, ensureWhatsAppWebhookIndexes } from './whatsappWebhookStore.js';
 import {
   setAuthMongoDatabase,
   verifyAdminCredentials,
@@ -70,6 +71,10 @@ const mongoUri = process.env.MONGODB_URI?.trim();
 const mongoDatabaseName = process.env.MONGODB_DATABASE?.trim() || 'yamaha';
 let mongoClient;
 let mongoDatabase;
+const whatsAppWebhookStore = createWhatsAppWebhookStore({
+  getCollection: () => mongoDatabase?.collection('whatsapp_messages'),
+  filePath: join(serverDirectory, 'data', 'whatsapp_messages.json'),
+});
 const production = process.env.NODE_ENV === 'production';
 const development = process.env.NODE_ENV === 'development' || !production;
 const isStandaloneExecution = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
@@ -434,67 +439,42 @@ async function updateBookingWhatsAppFields(reference, updates) {
   });
 }
 
-async function updateBookingWhatsAppDelivery({ messageId, status, timestamp, error }) {
+async function updateBookingWhatsAppDelivery({ messageId, status, timestamp }) {
   if (!messageId) return null;
   const collection = getBookingCollection();
   const now = new Date().toISOString();
   const eventTime = timestamp || now;
 
   if (collection) {
-    const existing = await collection.findOne({ whatsappMessageId: messageId });
-    if (!existing) {
-      console.warn(`[WhatsApp Webhook] No booking found for message ID: ${messageId}`);
-      return null;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const existing = await collection.findOne({ whatsappMessageId: messageId });
+      if (!existing) return null;
+      if (!shouldUpdateStatus(existing.whatsappStatus, status)) return bookingFromDocument(existing);
+
+      const updatedBooking = { ...existing };
+      if (!applyWhatsAppDeliveryToBooking(updatedBooking, { status, timestamp: eventTime }, now)) {
+        return bookingFromDocument(existing);
+      }
+      const observedStatus = existing.whatsappStatus === undefined
+        ? { whatsappStatus: { $exists: false } }
+        : { whatsappStatus: existing.whatsappStatus };
+      const { _id, ...setDoc } = updatedBooking;
+      const result = await collection.updateOne(
+        { whatsappMessageId: messageId, ...observedStatus },
+        { $set: setDoc },
+      );
+      if (result.matchedCount === 1) {
+        const updated = await collection.findOne({ whatsappMessageId: messageId });
+        return updated ? bookingFromDocument(updated) : null;
+      }
     }
-
-    if (!shouldUpdateStatus(existing.whatsappStatus, status)) {
-      console.log(`[WhatsApp Webhook] Ignored regressive status update ${status} for existing ${existing.whatsappStatus} (${existing.reference})`);
-      return bookingFromDocument(existing);
-    }
-
-    const setDoc = {
-      whatsappStatus: status,
-      updatedAt: now,
-    };
-
-    if (status === 'SENT') {
-      setDoc.whatsappSentAt = eventTime;
-    } else if (status === 'DELIVERED') {
-      setDoc.whatsappDeliveredAt = eventTime;
-    } else if (status === 'READ') {
-      setDoc.whatsappReadAt = eventTime;
-    } else if (status === 'FAILED') {
-      setDoc.whatsappFailedAt = eventTime;
-      if (error) setDoc.whatsappError = error;
-    }
-
-    await collection.updateOne({ whatsappMessageId: messageId }, { $set: setDoc });
-    const updated = await collection.findOne({ whatsappMessageId: messageId });
-    return updated ? bookingFromDocument(updated) : null;
+    throw new Error('Booking delivery status could not be updated after bounded retries.');
   }
 
   return mutateBookings((bookings) => {
     const booking = bookings.find((b) => b.whatsappMessageId === messageId);
     if (!booking) return null;
-
-    if (!shouldUpdateStatus(booking.whatsappStatus, status)) {
-      return booking;
-    }
-
-    booking.whatsappStatus = status;
-    booking.updatedAt = now;
-
-    if (status === 'SENT') {
-      booking.whatsappSentAt = eventTime;
-    } else if (status === 'DELIVERED') {
-      booking.whatsappDeliveredAt = eventTime;
-    } else if (status === 'READ') {
-      booking.whatsappReadAt = eventTime;
-    } else if (status === 'FAILED') {
-      booking.whatsappFailedAt = eventTime;
-      if (error) booking.whatsappError = error;
-    }
-
+    applyWhatsAppDeliveryToBooking(booking, { status, timestamp: eventTime }, now);
     return booking;
   });
 }
@@ -528,11 +508,13 @@ async function initializeMongoDatabase() {
     const database = mongoClient.db(mongoDatabaseName);
     const motorcycles = database.collection('motorcycles');
     const bookings = database.collection('bookings');
+    const whatsAppMessages = database.collection('whatsapp_messages');
     await Promise.all([
       motorcycles.createIndex({ position: 1 }),
       bookings.createIndex({ requestId: 1 }, { unique: true }),
       bookings.createIndex({ reference: 1 }, { unique: true }),
       bookings.createIndex({ createdAt: -1 }),
+      ensureWhatsAppWebhookIndexes(whatsAppMessages),
     ]);
 
     // Purge legacy dummy / test seed records so only real customer records appear in database
@@ -1105,6 +1087,15 @@ app.use(helmet({
     },
   },
 }));
+app.use('/api', (request, response, next) => {
+  response.set('Cache-Control', 'no-store');
+  next();
+});
+const whatsAppWebhookRouter = createWhatsAppWebhookRouter({
+  store: whatsAppWebhookStore,
+  updateBookingDelivery: updateBookingWhatsAppDelivery,
+});
+app.use(['/api/public/whatsapp/webhook', '/api/whatsapp/webhook'], whatsAppWebhookRouter);
 app.use(express.json({ limit: '10mb' }));
 
 if (authConfigured) {
@@ -1160,11 +1151,6 @@ app.get('/login', (request, response, next) => {
   return request.oidc.login({
     returnTo: getAdminReturnPath(request.query.returnTo),
   }).catch(next);
-});
-
-app.use('/api', (request, response, next) => {
-  response.set('Cache-Control', 'no-store');
-  next();
 });
 
 function extractAdminToken(request) {
@@ -1381,47 +1367,6 @@ app.get('/api/public/motorcycles', async (request, response, next) => {
   try {
     return response.json({ motorcycles: await readMotorcycleCatalog() });
   } catch (error) {
-    return next(error);
-  }
-});
-
-// WhatsApp Webhook challenge verification for Meta WhatsApp Cloud API
-app.get(['/api/public/whatsapp/webhook', '/api/whatsapp/webhook'], (request, response) => {
-  const result = verifyWhatsAppWebhookChallenge(request.query);
-  if (result.verified) {
-    console.log('[WhatsApp Webhook] Challenge verified successfully.');
-    return response.status(200).send(result.challenge);
-  }
-  console.warn('[WhatsApp Webhook] Verification failed:', result.error);
-  return response.status(403).json({ error: result.error || 'Verification challenge failed.' });
-});
-
-// WhatsApp Webhook status event receiver for Meta / external status callbacks
-app.post(['/api/public/whatsapp/webhook', '/api/whatsapp/webhook'], async (request, response, next) => {
-  try {
-    const events = parseWhatsAppWebhookPayload(request.body);
-    console.log(`[WhatsApp Webhook] Received ${events.length} status event(s).`);
-
-    const updated = [];
-    for (const evt of events) {
-      const res = await updateBookingWhatsAppDelivery(evt);
-      if (res) {
-        updated.push({
-          reference: res.reference,
-          status: res.whatsappStatus,
-          messageId: evt.messageId,
-        });
-        console.log(`[WhatsApp Webhook] Booking ${res.reference} updated to ${res.whatsappStatus} (MsgID: ${evt.messageId})`);
-      }
-    }
-
-    return response.status(200).json({
-      success: true,
-      processed: events.length,
-      updated,
-    });
-  } catch (error) {
-    console.error('[WhatsApp Webhook] Error processing webhook event:', error);
     return next(error);
   }
 });
