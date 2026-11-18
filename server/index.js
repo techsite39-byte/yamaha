@@ -21,7 +21,6 @@ import {
   websiteSectionsStore,
   mediaLibraryStore,
   seoSettingsStore,
-  usersStore,
   siteSettingsStore,
   activityStore,
   logAdminActivity,
@@ -48,7 +47,9 @@ import {
   createAdminUser,
   updateAdminUser,
   deleteAdminUser,
+  validateAdminBootstrapConfig,
 } from './authService.js';
+import { createAdminAuthPolicy, validateAdminAuthConfiguration } from './adminAuthPolicy.js';
 import {
   sendPasswordResetEmail,
   isSmtpConfigured,
@@ -69,6 +70,7 @@ if (process.env.NODE_ENV !== 'test' && !process.env.NODE_TEST_CONTEXT) {
   dotenv.config({ path: join(serverDirectory, '.env') });
   dotenv.config({ path: join(serverDirectory, 'data', '.env') });
 }
+validateAdminBootstrapConfig({ production: process.env.NODE_ENV === 'production' });
 const mongoUri = process.env.MONGODB_URI?.trim();
 const mongoDatabaseName = process.env.MONGODB_DATABASE?.trim() || 'yamaha';
 let mongoClient;
@@ -995,34 +997,19 @@ const authConfiguration = {
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
   secret: process.env.AUTH0_SECRET,
 };
-const authKeys = Object.keys(authConfiguration);
-const suppliedAuthKeys = authKeys.filter((key) => authConfiguration[key]);
-const authConfigured = suppliedAuthKeys.length === authKeys.length;
 const allowedSubjects = new Set(
   (process.env.ADMIN_ALLOWED_SUBJECTS ?? '')
     .split(',')
     .map((subject) => subject.trim())
     .filter(Boolean),
 );
+const authConfigured = validateAdminAuthConfiguration({
+  production,
+  authConfiguration,
+  allowedSubjects,
+});
 
-const allowAdminFallback = development || process.env.ENABLE_LOCAL_ADMIN === 'true' || process.env.DISABLE_AUTH0 === 'true';
-
-if (suppliedAuthKeys.length > 0 && !authConfigured) {
-  const missingKeys = authKeys.filter((key) => !authConfiguration[key]);
-  throw new Error(`Auth0 configuration is incomplete. Missing settings: ${missingKeys.join(', ')}.`);
-}
-
-if (authConfigured) {
-  if (authConfiguration.secret.length < 32) {
-    throw new Error('AUTH0_SECRET must contain at least 32 characters.');
-  }
-  if (allowedSubjects.size === 0) {
-    throw new Error('Set ADMIN_ALLOWED_SUBJECTS to one or more exact Auth0 user subject IDs.');
-  }
-  if (production && new URL(authConfiguration.baseURL).protocol !== 'https:') {
-    throw new Error('AUTH0_BASE_URL must use HTTPS in production.');
-  }
-} else {
+if (!authConfigured) {
   console.info('[Security] Native database-backed admin authentication active. All admin endpoints are strictly protected by requireAdmin.');
 }
 
@@ -1171,38 +1158,26 @@ function extractAdminToken(request) {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+const adminAuthPolicy = createAdminAuthPolicy({
+  production,
+  authConfigured,
+  allowedSubjects,
+  getAdminSession,
+  getToken: extractAdminToken,
+});
+
 app.get('/api/admin/session', async (request, response) => {
-  const token = extractAdminToken(request);
-  if (token) {
-    const session = await getAdminSession(token);
-    if (session) {
-      return response.json({
-        authenticated: true,
-        isAdmin: true,
-        user: session.user,
-      });
-    }
-  }
-
-  if (authConfigured && request.oidc?.isAuthenticated()) {
-    const user = request.oidc.user;
-    const isAdmin = Boolean(user?.sub && allowedSubjects.has(user.sub));
-    return response.json({
-      authenticated: true,
-      isAdmin,
-      user: isAdmin
-        ? { name: user.name ?? user.email ?? 'Administrator', email: user.email, role: 'Super Admin' }
-        : undefined,
-    });
-  }
-
-  return response.json({
-    authenticated: false,
-    isAdmin: false,
-  });
+  return response.json(await adminAuthPolicy.getSessionStatus(request));
 });
 
 app.post('/api/admin/login', async (request, response) => {
+  if (!adminAuthPolicy.nativeLoginAllowed) {
+    return response.status(403).json({
+      code: 'auth0_required',
+      message: 'Administrator sign-in must use Auth0.',
+    });
+  }
+
   try {
     const { email, password, rememberMe } = request.body || {};
     if (!email || !password) {
@@ -1339,33 +1314,12 @@ app.post('/api/admin/reset-password', async (request, response) => {
   }
 });
 
-async function requireAdmin(request, response, next) {
-  const token = extractAdminToken(request);
-  if (token) {
-    const session = await getAdminSession(token);
-    if (session) {
-      request.adminUser = session.user;
-      return next();
-    }
-  }
-
-  if (authConfigured && request.oidc?.isAuthenticated()) {
-    const subject = request.oidc.user?.sub;
-    if (subject && allowedSubjects.has(subject)) {
-      request.adminUser = request.oidc.user;
-      return next();
-    }
-  }
-
-  return response.status(401).json({ code: 'authentication_required', message: 'Please log in to continue.' });
-}
-
 app.use('/api/admin', (request, response, next) => {
   const publicAuthPaths = ['/session', '/login', '/logout', '/forgot-password', '/reset-password', '/smtp/status'];
   if (publicAuthPaths.includes(request.path)) {
     return next();
   }
-  return requireAdmin(request, response, next);
+  return adminAuthPolicy.requireAdmin(request, response, next);
 });
 
 app.get('/api/public/motorcycles', async (request, response, next) => {
