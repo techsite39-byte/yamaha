@@ -632,19 +632,6 @@ export const defaultSeoSettings = [
   },
 ];
 
-export const defaultUsers = [
-  {
-    id: 'adm-1',
-    name: 'Sanjay',
-    email: 'yourssanjay63@gmail.com',
-    role: 'Super Admin',
-    status: 'Active',
-    lastLogin: new Date().toISOString(),
-    createdAt: '2026-10-01T00:00:00.000Z',
-    updatedAt: '2026-11-16T00:00:00.000Z',
-  },
-];
-
 export const defaultSiteSettings = {
   ...defaultBusinessSettings,
   availableSlots: [
@@ -681,7 +668,7 @@ export const homePageStore = createDataStore('homePage', defaultHomePage, true);
 export const websiteSectionsStore = createDataStore('websiteSections', defaultWebsiteSections);
 export const mediaLibraryStore = createDataStore('mediaLibrary', defaultMediaLibrary);
 export const seoSettingsStore = createDataStore('seoSettings', defaultSeoSettings);
-export const usersStore = createDataStore('users', defaultUsers);
+export const usersStore = createDataStore('users', []);
 export const siteSettingsStore = createDataStore('siteSettings', defaultSiteSettings, true);
 export const activityStore = createDataStore('activity', defaultActivityLogs);
 

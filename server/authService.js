@@ -1,30 +1,15 @@
 import { randomBytes, createHash } from 'node:crypto';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const authFilePath = join(__dirname, 'data', 'adminAuth.json');
-
-const DEFAULT_SALT = 'vathilai_admin_salt_2026';
-// sha256 of 'vathilai_admin_salt_2026:admin123456#'
-const DEFAULT_HASH = 'db0d819cde72cf2ceab70eaa696f269b64002a4056bc36d8eb661e1b9a6668c3';
-
-export const DEFAULT_ADMIN = {
-  id: 'adm-1',
-  email: 'yourssanjay63@gmail.com',
-  name: 'Sanjay',
-  role: 'Super Admin',
-  status: 'Active',
-  passwordHash: DEFAULT_HASH,
-  salt: DEFAULT_SALT,
-  resetCode: null,
-  resetExpires: null,
-  createdAt: '2026-11-16T00:00:00.000Z',
-  updatedAt: '2026-11-16T00:00:00.000Z',
-};
+const testAuthFilePath = process.env.NODE_ENV === 'test' && process.env.ADMIN_AUTH_STORE_PATH;
+const authFilePath = testAuthFilePath
+  ? resolve(testAuthFilePath)
+  : join(__dirname, 'data', 'adminAuth.json');
 
 let mongoDbRef = null;
 
@@ -32,20 +17,76 @@ export function setAuthMongoDatabase(db) {
   mongoDbRef = db;
 }
 
+export function validateAdminBootstrapConfig({ production = process.env.NODE_ENV === 'production' } = {}) {
+  const emailIsSet = process.env.ADMIN_BOOTSTRAP_EMAIL !== undefined;
+  const passwordIsSet = process.env.ADMIN_BOOTSTRAP_PASSWORD !== undefined;
+
+  if (production && (emailIsSet || passwordIsSet)) {
+    throw new Error('ADMIN_BOOTSTRAP_EMAIL and ADMIN_BOOTSTRAP_PASSWORD cannot be set in production.');
+  }
+  if (emailIsSet !== passwordIsSet) {
+    throw new Error('Set both ADMIN_BOOTSTRAP_EMAIL and ADMIN_BOOTSTRAP_PASSWORD to bootstrap an administrator.');
+  }
+  if (!emailIsSet) return null;
+
+  const email = process.env.ADMIN_BOOTSTRAP_EMAIL.trim().toLowerCase();
+  const password = process.env.ADMIN_BOOTSTRAP_PASSWORD;
+  if (!email || !email.includes('@')) {
+    throw new Error('ADMIN_BOOTSTRAP_EMAIL must be a valid email address.');
+  }
+  if (password.length < 12) {
+    throw new Error('ADMIN_BOOTSTRAP_PASSWORD must contain at least 12 characters.');
+  }
+
+  return { email, password };
+}
+
 export function hashPassword(password, salt) {
   return createHash('sha256').update(`${salt}:${password}`).digest('hex');
 }
 
+async function createEmptyAuthStore(existingStore = { adminUsers: [], sessions: [] }) {
+  const bootstrap = validateAdminBootstrapConfig();
+  const store = {
+    ...existingStore,
+    adminUsers: [],
+    sessions: Array.isArray(existingStore.sessions) ? existingStore.sessions : [],
+  };
+  if (!bootstrap) return store;
+
+  const now = new Date().toISOString();
+  const salt = randomBytes(16).toString('hex');
+  store.adminUsers.push({
+    id: `adm-${Date.now()}-${randomBytes(3).toString('hex')}`,
+    email: bootstrap.email,
+    name: bootstrap.email.split('@')[0],
+    role: 'Super Admin',
+    status: 'Active',
+    passwordHash: hashPassword(bootstrap.password, salt),
+    salt,
+    resetCode: null,
+    resetExpires: null,
+    createdAt: now,
+    updatedAt: now,
+  });
+  await writeAuthStore(store);
+  return store;
+}
+
 export async function readAuthStore() {
+  validateAdminBootstrapConfig();
+
   if (mongoDbRef) {
     try {
       const col = mongoDbRef.collection('admin_auth');
       const doc = await col.findOne({ _id: 'admin_auth_store' });
-      if (doc && Array.isArray(doc.adminUsers) && doc.adminUsers.length > 0) {
-        return {
+      if (doc && Array.isArray(doc.adminUsers)) {
+        const store = {
           adminUsers: doc.adminUsers,
           sessions: Array.isArray(doc.sessions) ? doc.sessions : [],
         };
+        if (store.adminUsers.length > 0) return store;
+        return createEmptyAuthStore(store);
       }
     } catch (e) {
       console.warn('[AuthService] MongoDB read failed, falling back to JSON file:', e.message);
@@ -56,20 +97,19 @@ export async function readAuthStore() {
     if (existsSync(authFilePath)) {
       const raw = await readFile(authFilePath, 'utf8');
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed.adminUsers) && parsed.adminUsers.length > 0) {
-        return parsed;
+      if (Array.isArray(parsed.adminUsers)) {
+        if (parsed.adminUsers.length > 0) return parsed;
+        return createEmptyAuthStore(parsed);
       }
+      throw new Error('The admin auth store has an invalid format.');
     }
   } catch (e) {
-    console.warn('[AuthService] Could not read adminAuth.json, initializing default:', e.message);
+    if (e.code !== 'ENOENT') {
+      throw new Error('Could not read the admin auth store.', { cause: e });
+    }
   }
 
-  const initial = {
-    adminUsers: [DEFAULT_ADMIN],
-    sessions: [],
-  };
-  await writeAuthStore(initial);
-  return initial;
+  return createEmptyAuthStore();
 }
 
 export async function writeAuthStore(data) {
@@ -108,7 +148,8 @@ export async function verifyAdminCredentials(rawEmail, password) {
     throw error;
   }
 
-  const hash = hashPassword(password, user.salt || DEFAULT_SALT);
+  if (!user.salt || !user.passwordHash) return null;
+  const hash = hashPassword(password, user.salt);
   if (hash !== user.passwordHash) {
     return null;
   }
@@ -396,8 +437,9 @@ export async function deleteAdminUser(id, currentUserId) {
     throw new Error('Administrator account not found.');
   }
 
-  if (user.email.toLowerCase() === 'yourssanjay63@gmail.com') {
-    throw new Error('Cannot delete the primary Super Administrator account.');
+  if (user.role === 'Super Admin'
+    && store.adminUsers.filter((admin) => admin.role === 'Super Admin').length === 1) {
+    throw new Error('Cannot delete the last Super Administrator account.');
   }
 
   if (currentUserId && (user.id === currentUserId || user.email.toLowerCase() === String(currentUserId).toLowerCase())) {
