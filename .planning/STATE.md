@@ -4,9 +4,9 @@ current_phase: 1
 current_phase_name: Live Overview & Trust Gaps
 status: human_needed
 stopped_at: Phase 1 implementation verified; authenticated runtime and MongoDB checks remain
-last_updated: "2026-11-18T02:10:55.332Z"
+last_updated: "2026-11-18T04:57:45.976Z"
 last_activity: 2026-11-18
-last_activity_desc: "Completed quick task 261118: Production Auth0-only admin access and safe local bootstrap."
+last_activity_desc: "Completed quick task 261118-pwr: Password-reset security remediation; Phase 1 human verification remains."
 state_head: 02f695eee27561477bf50fb07bd5eef68ba3946a
 progress:
   total_phases: 5
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-11-14)
 Phase: 1 of 5 (Live Overview & Trust Gaps)
 Plan: 01-01 and 01-02 complete
 Status: Human verification required
-Last activity: 2026-11-18 — Completed quick task 261118: Production Auth0-only admin access and safe local bootstrap. Phase 1 human verification remains.
+Last activity: 2026-11-18 — Completed quick task 261118-pwr: Password-reset security remediation. Phase 1 human verification remains.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -78,6 +78,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 261117-k4w | WhatsApp Cloud API webhook integration | 2026-11-17 | 9b6aaf4 | [261117-k4w-integrate-whatsapp-cloud-api-webhook-ver](./quick/261117-k4w-integrate-whatsapp-cloud-api-webhook-ver/) |
 | 261118 | Production Auth0-only admin access and safe local bootstrap | 2026-11-18 | 02f695e | [261118-auth0-production-bypass](./quick/261118-auth0-production-bypass/) |
+| 261118-pwr | Password-reset security remediation | 2026-11-18 | — | [20261118-password-reset-remediation](./quick/20261118-password-reset-remediation/) |
 
 ## Deferred Items
 

@@ -55,6 +55,12 @@
   width: fit-content;
 }
 
+.yamaha-footer__logo picture {
+  display: block;
+  height: 44px;
+  line-height: 0;
+}
+
 .yamaha-footer__emblem {
   width: 38px;
   height: 38px;

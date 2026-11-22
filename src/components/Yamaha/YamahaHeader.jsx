@@ -40,11 +40,17 @@ function YamahaHeader({
         }}
       >
         <div className="yamaha-header__logo-container">
-          <img
-            src="/imgs/favicon.png"
-            alt="Vathilai Motors Logo"
-            className="yamaha-header__logo-img"
-          />
+          <picture>
+            <source type="image/avif" srcSet="/imgs/favicon-512.avif" />
+            <source type="image/webp" srcSet="/imgs/favicon-512.webp" />
+            <img
+              src="/imgs/favicon-512.png"
+              alt="Vathilai Motors Logo"
+              className="yamaha-header__logo-img"
+              width={512}
+              height={341}
+            />
+          </picture>
         </div>
         <div className="yamaha-header__titles">
           <div className="yamaha-header__primary-line">

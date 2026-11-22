@@ -9,6 +9,7 @@ delete process.env.DISABLE_AUTH0;
 
 // Load real database and config
 dotenv.config({ path: 'server/.env' });
+const auth0SessionCookie = process.env.AUTH0_SESSION_COOKIE || '';
 
 console.log('--- RUNNING STEP 5 VERIFICATION SUITE IN PRODUCTION MODE ---');
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -82,35 +83,30 @@ async function runVerification() {
     assert.equal(fakeTokenRes.status, 401, `Expected 401 but got ${fakeTokenRes.status}`);
     console.log('✓ Tampered/invalid token strictly rejected with HTTP 401.');
 
-    // 5. Verify admin authentication
-    console.log('\n[6/8] Testing admin login (/api/admin/login)...');
-    const loginRes = await fetch(`${baseUrl}/api/admin/login`, {
+    console.log('\n[6/8] Verifying native admin login is disabled in production...');
+    const nativeLoginRes = await fetch(`${baseUrl}/api/admin/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: 'yourssanjay63@gmail.com',
-        password: 'admin123456#',
-        rememberMe: true,
+        email: 'native-login-disabled@example.invalid',
+        password: 'not-a-real-credential',
       }),
     });
-    assert.equal(loginRes.status, 200, `Login returned ${loginRes.status}`);
-    const setCookie = loginRes.headers.get('set-cookie') || '';
-    assert.ok(setCookie.includes('vathilai_admin_session'), 'Login response must set session cookie');
-    assert.ok(setCookie.includes('SameSite=None'), 'Cross-origin cookie must be SameSite=None');
-    assert.ok(setCookie.includes('Secure'), 'Cross-origin cookie must be Secure');
-    console.log('✓ Cross-origin session cookie verified (SameSite=None; Secure; HttpOnly).');
+    assert.equal(nativeLoginRes.status, 403, `Native login returned ${nativeLoginRes.status}`);
+    assert.equal((await nativeLoginRes.json()).code, 'auth0_required');
+    console.log('✓ Production native login was rejected.');
 
-    const loginData = await loginRes.json();
-    assert.equal(loginData.success, true);
-    assert.ok(loginData.token, 'A valid session token must be returned');
-    assert.equal(loginData.user.role, 'Super Admin');
-    console.log('✓ Admin login successful. Role:', loginData.user.role, 'Session Token:', loginData.token.slice(0, 10) + '...');
+    if (!auth0SessionCookie) {
+      console.log('Skipping allowlisted-admin data checks; AUTH0_SESSION_COOKIE was not provided.');
+      return;
+    }
+    const auth0Headers = { Cookie: auth0SessionCookie };
 
     // 7. Verify authorized admin users can access protected APIs
-    console.log('\n[7/9] Testing authorized access to protected admin APIs with valid token...');
+    console.log('\n[7/9] Testing authorized access using an existing Auth0 session...');
     const authApiRes = await fetch(`${baseUrl}/api/admin/overview`, {
       headers: {
-        Authorization: `Bearer ${loginData.token}`,
+        ...auth0Headers,
         Origin: 'https://www.vathilaimotors.com',
       },
     });
@@ -125,7 +121,7 @@ async function runVerification() {
 
     // Verify enquiries and bookings endpoints
     const enquiriesRes = await fetch(`${baseUrl}/api/admin/enquiries?source=all`, {
-      headers: { Authorization: `Bearer ${loginData.token}` },
+      headers: auth0Headers,
     });
     assert.equal(enquiriesRes.status, 200);
     const enquiriesData = await enquiriesRes.json();
@@ -133,7 +129,7 @@ async function runVerification() {
     console.log(`✓ Enquiries loaded from MongoDB Atlas: ${enquiriesData.enquiries.length} records.`);
 
     const bookingsRes = await fetch(`${baseUrl}/api/admin/bookings`, {
-      headers: { Authorization: `Bearer ${loginData.token}` },
+      headers: auth0Headers,
     });
     assert.equal(bookingsRes.status, 200);
     const bookingsData = await bookingsRes.json();
@@ -143,40 +139,26 @@ async function runVerification() {
     // Verify session check
     console.log('\n[8/9] Testing /api/admin/session endpoint with session token...');
     const sessionRes = await fetch(`${baseUrl}/api/admin/session`, {
-      headers: {
-        Authorization: `Bearer ${loginData.token}`,
-      },
+      headers: auth0Headers,
     });
     assert.equal(sessionRes.status, 200);
     const sessionData = await sessionRes.json();
     assert.equal(sessionData.authenticated, true);
     assert.equal(sessionData.isAdmin, true);
-    assert.equal(sessionData.user.email, 'yourssanjay63@gmail.com');
-    console.log('✓ Admin session confirmed:', sessionData.user);
+    console.log('✓ Allowlisted Auth0 admin session confirmed.');
 
     // Verify logout
-    console.log('\n[9/9] Testing admin logout and token revocation (/api/admin/logout)...');
-    const logoutRes = await fetch(`${baseUrl}/api/admin/logout`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${loginData.token}` },
+    console.log('\n[9/9] Testing Auth0 logout routing...');
+    const logoutRes = await fetch(`${baseUrl}/logout`, {
+      headers: auth0Headers,
+      redirect: 'manual',
     });
-    assert.equal(logoutRes.status, 200);
-    const logoutCookie = logoutRes.headers.get('set-cookie') || '';
-    assert.ok(logoutCookie.includes('Max-Age=0'), 'Logout must expire the session cookie');
-
-    // Confirm revoked token is no longer authorized
-    const postLogoutCheck = await fetch(`${baseUrl}/api/admin/session`, {
-      headers: { Authorization: `Bearer ${loginData.token}` },
-    });
-    assert.equal(postLogoutCheck.status, 200);
-    const postLogoutData = await postLogoutCheck.json();
-    assert.equal(postLogoutData.authenticated, false, 'Revoked token must not be authenticated');
-    console.log('✓ Session successfully revoked upon logout.');
+    assert.equal(logoutRes.status, 302);
+    console.log('✓ Auth0 logout redirect returned.');
 
     console.log('\n======================================================');
-    console.log('ALL 9 PRODUCTION VERIFICATION TESTS PASSED WITH ZERO ERRORS!');
+    console.log('PRODUCTION AUTHENTICATION VERIFICATION PASSED.');
     console.log('======================================================\n');
-    process.exit(0);
   } finally {
     server.close();
   }

@@ -41,6 +41,9 @@ function YamahaIntro() {
     let lastRequestedFrame = -1;
     let lastDrawnFrame = -1;
     let prefetchedThrough = -1;
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    let pixelRatio = 1;
     const frames = new Map();
     const activeImages = new Set();
 
@@ -83,38 +86,52 @@ function YamahaIntro() {
       return promise;
     };
 
+    const updateCanvasSize = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return false;
+
+      const nextPixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      const pixelWidth = Math.round(rect.width * nextPixelRatio);
+      const pixelHeight = Math.round(rect.height * nextPixelRatio);
+      const resized =
+        rect.width !== canvasWidth ||
+        rect.height !== canvasHeight ||
+        nextPixelRatio !== pixelRatio ||
+        canvas.width !== pixelWidth ||
+        canvas.height !== pixelHeight;
+
+      if (canvas.width !== pixelWidth) canvas.width = pixelWidth;
+      if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
+      canvasWidth = rect.width;
+      canvasHeight = rect.height;
+      pixelRatio = nextPixelRatio;
+      return resized;
+    };
+
     const drawFrame = (image, index, force = false) => {
       if (cancelled || (!force && index === lastDrawnFrame)) return;
-      const rect = canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
+      if (!canvasWidth || !canvasHeight) updateCanvasSize();
+      if (!canvasWidth || !canvasHeight) return;
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const pixelWidth = Math.round(rect.width * dpr);
-      const pixelHeight = Math.round(rect.height * dpr);
-      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
-        canvas.width = pixelWidth;
-        canvas.height = pixelHeight;
-      }
-
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
       const gradient = context.createRadialGradient(
-        rect.width / 2,
-        rect.height / 2,
+        canvasWidth / 2,
+        canvasHeight / 2,
         0,
-        rect.width / 2,
-        rect.height / 2,
-        Math.max(rect.width, rect.height) * 0.72,
+        canvasWidth / 2,
+        canvasHeight / 2,
+        Math.max(canvasWidth, canvasHeight) * 0.72,
       );
       gradient.addColorStop(0, '#073b70');
       gradient.addColorStop(1, '#03172f');
       context.fillStyle = gradient;
-      context.fillRect(0, 0, rect.width, rect.height);
+      context.fillRect(0, 0, canvasWidth, canvasHeight);
 
-      const scale = Math.min(rect.width / image.naturalWidth, rect.height / image.naturalHeight);
+      const scale = Math.min(canvasWidth / image.naturalWidth, canvasHeight / image.naturalHeight);
       const width = image.naturalWidth * scale;
       const height = image.naturalHeight * scale;
       context.globalCompositeOperation = 'screen';
-      context.drawImage(image, (rect.width - width) / 2, (rect.height - height) / 2, width, height);
+      context.drawImage(image, (canvasWidth - width) / 2, (canvasHeight - height) / 2, width, height);
       context.globalCompositeOperation = 'source-over';
       lastDrawnFrame = index;
     };
@@ -134,7 +151,7 @@ function YamahaIntro() {
     };
 
     const prefetchFrames = (index) => {
-      const through = Math.min(FRAME_COUNT - 1, index + 4);
+      const through = Math.min(FRAME_COUNT - 1, index + 2);
       for (let next = prefetchedThrough + 1; next <= through; next += 1) {
         loadFrame(next).catch(handleFrameError);
       }
@@ -146,7 +163,8 @@ function YamahaIntro() {
     };
 
     const resizeCanvas = () => {
-      if (lastDrawnFrame < 0) return;
+      const resized = updateCanvasSize();
+      if (!resized || lastDrawnFrame < 0) return;
       const current = frames.get(lastDrawnFrame);
       if (current && !(current instanceof Promise)) drawFrame(current, lastDrawnFrame, true);
     };

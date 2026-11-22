@@ -24,7 +24,8 @@ function YamahaSection02({ reducedMotion, selectedBikeId, onActiveBikeChange }) 
     return selectedIndex >= 0 ? selectedIndex : 0;
   });
   const [activeCategory, setActiveCategory] = useState('DESIGN');
-  const motorcycle = yamahaMotorcycles[activeIndex];
+  const safeActiveIndex = Math.min(activeIndex, yamahaMotorcycles.length - 1);
+  const motorcycle = yamahaMotorcycles[safeActiveIndex];
   const features = motorcycle.features;
   const categories = ['DESIGN', 'ENGINEERING', 'PERFORMANCE', 'TECHNOLOGY', 'ACCESSORIES'];
   const specificationIcons = [
@@ -34,12 +35,16 @@ function YamahaSection02({ reducedMotion, selectedBikeId, onActiveBikeChange }) 
     'M4 19V5m0 14h16M7 15l4-4 3 2 6-7',
   ];
   useEffect(() => {
+    if (activeIndex !== safeActiveIndex) setActiveIndex(safeActiveIndex);
+  }, [activeIndex, safeActiveIndex]);
+
+  useEffect(() => {
     onActiveBikeChange?.(motorcycle.id);
   }, [motorcycle.id, onActiveBikeChange]);
 
   useEffect(() => {
-    if (previousIndexRef.current === activeIndex) return;
-    previousIndexRef.current = activeIndex;
+    if (previousIndexRef.current === safeActiveIndex) return;
+    previousIndexRef.current = safeActiveIndex;
     setActiveFeature(0);
     if (reducedMotion) return;
     gsap.fromTo(
@@ -54,7 +59,7 @@ function YamahaSection02({ reducedMotion, selectedBikeId, onActiveBikeChange }) 
       { autoAlpha: 0, y: 10 },
       { autoAlpha: 1, y: 0, duration: 0.28, stagger: 0.025, ease: 'power1.out', overwrite: true },
     );
-  }, [activeIndex, reducedMotion]);
+  }, [safeActiveIndex, reducedMotion]);
 
   useEffect(() => {
     const context = gsap.context(() => {
@@ -77,6 +82,27 @@ function YamahaSection02({ reducedMotion, selectedBikeId, onActiveBikeChange }) 
   }, [reducedMotion]);
 
   return <section ref={sectionRef} id="yamaha-performance" className="yamaha-section02" aria-label="Featured Yamaha motorcycle">
+    <picture className="yamaha02-background" aria-hidden="true">
+      <source
+        type="image/avif"
+        srcSet="/imgs/bgsec2-840.avif 840w, /imgs/bgsec2-1672.avif 1672w"
+        sizes="100vw"
+      />
+      <source
+        type="image/webp"
+        srcSet="/imgs/bgsec2-840.webp 840w, /imgs/bgsec2-1672.webp 1672w"
+        sizes="100vw"
+      />
+      <img
+        src="/imgs/bgsec2.png"
+        alt=""
+        width={1672}
+        height={941}
+        loading="lazy"
+        fetchPriority="low"
+        decoding="async"
+      />
+    </picture>
     <div className="yamaha02-atmosphere" aria-hidden="true" />
     <div className="yamaha02-floor" aria-hidden="true" />
     <div className="yamaha02-showcase">
@@ -92,7 +118,7 @@ function YamahaSection02({ reducedMotion, selectedBikeId, onActiveBikeChange }) 
     <div className="yamaha02-display-area" role="region" aria-label="Yamaha motorcycle product showcase">
       <YamahaBikeTransition
         reducedMotion={reducedMotion}
-        activeIndex={activeIndex}
+        activeIndex={safeActiveIndex}
         onActiveChange={setActiveIndex}
         containerRef={sceneMotionRef}
       />

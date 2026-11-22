@@ -1,5 +1,4 @@
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
-import { buildApiUrl } from './config/api.js';
 import YamahaHeader from './components/Yamaha/YamahaHeader.jsx';
 import YamahaFooter from './components/Yamaha/YamahaFooter.jsx';
 import {
@@ -7,6 +6,7 @@ import {
   getYamahaMotorcycle,
   yamahaAllMotorcycles,
 } from './components/Yamaha/yamahaMotorcycles.js';
+import { loadPublicMotorcycles } from './components/Yamaha/publicCatalogueLoader.js';
 import {
   findMotorcycleByIdOrSlug,
   getCataloguePrice,
@@ -84,22 +84,15 @@ function App() {
 
   useEffect(() => {
     let active = true;
-    fetch(buildApiUrl('/api/public/motorcycles'))
-      .then((response) => {
-        if (!response.ok) throw new Error(`Catalogue request failed with status ${response.status}.`);
-        return response.json();
-      })
+    loadPublicMotorcycles()
       .then((result) => {
-        if (!Array.isArray(result?.motorcycles) || result.motorcycles.length === 0) {
-          throw new Error('The server returned an invalid motorcycle catalogue.');
-        }
-        if (active) {
+        if (!active) return;
+        if (result.source === 'live') {
           setMotorcycles(result.motorcycles);
           setCatalogError('');
+          return;
         }
-      })
-      .catch((error) => {
-        if (active) setCatalogError(error.message || 'The live catalogue is unavailable.');
+        setCatalogError(result.error?.message || 'The live catalogue is unavailable.');
       });
     return () => {
       active = false;

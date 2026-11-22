@@ -1,4 +1,4 @@
-import { randomBytes, createHash } from 'node:crypto';
+import { randomBytes, randomInt, createHash } from 'node:crypto';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -230,8 +230,8 @@ export async function generatePasswordResetCode(rawEmail) {
     throw new Error(`No administrator account found with email: ${rawEmail}`);
   }
 
-  // 6-digit random code
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  // 6-digit cryptographically secure code: 100000 through 999999 inclusive
+  const code = randomInt(100000, 1000000).toString();
   const expires = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 mins
 
   user.resetCode = code;
@@ -261,7 +261,8 @@ export async function resetAdminPassword(rawEmail, code, newPassword) {
     throw new Error('Invalid verification reset code.');
   }
 
-  if (!user.resetExpires || new Date(user.resetExpires).getTime() < Date.now()) {
+  const resetExpires = Date.parse(user.resetExpires);
+  if (!Number.isFinite(resetExpires) || resetExpires <= Date.now()) {
     throw new Error('Verification code has expired. Please request a new code.');
   }
 
@@ -280,6 +281,25 @@ export async function resetAdminPassword(rawEmail, code, newPassword) {
 
   await writeAuthStore(store);
   return { success: true, email: user.email };
+}
+
+export async function clearPasswordResetCode(rawEmail) {
+  const email = String(rawEmail || '').trim().toLowerCase();
+  if (!email) return false;
+  const store = await readAuthStore();
+  const user = store.adminUsers.find((u) => u.email.toLowerCase() === email);
+  if (!user) return false;
+  if (user.resetCode === null && user.resetExpires === null) return false;
+  user.resetCode = null;
+  user.resetExpires = null;
+  user.updatedAt = new Date().toISOString();
+  await writeAuthStore(store);
+  const persistedStore = await readAuthStore();
+  const persistedUser = persistedStore.adminUsers.find((candidate) => candidate.email.toLowerCase() === email);
+  if (!persistedUser || persistedUser.resetCode != null || persistedUser.resetExpires != null) {
+    throw new Error('Could not invalidate the pending password reset.');
+  }
+  return true;
 }
 
 /**

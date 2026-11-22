@@ -184,11 +184,19 @@ function YamahaFooter({
             ========================================================= */}
         <section className="yamaha-footer__column yamaha-footer__brand" aria-label="Yamaha and Vathilai Motors">
           <a className="yamaha-footer__logo" href="/" onClick={(event) => handleQuickLink(event, 'home')}>
-            <img
-              src="/imgs/favicon.png"
-              alt="Vathilai Motors Logo"
-              className="yamaha-footer__emblem-img"
-            />
+            <picture>
+              <source type="image/avif" srcSet="/imgs/favicon-512.avif" />
+              <source type="image/webp" srcSet="/imgs/favicon-512.webp" />
+              <img
+                src="/imgs/favicon-512.png"
+                alt="Vathilai Motors Logo"
+                className="yamaha-footer__emblem-img"
+                width={512}
+                height={341}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
             <div className="yamaha-footer__brand-titles">
               <span className="yamaha-footer__yamaha-wordmark">YAMAHA</span>
               <span className="yamaha-footer__brand-sub">REVS YOUR HEART</span>

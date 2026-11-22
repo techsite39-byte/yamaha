@@ -316,6 +316,11 @@ main#top{position:relative;width:100%;margin-top:0;padding-top:0}
   transition: transform 0.2s ease;
 }
 
+.yamaha-header__logo-container picture {
+  display: block;
+  height: 100%;
+}
+
 .yamaha-header__brand:hover .yamaha-header__logo-container {
   transform: scale(1.05);
 }
@@ -552,27 +557,34 @@ main#top{position:relative;width:100%;margin-top:0;padding-top:0}
     height: 64px;
     padding: 0 16px;
   }
+  .yamaha-header__brand {
+    gap: 7px;
+  }
   .yamaha-header__logo-container {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
   }
   .yamaha-header__yamaha-mark {
-    font-size: 16px;
+    font-size: 14px;
   }
   .yamaha-header__dealership-name {
-    font-size: 15px;
+    font-size: 13px;
   }
   .yamaha-header__tagline {
-    font-size: 7.5px;
-    letter-spacing: 0.12em;
+    font-size: 7px;
+    letter-spacing: 0.1em;
   }
   .yamaha-header__sections {
-    gap: 8px;
+    gap: 5px;
   }
   .yamaha-header__sections .yamaha-header__book-button {
     min-height: 32px;
-    padding: 0 12px;
-    font-size: 9.5px;
+    padding: 0 8px;
+    font-size: 9px;
+  }
+  .yamaha-header__menu-button {
+    min-height: 32px;
+    padding: 0 8px;
   }
   .yamaha-header__menu {
     right: 14px;
@@ -581,6 +593,45 @@ main#top{position:relative;width:100%;margin-top:0;padding-top:0}
     display: none;
     height: 0;
     flex-basis: 0;
+  }
+}
+
+@media (max-width: 340px) {
+  .yamaha-header {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+  .yamaha-header__brand {
+    gap: 5px;
+  }
+  .yamaha-header__logo-container {
+    width: 24px;
+    height: 24px;
+  }
+  .yamaha-header__yamaha-mark {
+    font-size: 12px;
+  }
+  .yamaha-header__sep {
+    display: none;
+  }
+  .yamaha-header__dealership-name {
+    font-size: 11px;
+  }
+  .yamaha-header__tagline {
+    font-size: 6.5px;
+  }
+  .yamaha-header__sections {
+    gap: 4px;
+  }
+  .yamaha-header__sections .yamaha-header__book-button {
+    padding-right: 6px;
+    padding-left: 6px;
+    font-size: 8px;
+  }
+  .yamaha-header__menu-button {
+    padding-right: 6px;
+    padding-left: 6px;
+    font-size: 9px;
   }
 }
 
@@ -603,3 +654,6 @@ body{min-width:0}
   .yamaha03-card-action{width:44px;height:44px;flex-basis:44px}
 }
 .yamaha-admin-loading{min-height:100vh;min-height:100svh;background:#080a0d}
+.yamaha-section02{background-image:radial-gradient(ellipse at 58% 55%,#111b26 0,#080a0d 72%)}
+.yamaha02-background{position:absolute;z-index:-1;inset:0;display:block;pointer-events:none}
+.yamaha02-background img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}

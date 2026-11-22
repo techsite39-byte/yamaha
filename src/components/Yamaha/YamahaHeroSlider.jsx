@@ -61,6 +61,16 @@ const SLIDES = [
   },
 ];
 
+function getHeroImageSources(src) {
+  const match = src.match(/^\/imgs\/(f[1-4])\.png$/);
+  if (!match) return null;
+  const stem = match[1];
+  return {
+    avif: `/imgs/${stem}-840.avif 840w, /imgs/${stem}-1672.avif 1672w`,
+    webp: `/imgs/${stem}-840.webp 840w, /imgs/${stem}-1672.webp 1672w`,
+  };
+}
+
 function YamahaHeroSlider({ onExplore }) {
   const [slides, setSlides] = useState(SLIDES);
   const [rotationInterval, setRotationInterval] = useState(3000);
@@ -138,15 +148,30 @@ function YamahaHeroSlider({ onExplore }) {
               key={slide.src}
               aria-hidden={!isActive}
             >
-              <img
-                className="yamaha-image-hero__image"
-                src={slide.src}
-                alt={isActive ? slide.alt : ''}
-                fetchPriority={index === 0 ? 'high' : 'auto'}
-                loading={index === 0 ? 'eager' : 'lazy'}
-                decoding={index === 0 ? 'sync' : 'async'}
-                draggable="false"
-              />
+              {(() => {
+                const sources = getHeroImageSources(slide.src);
+                const imageProps = {
+                  className: 'yamaha-image-hero__image',
+                  src: slide.src,
+                  alt: isActive ? slide.alt : '',
+                  fetchPriority: isActive ? 'high' : 'low',
+                  loading: isActive ? 'eager' : 'lazy',
+                  decoding: isActive ? 'sync' : 'async',
+                  width: sources ? 1672 : undefined,
+                  height: sources ? 941 : undefined,
+                  draggable: 'false',
+                };
+                if (!sources) {
+                  return <img {...imageProps} />;
+                }
+                return (
+                  <picture>
+                    <source type="image/avif" srcSet={sources.avif} sizes="100vw" />
+                    <source type="image/webp" srcSet={sources.webp} sizes="100vw" />
+                    <img {...imageProps} />
+                  </picture>
+                );
+              })()}
               <div className="yamaha-image-hero__copy">
                 <p className="yamaha-image-hero__eyebrow">{slide.eyebrow || 'YAMAHA MOTORCYCLES'}</p>
                 <h1>{slide.title}</h1>

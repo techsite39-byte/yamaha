@@ -224,8 +224,11 @@ function YamahaMT15Showcase({ onDealerContact, onBookNow }) {
                 src="/imgs/yamaha-mt15-showcase.jpg"
                 alt="Yamaha MT-15 Dare to Challenge - Front, Tank, Tail Details and Full Hyper Naked Motorcycle"
                 className="yamaha-mt15__poster-img"
-                loading="eager"
+                loading="lazy"
+                fetchPriority="low"
                 decoding="async"
+                width={682}
+                height={1024}
               />
               <div className="yamaha-mt15__poster-overlay" aria-hidden="true">
                 <span className="yamaha-mt15__badge-live">HYPER NAKED 2.0</span>

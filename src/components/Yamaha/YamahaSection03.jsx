@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { getResponsiveMotorcycleImageProps } from './yamahaResponsiveImage.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -211,9 +212,13 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
       <img
         ref={flyerBikeRef}
         src={tracerBike.src}
+        {...getResponsiveMotorcycleImageProps(tracerBike.src)}
         alt=""
         aria-hidden="true"
         className="yamaha-bike-scroll-flyer"
+        loading="lazy"
+        fetchPriority="low"
+        decoding="async"
       />
 
       <div className="yamaha03-shell">
@@ -227,8 +232,10 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
             >
               <img
                 src={sideBikes[0].src}
+                {...getResponsiveMotorcycleImageProps(sideBikes[0].src, '(max-width: 650px) 30vw, 20vw')}
                 alt={sideBikes[0].alt}
                 loading="lazy"
+                fetchPriority="low"
                 decoding="async"
               />
             </div>
@@ -241,8 +248,10 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
               <img
                 ref={landingBikeRef}
                 src={tracerBike.src}
+                {...getResponsiveMotorcycleImageProps(tracerBike.src, '(max-width: 650px) 80vw, 40vw')}
                 alt={tracerBike.alt}
-                loading="eager"
+                loading="lazy"
+                fetchPriority="low"
                 decoding="async"
                 className="yamaha03-landing-bike"
               />
@@ -255,8 +264,10 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
             >
               <img
                 src={sideBikes[1].src}
+                {...getResponsiveMotorcycleImageProps(sideBikes[1].src, '(max-width: 650px) 30vw, 20vw')}
                 alt={sideBikes[1].alt}
                 loading="lazy"
+                fetchPriority="low"
                 decoding="async"
               />
             </div>
@@ -274,8 +285,10 @@ function YamahaSection03({ selectedBikeId = 'yzf-r1', onDealerContact }) {
             <div className="yamaha03-card-image">
               <img
                 src="/imgs/1.%20Yamaha%20YZF-R1.webp"
+                {...getResponsiveMotorcycleImageProps('/imgs/1.%20Yamaha%20YZF-R1.webp', '(max-width: 650px) 90vw, 35vw')}
                 alt="Yamaha YZF-R1"
-                loading="eager"
+                loading="lazy"
+                fetchPriority="low"
                 decoding="async"
                 className="yamaha03-card-bike-img"
               />

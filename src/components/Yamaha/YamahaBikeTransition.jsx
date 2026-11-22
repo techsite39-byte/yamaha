@@ -3,18 +3,13 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './YamahaBikeTransition.css';
 import { yamahaMotorcycles } from './yamahaMotorcycles.js';
+import { getResponsiveMotorcycleImageProps } from './yamahaResponsiveImage.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const motorcycles = yamahaMotorcycles.map(({ image, model }) => ({
-  src: image,
-  alt: `Yamaha ${model}`,
-}));
-
-const sequenceDuration = motorcycles.length + 0.2;
 const transitionDuration = 0.44;
 
-function getBikeState(activeIndex, imageIndex) {
+function getBikeState(activeIndex, imageIndex, bikeCount) {
   // Calibrate scaling so all bikes fit completely within the display area without touching/cutting against the spec strip
   const imageScale = imageIndex === 5 ? 0.74 : (imageIndex === 6 ? 0.80 : 0.82);
 
@@ -37,7 +32,7 @@ function getBikeState(activeIndex, imageIndex) {
   if (activeIndex === 0 && imageIndex === 2) {
     return { xPercent: -47, y: 12, rotation: -5, scale: 0.44 * imageScale, autoAlpha: 0.12, zIndex: 0 };
   }
-  if (activeIndex === motorcycles.length - 1 && imageIndex === motorcycles.length - 3) {
+  if (activeIndex === bikeCount - 1 && imageIndex === bikeCount - 3) {
     return { xPercent: 47, y: 12, rotation: 5, scale: 0.44 * imageScale, autoAlpha: 0.12, zIndex: 0 };
   }
 
@@ -47,6 +42,12 @@ function getBikeState(activeIndex, imageIndex) {
 function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, containerRef }) {
   const sectionRef = useRef(null);
   const imagesRef = useRef([]);
+  const motorcycles = yamahaMotorcycles.map(({ image, model }) => ({
+    src: image,
+    alt: `Yamaha ${model}`,
+  }));
+  const sequenceDuration = motorcycles.length + 0.2;
+  const motorcycleSignature = motorcycles.map(({ src }) => src).join('|');
 
   useEffect(() => {
     const section = sectionRef.current?.closest('.yamaha-section02');
@@ -55,7 +56,7 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
 
     const context = gsap.context(() => {
       gsap.set(images, { xPercent: 0, y: 0, rotation: 0, scale: 0.5, autoAlpha: 0, zIndex: 0 });
-      images.forEach((image, index) => gsap.set(image, getBikeState(0, index)));
+      images.forEach((image, index) => gsap.set(image, getBikeState(0, index, motorcycles.length)));
       const timeline = gsap.timeline();
       let currentIndex = 0;
 
@@ -66,7 +67,7 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
         for (let index = 1; index < motorcycles.length; index += 1) {
           images.forEach((image, imageIndex) => {
             timeline.to(image, {
-              ...getBikeState(index, imageIndex),
+              ...getBikeState(index, imageIndex, motorcycles.length),
               duration: transitionDuration,
               ease: 'power1.inOut',
             }, index - transitionDuration / 2);
@@ -99,7 +100,7 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
         currentIndex = nextIndex;
         if (reducedMotion) {
           gsap.set(images, { autoAlpha: 0, xPercent: 0, y: 0, rotation: 0, scale: 1 });
-          gsap.set(images[nextIndex], getBikeState(nextIndex, nextIndex));
+          gsap.set(images[nextIndex], getBikeState(nextIndex, nextIndex, motorcycles.length));
         }
         onActiveChange(nextIndex);
       };
@@ -122,7 +123,7 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
     return () => {
       context.revert();
     };
-  }, [onActiveChange, reducedMotion]);
+  }, [motorcycleSignature, onActiveChange, reducedMotion]);
 
   return (
     <div
@@ -140,10 +141,11 @@ function YamahaBikeTransition({ reducedMotion, activeIndex, onActiveChange, cont
           key={motorcycle.src}
           ref={(image) => { imagesRef.current[index] = image; }}
           src={motorcycle.src}
+          {...getResponsiveMotorcycleImageProps(motorcycle.src, '(max-width: 650px) 100vw, 55vw')}
           alt=""
-          fetchpriority={index === activeIndex || index === Math.min(activeIndex + 1, motorcycles.length - 1) ? 'high' : 'low'}
+          fetchPriority={index === activeIndex || index === Math.min(activeIndex + 1, motorcycles.length - 1) ? 'high' : 'low'}
           decoding="async"
-          loading="eager"
+          loading={index === activeIndex || Math.abs(index - activeIndex) === 1 ? 'eager' : 'lazy'}
         />
       ))}
     </div>

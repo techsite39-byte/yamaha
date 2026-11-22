@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 const FRONTEND_URL = 'https://www.vathilaimotors.com';
 const BACKEND_URL = 'https://vathilai-motors-api.onrender.com';
+const AUTH0_SESSION_COOKIE = process.env.AUTH0_SESSION_COOKIE || '';
 
 console.log('========================================================');
 console.log('   VATHILAI MOTORS — LIVE PRODUCTION VERIFICATION');
@@ -58,53 +59,51 @@ async function runLiveVerification() {
   assert.equal(corsRes.headers.get('access-control-allow-credentials'), 'true');
   console.log('✓ CORS preflight approved with credentials for https://www.vathilaimotors.com.');
 
-  // Test 6: Admin login on live backend
-  console.log('\n[6/10] Testing live admin login (POST /api/admin/login)...');
-  const loginRes = await fetch(`${BACKEND_URL}/api/admin/login`, {
+  // Test 6: Native login must be rejected on the live backend
+  console.log('\n[6/10] Verifying native admin login is disabled...');
+  const nativeLoginRes = await fetch(`${BACKEND_URL}/api/admin/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Origin: FRONTEND_URL,
     },
     body: JSON.stringify({
-      email: 'yourssanjay63@gmail.com',
-      password: 'admin123456#',
-      rememberMe: true,
+      email: 'native-login-disabled@example.invalid',
+      password: 'not-a-real-credential',
     }),
   });
-  assert.equal(loginRes.status, 200, `Login returned ${loginRes.status}`);
-  const loginData = await loginRes.json();
-  assert.equal(loginData.success, true);
-  assert.ok(loginData.token);
-  assert.equal(loginData.user.role, 'Super Admin');
-  const setCookie = loginRes.headers.get('set-cookie') || '';
-  console.log('✓ Admin login successful.');
-  console.log('  Role:', loginData.user.role);
-  console.log('  Token prefix:', loginData.token.slice(0, 12) + '...');
-  console.log('  Cross-origin cookie:', setCookie.slice(0, 80) + '...');
+  assert.equal(nativeLoginRes.status, 403, `Native login returned ${nativeLoginRes.status}`);
+  assert.equal((await nativeLoginRes.json()).code, 'auth0_required');
+  console.log('✓ Native login was rejected.');
+
+  if (!AUTH0_SESSION_COOKIE) {
+    const unauthenticated = await fetch(`${BACKEND_URL}/api/admin/overview`, {
+      headers: { Origin: FRONTEND_URL },
+    });
+    assert.equal(unauthenticated.status, 401);
+    console.log('✓ Protected admin API rejects unauthenticated requests.');
+    console.log('Skipping allowlisted Auth0 checks; AUTH0_SESSION_COOKIE was not provided.');
+    console.log('\nLive public checks and native-login rejection passed; authenticated checks were skipped.');
+    process.exit(0);
+    return;
+  }
+  const auth0Headers = { Cookie: AUTH0_SESSION_COOKIE, Origin: FRONTEND_URL };
 
   // Test 7: Verify live admin session with token
   console.log('\n[7/10] Testing live admin session (GET /api/admin/session)...');
   const sessionRes = await fetch(`${BACKEND_URL}/api/admin/session`, {
-    headers: {
-      Authorization: `Bearer ${loginData.token}`,
-      Origin: FRONTEND_URL,
-    },
+    headers: auth0Headers,
   });
   assert.equal(sessionRes.status, 200);
   const sessionData = await sessionRes.json();
   assert.equal(sessionData.authenticated, true);
   assert.equal(sessionData.isAdmin, true);
-  assert.equal(sessionData.user.email, 'yourssanjay63@gmail.com');
-  console.log('✓ Admin session confirmed on live backend for:', sessionData.user.name);
+  console.log('✓ Allowlisted Auth0 admin session confirmed.');
 
   // Test 8: Live protected overview metrics
   console.log('\n[8/10] Testing live protected overview (GET /api/admin/overview)...');
   const overviewRes = await fetch(`${BACKEND_URL}/api/admin/overview`, {
-    headers: {
-      Authorization: `Bearer ${loginData.token}`,
-      Origin: FRONTEND_URL,
-    },
+    headers: auth0Headers,
   });
   assert.equal(overviewRes.status, 200);
   const overviewData = await overviewRes.json();
@@ -121,7 +120,7 @@ async function runLiveVerification() {
   // Test 9: Live enquiries and bookings retrieval from MongoDB Atlas
   console.log('\n[9/10] Testing live enquiries and bookings retrieval from MongoDB Atlas...');
   const enquiriesRes = await fetch(`${BACKEND_URL}/api/admin/enquiries?source=all`, {
-    headers: { Authorization: `Bearer ${loginData.token}` },
+    headers: auth0Headers,
   });
   assert.equal(enquiriesRes.status, 200);
   const enquiriesData = await enquiriesRes.json();
@@ -129,29 +128,24 @@ async function runLiveVerification() {
   console.log(`✓ Enquiries retrieved from MongoDB: ${enquiriesData.enquiries.length} enquiry record(s).`);
 
   const bookingsRes = await fetch(`${BACKEND_URL}/api/admin/bookings`, {
-    headers: { Authorization: `Bearer ${loginData.token}` },
+    headers: auth0Headers,
   });
   assert.equal(bookingsRes.status, 200);
   const bookingsData = await bookingsRes.json();
   assert.ok(Array.isArray(bookingsData.bookings));
   console.log(`✓ Bookings retrieved from MongoDB: ${bookingsData.bookings.length} booking record(s).`);
 
-  // Test 10: Live logout and token invalidation
-  console.log('\n[10/10] Testing live admin logout (POST /api/admin/logout)...');
-  const logoutRes = await fetch(`${BACKEND_URL}/api/admin/logout`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${loginData.token}` },
+  // Test 10: Auth0 logout routing
+  console.log('\n[10/10] Testing live Auth0 logout routing...');
+  const logoutRes = await fetch(`${BACKEND_URL}/logout`, {
+    headers: auth0Headers,
+    redirect: 'manual',
   });
-  assert.equal(logoutRes.status, 200);
-  const postLogout = await fetch(`${BACKEND_URL}/api/admin/session`, {
-    headers: { Authorization: `Bearer ${loginData.token}` },
-  });
-  const postLogoutData = await postLogout.json();
-  assert.equal(postLogoutData.authenticated, false, 'Revoked token must not be authenticated');
-  console.log('✓ Token successfully revoked upon logout.');
+  assert.equal(logoutRes.status, 302);
+  console.log('✓ Auth0 logout redirect returned.');
 
   console.log('\n========================================================');
-  console.log('  ALL 10 LIVE PRODUCTION TESTS PASSED WITH ZERO ERRORS!');
+  console.log('  LIVE PUBLIC AND AUTH0 SESSION CHECKS PASSED!');
   console.log('========================================================\n');
   process.exit(0);
 }

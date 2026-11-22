@@ -7,3 +7,4 @@ dist/
 !server/.env.example
 server/data/motorcycles.json
 server/data/bookings.json
+server/data/whatsapp_messages.json

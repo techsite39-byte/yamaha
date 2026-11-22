@@ -199,7 +199,7 @@ export let yamahaMotorcycles = [
 ];
 
 export let defaultYamahaMotorcycle = yamahaMotorcycles[0];
-export const yamahaAllMotorcycles = [
+export let yamahaAllMotorcycles = [
   ...yamahaMotorcycles.filter((m) => !yamahaIndiaCatalog.some((c) => c.id === m.id)),
   ...yamahaIndiaCatalog,
 ];
@@ -214,6 +214,13 @@ export function replaceYamahaMotorcycles(motorcycles) {
   }
   yamahaMotorcycles = homepageMotorcycles;
   defaultYamahaMotorcycle = homepageMotorcycles[0];
+  yamahaAllMotorcycles = [
+    ...homepageMotorcycles,
+    ...motorcycles.filter((motorcycle) => (
+      motorcycle.catalogue?.market === 'IN'
+      && !homepageMotorcycles.some((homepage) => homepage.id === motorcycle.id)
+    )),
+  ];
 }
 
 export function getYamahaMotorcycle(id) {

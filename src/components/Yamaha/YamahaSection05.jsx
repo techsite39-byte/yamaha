@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { getResponsiveMotorcycleImageProps } from './yamahaResponsiveImage.js';
 import './YamahaSection05.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -151,6 +152,7 @@ function YamahaSection05() {
             <img
               className="yamaha05-card-motorcycle"
               src="/imgs/1.%20Yamaha%20YZF-R1.webp"
+              {...getResponsiveMotorcycleImageProps('/imgs/1.%20Yamaha%20YZF-R1.webp', '(max-width: 650px) 100vw, 50vw')}
               alt=""
               loading="lazy"
               decoding="async"
@@ -179,6 +181,7 @@ function YamahaSection05() {
             <img
               className="yamaha05-card-motorcycle yamaha05-card-motorcycle--adventure"
               src="/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.webp"
+              {...getResponsiveMotorcycleImageProps('/imgs/Yamaha%20T%C3%A9n%C3%A9r%C3%A9%20700.webp', '(max-width: 650px) 100vw, 50vw')}
               alt=""
               loading="lazy"
               decoding="async"

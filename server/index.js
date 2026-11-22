@@ -37,17 +37,18 @@ import { createWhatsAppWebhookRouter } from './whatsappWebhookRoutes.js';
 import { createWhatsAppWebhookStore, ensureWhatsAppWebhookIndexes } from './whatsappWebhookStore.js';
 import {
   setAuthMongoDatabase,
+  validateAdminBootstrapConfig,
   verifyAdminCredentials,
   createAdminSession,
   getAdminSession,
   revokeAdminSession,
   generatePasswordResetCode,
   resetAdminPassword,
+  clearPasswordResetCode,
   listAdminUsers,
   createAdminUser,
   updateAdminUser,
   deleteAdminUser,
-  validateAdminBootstrapConfig,
 } from './authService.js';
 import { createAdminAuthPolicy, validateAdminAuthConfiguration } from './adminAuthPolicy.js';
 import {
@@ -81,6 +82,7 @@ const whatsAppWebhookStore = createWhatsAppWebhookStore({
 });
 const production = process.env.NODE_ENV === 'production';
 const development = process.env.NODE_ENV === 'development' || !production;
+validateAdminBootstrapConfig({ production });
 const isStandaloneExecution = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
 
 function apiError(message, status, code) {
@@ -88,6 +90,64 @@ function apiError(message, status, code) {
   error.status = status;
   error.code = code;
   return error;
+}
+
+const RESET_REQUEST_WINDOW_MS = 15 * 60 * 1000;
+const RESET_REQUEST_LIMIT = 5;
+const RESET_VERIFICATION_WINDOW_MS = 15 * 60 * 1000;
+const RESET_VERIFICATION_LIMIT = 10;
+const RESET_LIMITER_MAX_ENTRIES = 1000;
+const resetRequestLimitState = new Map();
+const resetVerificationLimitState = new Map();
+
+function getClientIp(request) {
+  return request.ip || request.socket?.remoteAddress || 'unknown';
+}
+
+function pruneLimitState(state, now, nextKey) {
+  for (const [key, entry] of state) {
+    if (entry.expiresAt <= now) state.delete(key);
+  }
+  if (!state.has(nextKey) && state.size >= RESET_LIMITER_MAX_ENTRIES) {
+    let oldestKey;
+    let oldestExpiry = Infinity;
+    for (const [key, entry] of state) {
+      if (entry.expiresAt < oldestExpiry) {
+        oldestKey = key;
+        oldestExpiry = entry.expiresAt;
+      }
+    }
+    if (oldestKey !== undefined) state.delete(oldestKey);
+  }
+}
+
+function consumeFixedWindow(state, key, limit, windowMs) {
+  const now = Date.now();
+  pruneLimitState(state, now, key);
+  let entry = state.get(key);
+  if (!entry || entry.expiresAt <= now) {
+    entry = { count: 0, expiresAt: now + windowMs };
+  }
+  entry.count += 1;
+  state.set(key, entry);
+  return entry.count <= limit;
+}
+
+let passwordResetDelivery = sendPasswordResetEmail;
+let passwordResetActivityLogger = logAdminActivity;
+
+export function setPasswordResetDeliveryForTests(delivery) {
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error('Password reset delivery can only be overridden in tests.');
+  }
+  passwordResetDelivery = typeof delivery === 'function' ? delivery : sendPasswordResetEmail;
+}
+
+export function setPasswordResetActivityLoggerForTests(logger) {
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error('Password reset activity logging can only be overridden in tests.');
+  }
+  passwordResetActivityLogger = typeof logger === 'function' ? logger : logAdminActivity;
 }
 
 async function readMotorcycleCatalogFile() {
@@ -1140,7 +1200,7 @@ app.get('/login', (request, response, next) => {
     return response.status(503).json({ code: 'auth_not_configured' });
   }
 
-  return request.oidc.login({
+  return response.oidc.login({
     returnTo: getAdminReturnPath(request.query.returnTo),
   }).catch(next);
 });
@@ -1235,56 +1295,52 @@ app.post('/api/admin/logout', async (request, response) => {
 });
 
 app.post('/api/admin/forgot-password', async (request, response) => {
+  const genericMessage = 'If an administrator account matches this email, reset instructions will be sent.';
   try {
     const { email } = request.body || {};
     if (!email) {
       return response.status(400).json({ code: 'missing_email', message: 'Email address is required.' });
     }
-    const result = await generatePasswordResetCode(email);
-    console.log(`[Admin Password Reset] Code for ${result.email}: ${result.code}`);
+    if (!consumeFixedWindow(resetRequestLimitState, getClientIp(request), RESET_REQUEST_LIMIT, RESET_REQUEST_WINDOW_MS)) {
+      return response.status(429).json({ success: true, message: genericMessage });
+    }
 
-    let emailSent = false;
-    let emailError = null;
+    let result = null;
+    try {
+      result = await generatePasswordResetCode(email);
+    } catch {
+      return response.json({ success: true, message: genericMessage });
+    }
 
-    if (isSmtpConfigured()) {
+    if (!isSmtpConfigured()) {
       try {
-        await sendPasswordResetEmail({
-          to: result.email,
-          code: result.code,
-          name: 'Sanjay',
-          expiresMinutes: 15,
-        });
-        emailSent = true;
-        await logAdminActivity('SECURITY', `Password Reset Email Sent: ${result.email}`, `Dispatched 6-digit verification code via SMTP`);
-      } catch (err) {
-        emailError = err.message || 'SMTP dispatch failed';
-        console.error(`[Admin Password Reset] Failed to send email via SMTP to ${result.email}:`, emailError);
+        await clearPasswordResetCode(result.email);
+      } catch {
+        console.error('[Admin Password Reset] Could not invalidate pending reset state.');
       }
+      return response.json({ success: true, message: genericMessage });
     }
 
-    if (emailSent) {
-      return response.json({
-        success: true,
-        emailSent: true,
-        email: result.email,
-        message: `A 6-digit verification code has been dispatched to ${result.email}. Please check your inbox and spam folder.`,
+    try {
+      await passwordResetDelivery({
+        to: result.email,
+        code: result.code,
+        name: 'Sanjay',
+        expiresMinutes: 15,
       });
+      await passwordResetActivityLogger('SECURITY', 'Password reset email dispatched', 'A 6-digit verification code was dispatched via SMTP');
+    } catch {
+      try {
+        await clearPasswordResetCode(result.email);
+      } catch {
+        console.error('[Admin Password Reset] Could not invalidate pending reset state.');
+      }
+      console.error('[Admin Password Reset] Email delivery failed.');
     }
-
-    // SMTP not configured or failed to dispatch:
-    // In development / testing, provide code in response payload so administrator is not locked out
-    return response.json({
-      success: true,
-      emailSent: false,
-      email: result.email,
-      code: result.code,
-      emailError,
-      message: isSmtpConfigured()
-        ? `SMTP send failed (${emailError}). Temporary verification code logged: ${result.code}`
-        : `Verification code generated. Configure SMTP in server/.env to dispatch real emails to ${result.email}.`,
-    });
-  } catch (err) {
-    return response.status(404).json({ code: 'not_found', message: err.message });
+    return response.json({ success: true, message: genericMessage });
+  } catch {
+    console.error('[Admin Password Reset] Request processing failed.');
+    return response.json({ success: true, message: genericMessage });
   }
 });
 
@@ -1303,14 +1359,20 @@ app.post('/api/admin/reset-password', async (request, response) => {
     if (!email || !code || !newPassword) {
       return response.status(400).json({ code: 'missing_fields', message: 'Email, verification code, and new password are required.' });
     }
+    if (!consumeFixedWindow(resetVerificationLimitState, getClientIp(request), RESET_VERIFICATION_LIMIT, RESET_VERIFICATION_WINDOW_MS)) {
+      return response.status(429).json({ code: 'reset_verification_limited', message: 'Too many verification attempts. Please try again later.' });
+    }
     await resetAdminPassword(email, code, newPassword);
     await logAdminActivity('SECURITY', `Password Reset: ${email}`, `Admin password was successfully updated`);
     return response.json({
       success: true,
       message: 'Password successfully updated. You can now log in with your new password.',
     });
-  } catch (err) {
-    return response.status(400).json({ code: 'reset_failed', message: err.message });
+  } catch {
+    return response.status(400).json({
+      code: 'reset_failed',
+      message: 'Unable to reset the password with those details. Request a new code and try again.',
+    });
   }
 });
 
@@ -2732,8 +2794,8 @@ app.get('/api/admin/profile', (request, response) => {
   const current = request.adminUser || {};
   return response.json({
     user: {
-      name: current.name || 'Sanjay',
-      email: current.email || 'yourssanjay63@gmail.com',
+      name: current.name || current.email || 'Administrator',
+      email: current.email || '',
       role: current.role || 'Super Admin',
       dealership: 'Vathilai Motors — Batlagundu',
       accessType: authConfigured ? 'Auth0 Production' : 'Verified Dealership Admin',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { getResponsiveMotorcycleImageProps } from './yamahaResponsiveImage.js';
 
-function YamahaBikeImage({ src, alt, className = '', loading = 'lazy' }) {
+function YamahaBikeImage({ src, alt, className = '', loading = 'lazy', sizes }) {
   const [failed, setFailed] = useState(false);
 
   if (failed || !src) {
@@ -16,6 +17,7 @@ function YamahaBikeImage({ src, alt, className = '', loading = 'lazy' }) {
     <img
       className={className}
       src={src}
+      {...getResponsiveMotorcycleImageProps(src, sizes)}
       alt={alt}
       loading={loading}
       decoding="async"
