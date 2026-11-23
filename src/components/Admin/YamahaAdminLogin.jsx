@@ -166,7 +166,7 @@ export function YamahaAdminLogin({ onLoginSuccess }) {
               <form onSubmit={handleLoginSubmit} className="admin-login-form" noValidate>
                 {/* Email Field */}
                 <div className="admin-login-field">
-                  <label htmlFor="admin-email">Administrator Email</label>
+                  <label htmlFor="admin-email" className="admin-login-sr-only">Administrator Email</label>
                   <div className="admin-login-input-wrap">
                     <span className="admin-login-input-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -181,7 +181,7 @@ export function YamahaAdminLogin({ onLoginSuccess }) {
                       autoComplete="username"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="yourssanjay63@gmail.com"
+                      placeholder="Email"
                       disabled={loading}
                     />
                   </div>
@@ -189,21 +189,7 @@ export function YamahaAdminLogin({ onLoginSuccess }) {
 
                 {/* Password Field */}
                 <div className="admin-login-field">
-                  <div className="admin-login-field-row">
-                    <label htmlFor="admin-password">Secure Password</label>
-                    <button
-                      type="button"
-                      className="admin-login-forgot-btn"
-                      onClick={() => {
-                        setForgotEmail(email.trim() || '');
-                        setForgotError('');
-                        setForgotSuccess('');
-                        setMode('forgot');
-                      }}
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
+                  <label htmlFor="admin-password" className="admin-login-sr-only">Password</label>
                   <div className="admin-login-input-wrap">
                     <span className="admin-login-input-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -218,7 +204,7 @@ export function YamahaAdminLogin({ onLoginSuccess }) {
                       autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
+                      placeholder="Password"
                       disabled={loading}
                     />
                     <button
@@ -243,7 +229,7 @@ export function YamahaAdminLogin({ onLoginSuccess }) {
                   </div>
                 </div>
 
-                {/* Remember Me Checkbox */}
+                {/* Remember Me Checkbox & Forgot Password */}
                 <div className="admin-login-options">
                   <label className="admin-login-remember">
                     <input
@@ -254,6 +240,18 @@ export function YamahaAdminLogin({ onLoginSuccess }) {
                     />
                     <span>Remember this device (30 days)</span>
                   </label>
+                  <button
+                    type="button"
+                    className="admin-login-forgot-btn"
+                    onClick={() => {
+                      setForgotEmail(email.trim() || '');
+                      setForgotError('');
+                      setForgotSuccess('');
+                      setMode('forgot');
+                    }}
+                  >
+                    Forgot password?
+                  </button>
                 </div>
 
                 {/* Submit Button */}
@@ -312,7 +310,7 @@ export function YamahaAdminLogin({ onLoginSuccess }) {
                       required
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
-                      placeholder="yourssanjay63@gmail.com"
+                      placeholder="Registered email address"
                       disabled={forgotLoading}
                     />
                   </div>
