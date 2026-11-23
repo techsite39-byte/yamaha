@@ -4,7 +4,8 @@ import './YamahaHeroSlider.css';
 
 const SLIDES = [
   {
-    src: '/imgs/f1.png',
+    src: '/imgs/archive/f1.webp',
+    mobileSrc: '/imgs/archive/f1m.webp',
     alt: 'Yamaha sport motorcycle and rider carving through snow',
     eyebrow: 'YAMAHA MOTORCYCLES',
     title: (
@@ -18,7 +19,8 @@ const SLIDES = [
     placement: 'first',
   },
   {
-    src: '/imgs/f2.png',
+    src: '/imgs/archive/f2.webp',
+    mobileSrc: '/imgs/archive/f2m.webp',
     alt: 'Rider beside a blue Yamaha sport motorcycle',
     eyebrow: 'YAMAHA MOTORCYCLES',
     title: (
@@ -32,7 +34,8 @@ const SLIDES = [
     placement: 'second',
   },
   {
-    src: '/imgs/f3.png',
+    src: '/imgs/archive/f3.webp',
+    mobileSrc: '/imgs/archive/f3m.webp',
     alt: 'Rider with a blue Yamaha sport motorcycle in an urban setting',
     eyebrow: 'YAMAHA MOTORCYCLES',
     title: (
@@ -46,7 +49,8 @@ const SLIDES = [
     placement: 'third',
   },
   {
-    src: '/imgs/f4.png',
+    src: '/imgs/archive/f4.webp',
+    mobileSrc: '/imgs/archive/f4m.webp',
     alt: 'Rider beside a blue Yamaha sport motorcycle in a modern studio',
     eyebrow: 'YAMAHA MOTORCYCLES',
     title: (
@@ -74,14 +78,28 @@ function YamahaHeroSlider({ onExplore }) {
       .then((data) => {
         if (!active || !data?.homePage?.slides?.length) return;
         const placements = ['first', 'second', 'third', 'fourth'];
-        const remoteSlides = data.homePage.slides.map((s, idx) => ({
-          src: s.image || s.src || '/imgs/f1.png',
-          alt: s.alt || s.title || 'Yamaha motorcycle',
-          eyebrow: s.eyebrow || 'YAMAHA MOTORCYCLES',
-          title: s.title || 'Premium Yamaha Motorcycles',
-          subtitle: s.subtitle || 'Discover Your Next Ride',
-          placement: placements[idx % placements.length],
-        }));
+        const remoteSlides = data.homePage.slides.map((s, idx) => {
+          const fallbackMobile = `/imgs/archive/f${(idx % 4) + 1}m.webp`;
+          const desktopSrc = s.image || s.src || `/imgs/archive/f${(idx % 4) + 1}.webp`;
+          let mobileSrc = s.mobileImage || s.mobileSrc;
+          if (!mobileSrc) {
+            const match = String(desktopSrc).match(/\/imgs\/archive\/f([1-4])\.(webp|png|jpe?g)/i);
+            if (match) {
+              mobileSrc = `/imgs/archive/f${match[1]}m.webp`;
+            } else {
+              mobileSrc = fallbackMobile;
+            }
+          }
+          return {
+            src: desktopSrc,
+            mobileSrc,
+            alt: s.alt || s.title || 'Yamaha motorcycle',
+            eyebrow: s.eyebrow || 'YAMAHA MOTORCYCLES',
+            title: s.title || 'Premium Yamaha Motorcycles',
+            subtitle: s.subtitle || 'Discover Your Next Ride',
+            placement: placements[idx % placements.length],
+          };
+        });
         setSlides(remoteSlides);
         if (data.homePage.autoplayInterval || data.homePage.rotationIntervalMs) {
           setRotationInterval(data.homePage.autoplayInterval || data.homePage.rotationIntervalMs);
@@ -138,15 +156,24 @@ function YamahaHeroSlider({ onExplore }) {
               key={slide.src}
               aria-hidden={!isActive}
             >
-              <img
-                className="yamaha-image-hero__image"
-                src={slide.src}
-                alt={isActive ? slide.alt : ''}
-                fetchPriority={index === 0 ? 'high' : 'auto'}
-                loading={index === 0 ? 'eager' : 'lazy'}
-                decoding={index === 0 ? 'sync' : 'async'}
-                draggable="false"
-              />
+              <picture className="yamaha-image-hero__picture">
+                {slide.mobileSrc && (
+                  <source
+                    media="(max-width: 768px)"
+                    srcSet={slide.mobileSrc}
+                    type="image/webp"
+                  />
+                )}
+                <img
+                  className="yamaha-image-hero__image"
+                  src={slide.src}
+                  alt={isActive ? slide.alt : ''}
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  decoding={index === 0 ? 'sync' : 'async'}
+                  draggable="false"
+                />
+              </picture>
               <div className="yamaha-image-hero__copy">
                 <p className="yamaha-image-hero__eyebrow">{slide.eyebrow || 'YAMAHA MOTORCYCLES'}</p>
                 <h1>{slide.title}</h1>

@@ -189,7 +189,7 @@ function YamahaSection05() {
 
       <div className="yamaha05-ticker" aria-label="Yamaha brand messages">
         <div className="yamaha05-ticker-track" aria-hidden="true">
-          {[...tickerMessages, ...tickerMessages].map((message, index) => (
+          {[...tickerMessages, ...tickerMessages, ...tickerMessages, ...tickerMessages, ...tickerMessages, ...tickerMessages].map((message, index) => (
             <span className="yamaha05-ticker-item" key={`${message}-${index}`}>
               {message}<i />
             </span>

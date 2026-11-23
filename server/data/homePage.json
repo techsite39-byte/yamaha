@@ -5,7 +5,8 @@
   "slides": [
     {
       "id": "slide-1",
-      "image": "/imgs/f1.png",
+      "image": "/imgs/archive/f1.webp",
+      "mobileImage": "/imgs/archive/f1m.webp",
       "title": "Yamaha YZF-R15M",
       "subtitle": "Born from the Track. Engineered for the Street.",
       "ctaText": "EXPLORE R15M",
@@ -14,7 +15,8 @@
     },
     {
       "id": "slide-2",
-      "image": "/imgs/f2.png",
+      "image": "/imgs/archive/f2.webp",
+      "mobileImage": "/imgs/archive/f2m.webp",
       "title": "Yamaha MT-15 V2",
       "subtitle": "Dark Side of Japan — Pure Hyper Naked Torque.",
       "ctaText": "DISCOVER MT-15",
@@ -23,7 +25,8 @@
     },
     {
       "id": "slide-3",
-      "image": "/imgs/f3.png",
+      "image": "/imgs/archive/f3.webp",
+      "mobileImage": "/imgs/archive/f3m.webp",
       "title": "Yamaha FZ-S FI Ver 4.0",
       "subtitle": "Lord of the Streets with Traction Control System.",
       "ctaText": "VIEW FZ-S",
@@ -32,7 +35,8 @@
     },
     {
       "id": "slide-4",
-      "image": "/imgs/f4.png",
+      "image": "/imgs/archive/f4.webp",
+      "mobileImage": "/imgs/archive/f4m.webp",
       "title": "Yamaha Aerox 155",
       "subtitle": "Maxi Sports Scooter with R15 Engine DNA.",
       "ctaText": "MEET AEROX",

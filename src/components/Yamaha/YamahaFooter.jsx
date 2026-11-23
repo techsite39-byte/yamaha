@@ -298,48 +298,6 @@ function YamahaFooter({
               </svg>
               <span>Get Directions on Google Maps ↗</span>
             </a>
-
-            {/* Dynamic Social Media Channels (Contact Column) */}
-            {visibleSocialProfiles.length > 0 ? (
-              <div className="yamaha-footer__contact-socials-block">
-                <span className="yamaha-footer__contact-socials-label">Connect Online:</span>
-                <div className="yamaha-footer__contact-socials-row">
-                  {visibleSocialProfiles.map((p) => {
-                    const platformName = p.platform || p.name || 'Social';
-                    const link = p.profileUrl || p.url;
-                    if (!link || link === '#') return null;
-                    const slug = platformName.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    return (
-                      <a
-                        key={p.id || platformName}
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`yamaha-footer__contact-social-pill yamaha-footer__contact-social-pill--${slug}`}
-                        aria-label={`Follow Vathilai Motors on ${platformName}`}
-                        title={`${platformName}: ${p.handle || link}`}
-                      >
-                        <FooterSocialIcon platform={platformName} size={15} />
-                        <span>{platformName}</span>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              business.instagramUrl && (
-                <a
-                  className="yamaha-footer__action-link"
-                  href={business.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Follow Vathilai Motors on Instagram"
-                >
-                  <FooterSocialIcon platform="Instagram" size={15} />
-                  <span>Follow on Instagram ↗</span>
-                </a>
-              )
-            )}
           </address>
         </section>
 

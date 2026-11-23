@@ -243,9 +243,10 @@
   width: max-content;
   align-items: center;
   gap: clamp(22px, 3vw, 46px);
-  padding-left: 7vw;
-  animation: yamaha-journey-marquee 34s linear infinite;
+  padding: 0;
+  animation: yamaha-journey-marquee 60s linear infinite;
   white-space: nowrap;
+  will-change: transform;
 }
 
 .yamaha-journey__ticker-item {
@@ -268,8 +269,11 @@
 }
 
 @keyframes yamaha-journey-marquee {
-  to {
-    transform: translateX(-50%);
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
@@ -407,7 +411,4 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .yamaha-journey__ticker-track {
-    animation: none;
-  }
 }

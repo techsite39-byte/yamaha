@@ -73,7 +73,7 @@ function YamahaJourneyHero({ selectedBikeId = defaultYamahaMotorcycle.id }) {
       <div className="yamaha-journey__blue-angle" aria-hidden="true" />
       <div className="yamaha-journey__ticker" aria-label="Yamaha promotional messages">
         <div className="yamaha-journey__ticker-track" aria-hidden="true">
-          {[...tickerMessages, ...tickerMessages].map((message, index) => (
+          {[...tickerMessages, ...tickerMessages, ...tickerMessages, ...tickerMessages].map((message, index) => (
             <span className="yamaha-journey__ticker-item" key={`${message}-${index}`}>
               {message}<i />
             </span>
