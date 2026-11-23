@@ -65,6 +65,17 @@ const SLIDES = [
   },
 ];
 
+function resolveDesktopSlideSrc(src, index) {
+  const match = String(src || '').match(/\/imgs\/f([1-4])\.png/i);
+  if (match) return `/imgs/archive/f${match[1]}.webp`;
+  return src || `/imgs/archive/f${(index % 4) + 1}.webp`;
+}
+
+function handleSlideImageError(event, index) {
+  event.currentTarget.onerror = null;
+  event.currentTarget.src = `/imgs/archive/f${(index % 4) + 1}.webp`;
+}
+
 function YamahaHeroSlider({ onExplore }) {
   const [slides, setSlides] = useState(SLIDES);
   const [rotationInterval, setRotationInterval] = useState(3000);
@@ -80,7 +91,7 @@ function YamahaHeroSlider({ onExplore }) {
         const placements = ['first', 'second', 'third', 'fourth'];
         const remoteSlides = data.homePage.slides.map((s, idx) => {
           const fallbackMobile = `/imgs/archive/f${(idx % 4) + 1}m.webp`;
-          const desktopSrc = s.image || s.src || `/imgs/archive/f${(idx % 4) + 1}.webp`;
+          const desktopSrc = resolveDesktopSlideSrc(s.image || s.src, idx);
           let mobileSrc = s.mobileImage || s.mobileSrc;
           if (!mobileSrc) {
             const match = String(desktopSrc).match(/\/imgs\/archive\/f([1-4])\.(webp|png|jpe?g)/i);
@@ -172,6 +183,7 @@ function YamahaHeroSlider({ onExplore }) {
                   loading={index === 0 ? 'eager' : 'lazy'}
                   decoding={index === 0 ? 'sync' : 'async'}
                   draggable="false"
+                  onError={(event) => handleSlideImageError(event, index)}
                 />
               </picture>
               <div className="yamaha-image-hero__copy">

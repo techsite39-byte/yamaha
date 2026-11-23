@@ -221,7 +221,7 @@ function YamahaMT15Showcase({ onDealerContact, onBookNow }) {
           <div ref={posterRef} className="yamaha-mt15__poster-card">
             <div className="yamaha-mt15__poster-frame">
               <img
-                src="/imgs/yamaha-mt15-showcase.jpg"
+                src="/imgs/yamaha-mt15-showcase.webp"
                 alt="Yamaha MT-15 Dare to Challenge - Front, Tank, Tail Details and Full Hyper Naked Motorcycle"
                 className="yamaha-mt15__poster-img"
                 loading="eager"

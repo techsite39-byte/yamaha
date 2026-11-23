@@ -1309,7 +1309,7 @@ export function HomePageEditor() {
 
   const addSlide = () => {
     const newSlide = {
-      image: '/imgs/f1.png',
+      image: '/imgs/archive/f1.webp',
       title: 'Yamaha Performance',
       subtitle: 'Engineered for pure exhilaration',
       link: '/bikes',
@@ -1374,7 +1374,7 @@ export function HomePageEditor() {
               }}
             >
               <div style={{ position: 'relative', height: 100, borderRadius: 6, overflow: 'hidden', background: '#0f172a' }}>
-                <img src={slide.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = '/imgs/f1.png'; }} />
+                <img src={slide.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = '/imgs/archive/f1.webp'; }} />
                 <span style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '11px', padding: '2px 6px', borderRadius: 4 }}>
                   Slide {idx + 1}
                 </span>
@@ -1588,7 +1588,7 @@ export function MediaLibrary() {
                   {isVideo ? (
                     <video src={mediaUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
                   ) : (
-                    <img src={mediaUrl} alt={m.altText || filename} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = '/imgs/f1.png'; }} />
+                    <img src={mediaUrl} alt={m.altText || filename} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.currentTarget.src = '/imgs/archive/f1.webp'; }} />
                   )}
                   <span style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: 4 }}>
                     {isVideo ? 'VIDEO' : 'IMAGE'}
@@ -1828,7 +1828,7 @@ export function SeoSettings() {
       title: 'Vathilai Motors | Authorized Yamaha Dealership',
       description: 'Experience Yamaha pure racing DNA at Vathilai Motors. Book test rides, configure motorcycles, and explore service support in Salem, Tamil Nadu.',
       keywords: 'Yamaha, Vathilai Motors, R15, MT15, FZ, Salem, Dealership',
-      ogImage: '/imgs/f1.png',
+      ogImage: '/imgs/archive/f1.webp',
     };
   }, [seoList, selectedPage]);
 
@@ -2537,7 +2537,7 @@ export function ServiceVideosManagement({ videos = [], query = '', onReload }) {
         ...editingVideo,
         mediaUrl: editingVideo.path || editingVideo.mediaUrl,
         path: editingVideo.path || editingVideo.mediaUrl,
-        thumbnailUrl: editingVideo.thumbnailUrl || '/imgs/f1.png',
+        thumbnailUrl: editingVideo.thumbnailUrl || '/imgs/archive/f1.webp',
         status: editingVideo.status || 'published',
       };
       await requestJson(url, { method, body: payload });

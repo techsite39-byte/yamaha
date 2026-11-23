@@ -2006,7 +2006,7 @@ app.post('/api/admin/service-videos', async (request, response, next) => {
       filename: effectiveFileName,
       mediaUrl: effectiveMediaUrl,
       path: effectiveMediaUrl,
-      thumbnailUrl: thumbnailUrl?.trim() || '/imgs/f1.png',
+      thumbnailUrl: thumbnailUrl?.trim() || '/imgs/archive/f1.webp',
       order: Number(order) || 1,
       status: status || 'published',
       description: description?.trim() || '',

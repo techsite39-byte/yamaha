@@ -108,9 +108,9 @@ export let yamahaMotorcycles = [
       ],
       gallery: [
         '/imgs/2.%20Yamaha%20YZF-R7.webp',
-        '/imgs/f1.png',
-        '/imgs/f2.png',
-        '/imgs/f3.png',
+        '/imgs/archive/f1.webp',
+        '/imgs/archive/f2.webp',
+        '/imgs/archive/f3.webp',
       ],
       officialSourceUrl: 'https://www.yamaha-motor-india.com',
       priceNote: 'Introductory Chennai showroom quotation. RTO registration, mandatory third-party insurance, and road safety taxes included in estimated on-road pricing.',

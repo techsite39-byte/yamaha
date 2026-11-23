@@ -5,14 +5,92 @@
       "email": "yourssanjay63@gmail.com",
       "name": "Sanjay",
       "role": "Super Admin",
-      "passwordHash": "1dcc980c4af6a3dd92361e71659ebb694a4c657b588ae52cdb960a0c8debcf8b",
-      "salt": "ddb3985e4b1b5a18b05f72548edacf54",
+      "passwordHash": "96ef5e826a015fded764fc548e42e6f5aa29a2453394e07dfbc1e16bc2b0e7b4",
+      "salt": "6cfe6f5625e089cd25c140d4592f9fb3",
       "resetCode": null,
       "resetExpires": null,
       "createdAt": "2026-11-16T00:00:00.000Z",
-      "updatedAt": "2026-11-16T06:53:19.564Z",
-      "lastLogin": "2026-11-16T06:53:19.566Z"
+      "updatedAt": "2026-11-16T01:05:20.493Z",
+      "lastLogin": "2026-11-23T04:59:09.708Z"
     }
   ],
-  "sessions": []
+  "sessions": [
+    {
+      "token": "c5b93a66d5fa5c83e61f9ca1c6ea196b2a2f8fdee4e6ea77cae3b45eb670a421",
+      "userId": "adm-1",
+      "user": {
+        "name": "Sanjay",
+        "email": "yourssanjay63@gmail.com",
+        "role": "Super Admin"
+      },
+      "createdAt": "2026-11-16T10:20:18.368Z",
+      "expiresAt": "2026-12-16T10:20:18.368Z"
+    },
+    {
+      "token": "f1a9bf3dbbfb245ec450afc3ebd0186b97b18c02fa22466a355a27021af74b9b",
+      "userId": "adm-1",
+      "user": {
+        "name": "Sanjay",
+        "email": "yourssanjay63@gmail.com",
+        "role": "Super Admin"
+      },
+      "createdAt": "2026-11-16T10:22:25.385Z",
+      "expiresAt": "2026-12-16T10:22:25.385Z"
+    },
+    {
+      "token": "b8f588e3ea17176f74bf1cd9aaa679ca11078ab8aad7b96245171ae0b423c9f5",
+      "userId": "adm-1",
+      "user": {
+        "name": "Sanjay",
+        "email": "yourssanjay63@gmail.com",
+        "role": "Super Admin"
+      },
+      "createdAt": "2026-11-16T10:23:00.736Z",
+      "expiresAt": "2026-12-16T10:23:00.736Z"
+    },
+    {
+      "token": "01b027e7ca8af4da20151876558cc0f4e6ba7163d225f08ab599aef8de80ecf4",
+      "userId": "adm-1",
+      "user": {
+        "name": "Sanjay",
+        "email": "yourssanjay63@gmail.com",
+        "role": "Super Admin"
+      },
+      "createdAt": "2026-11-16T15:00:34.500Z",
+      "expiresAt": "2026-12-16T15:00:34.500Z"
+    },
+    {
+      "token": "8064c8d22bad643df6e8d49643b63fd96d090e54dfea3419983f4d9963020b5c",
+      "userId": "adm-1",
+      "user": {
+        "name": "Sanjay",
+        "email": "yourssanjay63@gmail.com",
+        "role": "Super Admin"
+      },
+      "createdAt": "2026-11-16T15:05:13.744Z",
+      "expiresAt": "2026-12-16T15:05:13.744Z"
+    },
+    {
+      "token": "fb3bb2042452e7a261a0aea052bcb33e406570ff6241d2441664c6dfbf1c7d17",
+      "userId": "adm-1",
+      "user": {
+        "name": "Sanjay",
+        "email": "yourssanjay63@gmail.com",
+        "role": "Super Admin"
+      },
+      "createdAt": "2026-11-17T03:44:17.104Z",
+      "expiresAt": "2026-12-17T03:44:17.104Z"
+    },
+    {
+      "token": "b4ac07989a9f543970e92064319a622a915e8ad00cf1a3015bb1a39e62613a0a",
+      "userId": "adm-1",
+      "user": {
+        "name": "Sanjay",
+        "email": "yourssanjay63@gmail.com",
+        "role": "Super Admin"
+      },
+      "createdAt": "2026-11-23T03:55:43.372Z",
+      "expiresAt": "2026-12-23T03:55:43.372Z"
+    }
+  ]
 }
