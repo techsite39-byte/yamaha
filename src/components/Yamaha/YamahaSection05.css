@@ -258,7 +258,8 @@
   align-items: center;
   gap: 28px;
   padding: 16px 0;
-  animation: yamaha05-marquee 60s linear infinite;
+  animation: yamaha05-marquee 25s linear infinite !important;
+  -webkit-animation: yamaha05-marquee 25s linear infinite !important;
   white-space: nowrap;
   will-change: transform;
 }
@@ -288,6 +289,15 @@
   }
   100% {
     transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@-webkit-keyframes yamaha05-marquee {
+  0% {
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+  100% {
+    -webkit-transform: translate3d(-50%, 0, 0);
   }
 }
 
